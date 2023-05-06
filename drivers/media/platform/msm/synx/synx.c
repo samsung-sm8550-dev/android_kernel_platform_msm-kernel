@@ -27,6 +27,7 @@ void synx_external_callback(s32 sync_obj, int status, void *data)
 	struct synx_coredata *synx_obj;
 	struct synx_client *client = NULL;
 	struct synx_external_data *bind_data = data;
+	struct hash_key_data *entry = NULL;
 
 	if (!bind_data) {
 		pr_err("invalid payload from sync external obj %d\n",
@@ -44,9 +45,22 @@ void synx_external_callback(s32 sync_obj, int status, void *data)
 	synx_data = synx_util_acquire_handle(client, bind_data->h_synx);
 	synx_obj = synx_util_obtain_object(synx_data);
 	if (!synx_obj || !synx_obj->fence) {
-		pr_err("[sess: %u] invalid callback from external obj %d handle %d\n",
-			client->id, sync_obj, bind_data->h_synx);
-		goto fail;
+		pr_info("[sess: %u] invalid cb ext_id %d h_synx %d status %d\n",
+			client->id, sync_obj, bind_data->h_synx, status);
+		entry = synx_util_retrieve_data(sync_obj,
+							SYNX_CAMERA_ID_TBL);
+		if (entry) {
+			pr_info("[sess: %u] ext_id %d h_synx %d found in tbl\n",
+				client->id, sync_obj, bind_data->h_synx);
+			synx_obj = (struct synx_coredata *)entry->data;
+			if (!synx_obj) {
+				goto put_cam_tbl_entry;
+			}
+		} else {
+			pr_info("[sess: %u] ext_id %d h_synx %d missing in tbl\n",
+				client->id, sync_obj, bind_data->h_synx);
+			goto fail;
+		}
 	}
 
 	pr_debug("[sess: %u] external callback from %d on handle %d\n",
@@ -60,6 +74,13 @@ void synx_external_callback(s32 sync_obj, int status, void *data)
 	else
 		synx_signal_core(synx_obj, status, true, sync_obj);
 	mutex_unlock(&synx_obj->obj_lock);
+
+put_cam_tbl_entry:
+	if (entry) {
+		spin_lock_bh(&camera_tbl_lock);
+		kref_put(&entry->refcount, synx_util_destroy_data);
+		spin_unlock_bh(&camera_tbl_lock);
+	}
 
 fail:
 	synx_util_release_handle(synx_data);
@@ -282,9 +303,12 @@ int synx_signal_core(struct synx_coredata *synx_obj,
 		ret = bind_ops->deregister_callback(
 				synx_external_callback, data, sync_id);
 		if (ret < 0) {
-			pr_err("deregistration fail on %d, type: %u, err: %d\n",
-				sync_id, type, ret);
+			pr_err("deregistration fail %d err %d status %d h_synx %d\n",
+				sync_id, ret, status, data->h_synx);
 			continue;
+		} else {
+			pr_debug("deregistered: data: %u sync_id: %d\n",
+				data, sync_id);
 		}
 		pr_debug("signal external sync: %d, type: %u, status: %u\n",
 			sync_id, type, status);
@@ -464,8 +488,8 @@ int synx_signal(struct synx_session session_id, s32 h_synx, u32 status)
 fail:
 	synx_util_release_handle(synx_data);
 	synx_put_client(client);
-	pr_debug("[sess: %u] exit signal with status %d\n",
-		session_id.client_id, rc);
+	pr_debug("[sess: %u] signal h_synx %d status %u return %d\n",
+		session_id.client_id, h_synx, status, rc);
 	return rc;
 }
 EXPORT_SYMBOL(synx_signal);
@@ -800,8 +824,8 @@ int synx_release(struct synx_session session_id, s32 h_synx)
 	mutex_unlock(&client->synx_table_lock[idx]);
 
 	synx_put_client(client);
-	pr_debug("[sess: %u] exit release with status %d\n",
-		session_id.client_id, rc);
+	pr_debug("[sess: %u] released handle %d returning %d\n",
+		session_id.client_id, h_synx, rc);
 
 	return rc;
 }
@@ -834,8 +858,8 @@ int synx_wait(struct synx_session session_id, s32 h_synx, u64 timeout_ms)
 	timeleft = dma_fence_wait_timeout(synx_obj->fence, (bool) 0,
 					msecs_to_jiffies(timeout_ms));
 	if (timeleft <= 0) {
-		pr_err("[sess: %u] wait timeout for handle %d\n",
-			client->id, h_synx);
+		pr_err("[sess: %u] wait timeout for handle %d timeout %ld\n",
+			client->id, h_synx, timeout_ms);
 		rc = -ETIMEDOUT;
 		goto fail;
 	}
@@ -975,14 +999,15 @@ int synx_bind(struct synx_session session_id,
 		mutex_lock(&synx_obj->obj_lock);
 		memset(&synx_obj->bound_synxs[bound_idx], 0,
 			sizeof(struct synx_external_desc));
-		synx_obj->num_bound_synxs--;
+		if (synx_obj->num_bound_synxs)
+			synx_obj->num_bound_synxs--;
 		goto free;
 	}
 
 	synx_util_release_handle(synx_data);
 	synx_put_client(client);
-	pr_debug("[sess: %u] bind of handle %d with id %d successful\n",
-		session_id.client_id, h_synx, external_sync.id[0]);
+	pr_debug("[sess: %u] bind of handle %d with id %d data %u successful\n",
+		session_id.client_id, h_synx, external_sync.id[0], data);
 	return 0;
 
 free:
@@ -990,6 +1015,8 @@ free:
 release:
 	mutex_unlock(&synx_obj->obj_lock);
 fail:
+	pr_err("[sess: %u] bind returning err %d extid %d h_synx %d\n",
+		session_id.client_id, rc, external_sync.id[0], h_synx);
 	synx_util_release_handle(synx_data);
 	synx_put_client(client);
 	return rc;
@@ -1124,8 +1151,8 @@ int synx_import(struct synx_session session_id,
 	}
 
 	*params->new_h_synx = h_synx;
-	pr_debug("[sess: %u] new import obj with handle %ld, fence %pK\n",
-		client->id, h_synx, synx_obj);
+	pr_debug("[sess: %u] import: h_synx %d new_h_synx %d, fence %pK\n",
+		client->id, params->h_synx, h_synx, synx_obj);
 	synx_put_client(client);
 
 	return 0;

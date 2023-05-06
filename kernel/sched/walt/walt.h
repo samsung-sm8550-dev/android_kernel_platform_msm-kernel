@@ -127,6 +127,9 @@ struct walt_rq {
 	struct list_head	mvp_tasks;
 	int                     num_mvp_tasks;
 	u64			latest_clock;
+	u32			latest_clock_update_cpu;
+	u32			latest_clock_update_ts;
+	void		*latest_clock_update_caller[2];
 	u32			enqueue_counter;
 };
 
@@ -950,8 +953,9 @@ static inline bool walt_flag_test(struct task_struct *p, enum walt_flags feature
 	return !!(wts->flags & (1 << feature));
 }
 
-#define WALT_MVP_SLICE		3000000U
-#define WALT_MVP_LIMIT		(4 * WALT_MVP_SLICE)
+#define WALT_MVP_SLICE		6000000U
+#define WALT_MVP_LIMIT		(2 * WALT_MVP_SLICE)
+#define WALT_MVP_LL_SLICE		30000000U
 
 /* higher number, better priority */
 #define WALT_RTG_MVP		0

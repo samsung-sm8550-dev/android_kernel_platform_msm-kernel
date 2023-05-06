@@ -491,6 +491,8 @@ enum fastrpc_control_type {
 /* Clean process on DSP */
 	FASTRPC_CONTROL_DSPPROCESS_CLEAN	=	6,
 	FASTRPC_CONTROL_RPC_POLL = 7,
+	FASTRPC_CONTROL_ASYNC_EXIT = 8,
+	FASTRPC_CONTROL_NOTIF_EXIT = 9,
 };
 
 struct fastrpc_ctrl_latency {
@@ -685,6 +687,8 @@ enum fastrpc_msg_type {
 // Must be a power of two.
 #define DSPSIGNAL_GROUP_SIZE 256
 
+#define SS_MEM_PROFILE
+#define SS_MEM_DEBUG
 
 struct secure_vm {
 	int *vmid;
@@ -719,6 +723,11 @@ struct fastrpc_buf {
 	bool in_use;	/* Used only for persistent header buffers */
 	struct timespec64 buf_start_time;
 	struct timespec64 buf_end_time;
+
+#if defined(SS_MEM_DEBUG)
+	uint32_t pid;           /* alloc real pid */
+	char comm[TASK_COMM_LEN];
+#endif
 };
 
 struct fastrpc_ctx_lst;
@@ -972,6 +981,11 @@ struct fastrpc_mmap {
 	struct timespec64 map_end_time;
 	/* Mapping for fastrpc shell */
 	bool is_filemap;
+
+#if defined(SS_MEM_DEBUG)
+	uint32_t pid;           /* alloc real pid */
+	char comm[TASK_COMM_LEN];
+#endif
 };
 
 enum fastrpc_perfkeys {
@@ -1087,6 +1101,22 @@ struct fastrpc_file {
 	struct fastrpc_dspsignal *signal_groups[DSPSIGNAL_NUM_SIGNALS / DSPSIGNAL_GROUP_SIZE];
 	spinlock_t dspsignals_lock;
 	struct mutex signal_create_mutex;
+
+	/* Flag to indicate notif thread exit requested*/
+	bool exit_notif;
+	/* Flag to indicate async thread exit requested*/
+	bool exit_async;
+
+#if defined(SS_MEM_PROFILE)
+	unsigned int len_curr_usage;
+	unsigned int len_peak_usage;
+
+	unsigned int page_curr_usage;
+	unsigned int page_peak_usage;
+
+	struct mem_profile_private *mem_profile;
+#endif
+
 };
 
 union fastrpc_ioctl_param {

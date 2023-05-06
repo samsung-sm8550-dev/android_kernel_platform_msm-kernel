@@ -122,6 +122,7 @@ static inline void arm_smmu_rpm_put(struct arm_smmu_device *smmu)
 	if (pm_runtime_enabled(smmu->dev)) {
 		pm_runtime_mark_last_busy(smmu->dev);
 		pm_runtime_put_autosuspend(smmu->dev);
+		arm_smmu_debug_last_busy(smmu);
 	}
 }
 
@@ -904,6 +905,27 @@ static irqreturn_t arm_smmu_context_fault_retry(struct arm_smmu_domain *smmu_dom
 }
 #endif
 
+static void debug_camera_faults(struct arm_smmu_domain *smmu_domain,
+		struct arm_smmu_device *smmu, int idx)
+{
+	unsigned long iova;
+	phys_addr_t phys_soft;
+	struct iommu_domain *domain = &smmu_domain->domain;
+
+	if (!strstr(dev_name(smmu_domain->dev), "cam_smmu"))
+		return;
+
+	print_fault_regs(smmu_domain, smmu, idx);
+	iova = arm_smmu_cb_readq(smmu, idx, ARM_SMMU_CB_FAR);
+	phys_soft = arm_smmu_iova_to_phys(domain, iova);
+	dev_err(smmu->dev, "soft iova-to-phys=%llx\n", (u64)phys_soft);
+
+	if (!phys_soft)
+		return;
+
+	arm_smmu_verify_fault(smmu_domain, smmu, idx);
+}
+
 static irqreturn_t arm_smmu_context_fault(int irq, void *dev)
 {
 	u32 fsr;
@@ -954,6 +976,8 @@ static irqreturn_t arm_smmu_context_fault(int irq, void *dev)
 	 *    SCTLR.HUPCF has the desired effect if subsequent transactions also
 	 *    need to be terminated.
 	 */
+	debug_camera_faults(smmu_domain, smmu, idx);
+
 	ret = report_iommu_fault_helper(smmu_domain, smmu, idx);
 	if (ret == -ENOSYS) {
 		if (__ratelimit(&_rs)) {
@@ -2081,7 +2105,7 @@ static int arm_smmu_attach_dev(struct iommu_domain *domain, struct device *dev)
 	 * to 5-10sec worth of reprogramming the context bank, while
 	 * the system appears to be locked up to the user.
 	 */
-	pm_runtime_set_autosuspend_delay(smmu->dev, 20);
+	pm_runtime_set_autosuspend_delay(smmu->dev, 5);
 	pm_runtime_use_autosuspend(smmu->dev);
 
 rpm_put:
@@ -3493,7 +3517,8 @@ static int arm_smmu_device_probe(struct platform_device *pdev)
 	smmu->pwr = arm_smmu_init_power_resources(dev);
 	if (IS_ERR(smmu->pwr))
 		return PTR_ERR(smmu->pwr);
-
+	//for debug
+	smmu->pwr->smmu = smmu;
 	/*
 	 * We can't use arm_smmu_rpm_get() because pm-runtime isn't
 	 * enabled yet.
@@ -3595,6 +3620,8 @@ static int arm_smmu_device_probe(struct platform_device *pdev)
 		if (err)
 			goto err_unregister_device;
 	}
+	
+	arm_smmu_debug_setup(smmu);
 
 	return 0;
 
@@ -3668,6 +3695,8 @@ static int __maybe_unused arm_smmu_pm_resume(struct device *dev)
 	int ret;
 	struct arm_smmu_device *smmu = dev_get_drvdata(dev);
 
+	arm_smmu_debug_resume(smmu);
+
 	ret = clk_bulk_prepare(smmu->num_clks, smmu->clks);
 	if (ret)
 		return ret;
@@ -3701,7 +3730,7 @@ static int __maybe_unused arm_smmu_pm_suspend(struct device *dev)
 	ret = arm_smmu_runtime_suspend(dev);
 	if (ret)
 		return ret;
-
+	arm_smmu_debug_suspend(smmu);
 clk_unprepare:
 	clk_bulk_unprepare(smmu->num_clks, smmu->clks);
 	return ret;

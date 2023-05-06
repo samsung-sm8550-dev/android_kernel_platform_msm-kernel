@@ -1214,4 +1214,10 @@ config ICNSS2_DEBUG
 	  features, enabling kernel panic for certain cases to aid the
 	  debugging, and enabling any other debug mechanisms.
 
+config SEC_CDSP_NO_CRASH_FOR_ENG
+	bool "crash trigger for USER/USERDEBUG only"
+	default n
+	help
+	  This option protects crash for the ENG Binary.	
+
 endmenu

@@ -245,7 +245,9 @@ static unsigned int get_next_freq(struct waltgov_policy *wg_policy,
 	raw_freq = walt_map_util_freq(util, wg_policy, max, wg_driv_cpu->cpu);
 	freq = raw_freq;
 
-	if (wg_policy->tunables->adaptive_high_freq) {
+	/* ss power: add kernel condition */
+	if ((wg_policy->tunables->adaptive_high_freq) ||
+		(wg_policy->tunables->adaptive_high_freq_kernel)) {
 		if (raw_freq < get_adaptive_low_freq(wg_policy)) {
 			freq = get_adaptive_low_freq(wg_policy);
 			wg_driv_cpu->reasons = CPUFREQ_REASON_ADAPTIVE_LOW;
@@ -699,9 +701,26 @@ static ssize_t boost_store(struct gov_attr_set *attr_set, const char *buf,
 int cpufreq_walt_set_adaptive_freq(unsigned int cpu, unsigned int adaptive_low_freq,
 				   unsigned int adaptive_high_freq)
 {
-	struct waltgov_cpu *wg_cpu = &per_cpu(waltgov_cpu, cpu);
-	struct waltgov_policy *wg_policy = wg_cpu->wg_policy;
-	struct cpufreq_policy *policy = wg_policy->policy;
+	struct waltgov_cpu *wg_cpu;
+	struct waltgov_policy *wg_policy;
+	struct cpufreq_policy *policy;
+
+	/* ss power: check NULL condition */
+	wg_cpu = &per_cpu(waltgov_cpu, cpu);
+	if (!wg_cpu) {
+		pr_err("%s: wg_cpu NULL !!\n", __func__);
+		return -EFAULT;
+	}
+	wg_policy = wg_cpu->wg_policy;
+	if (!wg_policy) {
+		pr_err("%s: wg_policy NULL !!\n", __func__);
+		return -EFAULT;
+	}
+	policy = wg_policy->policy;
+	if (!policy) {
+		pr_err("%s: policy NULL !!\n", __func__);
+		return -EFAULT;
+	}
 
 	if (!cpu_possible(cpu))
 		return -EFAULT;
@@ -729,8 +748,20 @@ EXPORT_SYMBOL(cpufreq_walt_set_adaptive_freq);
 int cpufreq_walt_get_adaptive_freq(unsigned int cpu, unsigned int *adaptive_low_freq,
 				   unsigned int *adaptive_high_freq)
 {
-	struct waltgov_cpu *wg_cpu = &per_cpu(waltgov_cpu, cpu);
-	struct waltgov_policy *wg_policy = wg_cpu->wg_policy;
+	struct waltgov_cpu *wg_cpu;
+	struct waltgov_policy *wg_policy;
+
+	/* ss power: check NULL condition */
+	wg_cpu = &per_cpu(waltgov_cpu, cpu);
+	if (!wg_cpu) {
+		pr_err("%s: wg_cpu NULL !!\n", __func__);
+		return -EFAULT;
+	}
+	wg_policy = wg_cpu->wg_policy;
+	if (!wg_policy) {
+		pr_err("%s: wg_policy NULL !!\n", __func__);
+		return -EFAULT;
+	}
 
 	if (!cpu_possible(cpu))
 		return -EFAULT;
@@ -755,8 +786,20 @@ EXPORT_SYMBOL(cpufreq_walt_get_adaptive_freq);
  */
 int cpufreq_walt_reset_adaptive_freq(unsigned int cpu)
 {
-	struct waltgov_cpu *wg_cpu = &per_cpu(waltgov_cpu, cpu);
-	struct waltgov_policy *wg_policy = wg_cpu->wg_policy;
+	struct waltgov_cpu *wg_cpu;
+	struct waltgov_policy *wg_policy;
+
+	/* ss power: check NULL condition */
+	wg_cpu = &per_cpu(waltgov_cpu, cpu);
+	if (!wg_cpu) {
+		pr_err("%s: wg_cpu NULL !!\n", __func__);
+		return -EFAULT;
+	}
+	wg_policy = wg_cpu->wg_policy;
+	if (!wg_policy) {
+		pr_err("%s: wg_policy NULL !!\n", __func__);
+		return -EFAULT;
+	}
 
 	if (!cpu_possible(cpu))
 		return -EFAULT;
@@ -800,6 +843,7 @@ store_attr(target_load_thresh);
 show_attr(target_load_shift);
 store_attr(target_load_shift);
 
+
 static struct governor_attr hispeed_load = __ATTR_RW(hispeed_load);
 static struct governor_attr hispeed_freq = __ATTR_RW(hispeed_freq);
 static struct governor_attr rtg_boost_freq = __ATTR_RW(rtg_boost_freq);
@@ -809,6 +853,14 @@ WALTGOV_ATTR_RW(adaptive_low_freq);
 WALTGOV_ATTR_RW(adaptive_high_freq);
 WALTGOV_ATTR_RW(target_load_thresh);
 WALTGOV_ATTR_RW(target_load_shift);
+
+/* ss power: add kernel freq node */
+show_attr(adaptive_low_freq_kernel);
+store_attr(adaptive_low_freq_kernel);
+show_attr(adaptive_high_freq_kernel);
+store_attr(adaptive_high_freq_kernel);
+WALTGOV_ATTR_RW(adaptive_low_freq_kernel);
+WALTGOV_ATTR_RW(adaptive_high_freq_kernel);
 
 static struct attribute *waltgov_attributes[] = {
 	&up_rate_limit_us.attr,
@@ -822,6 +874,8 @@ static struct attribute *waltgov_attributes[] = {
 	&adaptive_high_freq.attr,
 	&target_load_thresh.attr,
 	&target_load_shift.attr,
+	&adaptive_low_freq_kernel.attr,
+	&adaptive_high_freq_kernel.attr,
 	NULL
 };
 

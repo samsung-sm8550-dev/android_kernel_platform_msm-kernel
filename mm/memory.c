@@ -84,6 +84,10 @@
 #include <asm/tlb.h>
 #include <asm/tlbflush.h>
 
+#ifdef CONFIG_PAGE_BOOST_RECORDING
+#include <linux/io_record.h>
+#endif
+
 #include "pgalloc-track.h"
 #include "internal.h"
 
@@ -208,6 +212,35 @@ static void check_sync_rss_stat(struct task_struct *task)
 }
 
 #endif /* SPLIT_RSS_COUNTING */
+
+#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
+
+struct vm_area_struct *get_vma(struct mm_struct *mm, unsigned long addr)
+{
+	struct vm_area_struct *vma;
+
+	rcu_read_lock();
+	vma = find_vma_from_tree(mm, addr);
+	if (vma) {
+		if (vma->vm_start > addr ||
+		    !atomic_inc_unless_negative(&vma->file_ref_count))
+			vma = NULL;
+	}
+	rcu_read_unlock();
+
+	return vma;
+}
+
+void put_vma(struct vm_area_struct *vma)
+{
+	int new_ref_count;
+
+	new_ref_count = atomic_dec_return(&vma->file_ref_count);
+	if (new_ref_count < 0)
+		vm_area_free_no_check(vma);
+}
+
+#endif	/* CONFIG_SPECULATIVE_PAGE_FAULT */
 
 /*
  * Note: this doesn't free the actual pages themselves. That
@@ -2728,16 +2761,13 @@ EXPORT_SYMBOL_GPL(apply_to_existing_page_range);
  * This is similar to what fast GUP does, but fast GUP also needs to
  * protect against races with THP page splitting, so it always needs
  * to disable interrupts.
- * Speculative page faults only need to protect against page table reclamation,
- * so rcu_read_lock() is sufficient in the MMU_GATHER_RCU_TABLE_FREE case.
+ * Speculative page faults need to protect against page table reclamation,
+ * even with MMU_GATHER_RCU_TABLE_FREE case page table removal slow-path is
+ * not RCU-safe (see comment inside tlb_remove_table_sync_one), therefore
+ * we still have to disable IRQs.
  */
-#ifdef CONFIG_MMU_GATHER_RCU_TABLE_FREE
-#define speculative_page_walk_begin() rcu_read_lock()
-#define speculative_page_walk_end()   rcu_read_unlock()
-#else
 #define speculative_page_walk_begin() local_irq_disable()
 #define speculative_page_walk_end()   local_irq_enable()
-#endif
 
 bool __pte_map_lock(struct vm_fault *vmf)
 {
@@ -3866,6 +3896,10 @@ static vm_fault_t do_anonymous_page(struct vm_fault *vmf)
 	if (vma->vm_flags & VM_SHARED)
 		return VM_FAULT_SIGBUS;
 
+	/* Do not check unstable pmd, if it's changed will retry later */
+	if (vmf->flags & FAULT_FLAG_SPECULATIVE)
+		goto skip_pmd_checks;
+
 	/*
 	 * Use pte_alloc() instead of pte_alloc_map().  We can't run
 	 * pte_offset_map() on pmds where a huge pmd might be created
@@ -3883,6 +3917,7 @@ static vm_fault_t do_anonymous_page(struct vm_fault *vmf)
 	if (unlikely(pmd_trans_unstable(vmf->pmd)))
 		return 0;
 
+skip_pmd_checks:
 	/* Use the zero-page for reads */
 	if (!(vmf->flags & FAULT_FLAG_WRITE) &&
 			!mm_forbids_zeropage(vma->vm_mm)) {
@@ -4246,7 +4281,7 @@ vm_fault_t finish_fault(struct vm_fault *vmf)
 }
 
 static unsigned long fault_around_bytes __read_mostly =
-	rounddown_pow_of_two(65536);
+	rounddown_pow_of_two(CONFIG_FAULT_AROUND_BYTES);
 
 #ifdef CONFIG_DEBUG_FS
 static int fault_around_bytes_get(void *data, u64 *val)
@@ -4374,6 +4409,10 @@ static vm_fault_t do_read_fault(struct vm_fault *vmf)
 			if (ret)
 				return ret;
 		}
+#ifdef CONFIG_PAGE_BOOST_RECORDING
+	} else if (vma->vm_ops->map_pages && fault_around_bytes >> PAGE_SHIFT == 1) {
+		record_io_info(vma->vm_file, vmf->pgoff, 1);
+#endif
 	}
 
 	ret = __do_fault(vmf);
