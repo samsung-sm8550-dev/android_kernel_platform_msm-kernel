@@ -65,7 +65,7 @@ enum ufs_qcom_phy_submode {
 
 /* default value of auto suspend is 3 seconds */
 #define UFS_QCOM_AUTO_SUSPEND_DELAY	3000
-#define UFS_QCOM_CLK_GATING_DELAY_MS_PWR_SAVE	10
+#define UFS_QCOM_CLK_GATING_DELAY_MS_PWR_SAVE	20
 #define UFS_QCOM_CLK_GATING_DELAY_MS_PERF	50
 
 /* QCOM UFS host controller vendor specific registers */
@@ -492,6 +492,7 @@ struct ufs_qcom_host {
 	void __iomem *ice_hwkm_mmio;
 #endif
 
+	bool reset_in_progress;
 	u32 dev_ref_clk_en_mask;
 
 	/* Bitmask for enabling debug prints */
@@ -553,6 +554,8 @@ struct ufs_qcom_host {
 	cpumask_t perf_mask;
 	cpumask_t def_mask;
 	u32 vccq_lpm_uV;
+
+	bool skip_flush;
 };
 
 static inline u32

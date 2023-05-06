@@ -83,4 +83,8 @@ config QRTR_GENPOOL
 	  memory created and owned by another device, which is shared through
 	  the genpool framework.
 
+config QRTR_WS_DEBUG
+	default y
+	tristate "Wake Source debugging tool"
+
 endif # QRTR
