@@ -5,6 +5,7 @@
  */
 
 #include <linux/clk.h>
+#include <linux/delay.h>
 #include <linux/dmaengine.h>
 #include <linux/dma-mapping.h>
 #include <linux/interrupt.h>
@@ -2617,6 +2618,10 @@ exit_rt_resume:
 		return ret;
 	}
 	ret = geni_se_resources_on(&geni_mas->spi_rsc);
+
+	geni_write_reg(0x7f, geni_mas->base, GENI_OUTPUT_CTRL);
+	udelay(10);
+
 	enable_irq(geni_mas->irq);
 	return ret;
 }

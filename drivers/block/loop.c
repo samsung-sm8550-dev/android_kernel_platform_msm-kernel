@@ -2187,6 +2187,7 @@ static void loop_handle_cmd(struct loop_cmd *cmd)
 	struct loop_device *lo = rq->q->queuedata;
 	int ret = 0;
 	struct mem_cgroup *old_memcg = NULL;
+	struct cgroup_subsys_state *old_memcg_css, *new_memcg_css;
 
 	if (write && (lo->lo_flags & LO_FLAGS_READ_ONLY)) {
 		ret = -EIO;
@@ -2204,8 +2205,13 @@ static void loop_handle_cmd(struct loop_cmd *cmd)
 	if (cmd->blkcg_css)
 		kthread_associate_blkcg(NULL);
 
-	if (cmd->memcg_css) {
+	old_memcg_css = cmd->memcg_css;
+	if (old_memcg_css) {
 		set_active_memcg(old_memcg);
+		new_memcg_css = cmd->memcg_css;
+		if (!new_memcg_css || (new_memcg_css != old_memcg_css)) {
+			pr_err("[%s] %px %px", __func__, new_memcg_css, old_memcg_css);
+		}
 		css_put(cmd->memcg_css);
 	}
  failed:
