@@ -492,6 +492,10 @@ static void ssg_exit_queue(struct elevator_queue *e)
 	BUG_ON(!list_empty(&ssg->fifo_list[WRITE]));
 
 	ssg_stat_exit(ssg);
+<<<<<<< HEAD
+=======
+	ssg_wb_exit(ssg);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	blk_sec_stat_account_exit(e);
 
 	kfree(ssg->rq_info);
@@ -545,7 +549,13 @@ static int ssg_init_queue(struct request_queue *q, struct elevator_type *e)
 	q->elevator = eq;
 
 	ssg_stat_init(ssg);
+<<<<<<< HEAD
 	blk_sec_stat_account_init(q);
+=======
+	blk_stat_enable_accounting(q);
+	blk_sec_stat_account_init(q);
+	ssg_wb_init(ssg);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	return 0;
 }
@@ -664,6 +674,11 @@ static void ssg_prepare_request(struct request *rq)
 
 	atomic_inc(&ssg->allocated_rqs);
 
+<<<<<<< HEAD
+=======
+	ssg_wb_ctrl(ssg);
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	rqi = ssg_rq_info(ssg, rq);
 	if (likely(rqi)) {
 		rqi->tgid = task_tgid_nr(current->group_leader);
@@ -814,6 +829,20 @@ static struct elv_fs_entry ssg_attrs[] = {
 	SSG_STAT_ATTR_RO(inflight),
 	SSG_STAT_ATTR_RO(rqs_info),
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_MQ_IOSCHED_SSG_WB)
+	SSG_ATTR(wb_off_delay_msecs),
+	SSG_ATTR(wb_on_threshold_rqs),
+	SSG_ATTR(wb_on_threshold_bytes),
+	SSG_ATTR(wb_on_threshold_sync_write_bytes),
+	SSG_ATTR(wb_off_threshold_sync_write_bytes),
+	SSG_ATTR(wb_off_threshold_rqs),
+	SSG_ATTR(wb_off_threshold_bytes),
+	SSG_ATTR_RO(wb_trigger),
+#endif
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	__ATTR_NULL
 };
 

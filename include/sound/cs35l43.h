@@ -28,6 +28,10 @@ struct cs35l43_platform_data {
 	bool classh_disable;
 	bool dsp_ng_enable;
 	bool vpbr_enable;
+<<<<<<< HEAD
+=======
+	bool use_bst_byp_errata;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	int asp_sdout_hiz;
 	int dsp_ng_pcm_thld;
 	int dsp_ng_delay;
@@ -144,6 +148,10 @@ struct cs35l43_private {
 	void (*limit_spi_clock)(struct cs35l43_private *cs35l43, bool state);
 };
 
+<<<<<<< HEAD
+=======
+int cs35l43_reinit(struct snd_soc_component *component);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 int cs35l43_probe(struct cs35l43_private *cs35l43,
 				struct cs35l43_platform_data *pdata);
 int cs35l43_remove(struct cs35l43_private *cs35l43);

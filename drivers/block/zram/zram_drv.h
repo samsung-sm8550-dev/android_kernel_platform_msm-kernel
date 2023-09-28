@@ -132,9 +132,17 @@ struct zram_wb_work {
 	struct page *dst_page;
 	struct bio *bio;
 	struct bio *bio_chain;
+<<<<<<< HEAD
 	struct zram *zram;
 	unsigned long handle;
 	int nr_pages;
+=======
+	struct zram_writeback_buffer *buf;
+	struct zram *zram;
+	unsigned long handle;
+	int nr_pages;
+	bool ppr;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 struct zram_wb_entry {
@@ -205,6 +213,10 @@ struct zram {
 	unsigned long *blk_bitmap;
 	struct mutex blk_bitmap_lock;
 	unsigned long *read_req_bitmap;
+<<<<<<< HEAD
+=======
+	struct zram_writeback_buffer *buf;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 };
 #endif

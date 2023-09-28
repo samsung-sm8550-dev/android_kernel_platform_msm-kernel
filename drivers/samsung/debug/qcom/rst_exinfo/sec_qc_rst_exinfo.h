@@ -1,6 +1,10 @@
 #ifndef __INTERNAL__SEC_QC_RST_EXINFO_H__
 #define __INTERNAL__SEC_QC_RST_EXINFO_H__
 
+<<<<<<< HEAD
+=======
+#include <linux/kdebug.h>
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #include <linux/ioport.h>
 #include <linux/notifier.h>
 
@@ -25,6 +29,7 @@ static __always_inline bool __qc_rst_exinfo_is_probed(void)
 }
 
 /* sec_qc_rst_exinfo_main.c */
+<<<<<<< HEAD
 extern void __qc_rst_exinfo_store_extc_idx(bool prefix);
 
 /* sec_qc_rst_exinfo_vh.c */
@@ -33,5 +38,18 @@ extern int __qc_rst_exinfo_register_rvh_die_kernel_fault(struct builder *bd);
 extern int __qc_rst_exinfo_register_rvh_do_mem_abort(struct builder *bd);
 extern int __qc_rst_exinfo_register_rvh_do_sp_pc_abort(struct builder *bd);
 extern int __qc_rst_exinfo_register_rvh_report_bug(struct builder *bd);
+=======
+extern void sec_qc_rst_exinfo_store_extc_idx(bool prefix);
+extern void __qc_rst_exinfo_store_extc_idx(struct rst_exinfo_drvdata *drvdata, bool prefix);
+extern void __qc_rst_exinfo_save_dying_msg(struct rst_exinfo_drvdata *drvdata, const char *str, const void *pc, const void *lr);
+extern void __qc_arch_rst_exinfo_die_handler(struct rst_exinfo_drvdata *drvdata, struct die_args *args);
+
+/* sec_qc_arch_rst_exinfo_vh.c */
+extern int __qc_arch_rst_exinfo_vh_init(struct builder *bd);
+extern int __qc_arch_rst_exinfo_register_rvh_die_kernel_fault(struct builder *bd);
+extern int __qc_arch_rst_exinfo_register_rvh_do_mem_abort(struct builder *bd);
+extern int __qc_arch_rst_exinfo_register_rvh_do_sp_pc_abort(struct builder *bd);
+extern int __qc_arch_rst_exinfo_register_rvh_report_bug(struct builder *bd);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 #endif /* __INTERNAL__SEC_QC_RST_EXINFO_H__ */

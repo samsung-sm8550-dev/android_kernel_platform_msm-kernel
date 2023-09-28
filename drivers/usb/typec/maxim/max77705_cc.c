@@ -629,7 +629,11 @@ static void max77705_ccstat_irq_handler(void *data, int irq)
 			usbc_data->detach_done_wait = 1;
 #if IS_ENABLED(CONFIG_USB_NOTIFY_LAYER)
 			send_otg_notify(o_notify, NOTIFY_EVENT_PD_CONTRACT, 0);
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_USB_AUDIO_POWER_SAVING_REVERSE_BYPASS)
+=======
+#if defined(CONFIG_USB_AUDIO_POWER_SAVING)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			send_otg_notify(o_notify, NOTIFY_EVENT_REVERSE_BYPASS_DEVICE_ATTACH, 0);
 #endif
 #endif
@@ -648,6 +652,10 @@ static void max77705_ccstat_irq_handler(void *data, int irq)
 	case cc_No_Connection:
 			msg_maxim("ccstat : cc_No_Connection");
 			usbc_data->pd_data->cc_status = CC_NO_CONN;
+<<<<<<< HEAD
+=======
+			wake_up_interruptible(&usbc_data->device_add_wait_q);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			usbc_data->is_samsung_accessory_enter_mode = 0;
 			usbc_data->pn_flag = false;
 			usbc_data->pd_support = false;
@@ -711,7 +719,11 @@ static void max77705_ccstat_irq_handler(void *data, int irq)
 #if IS_ENABLED(CONFIG_USB_HOST_NOTIFY)
 			send_otg_notify(o_notify, NOTIFY_EVENT_POWER_SOURCE, 1);
 #endif
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_USB_AUDIO_POWER_SAVING_REVERSE_BYPASS)
+=======
+#if defined(CONFIG_USB_AUDIO_POWER_SAVING)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			send_otg_notify(o_notify, NOTIFY_EVENT_REVERSE_BYPASS_DEVICE_ATTACH, 1);
 #endif
 			if (cc_data->current_pr != SRC) {

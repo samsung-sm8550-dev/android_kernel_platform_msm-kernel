@@ -293,6 +293,10 @@ struct pdic_data {
 struct pdic_fwupdate_data {
 	struct pdic_misc_data *misc_data;
 	struct pdic_data *ic_data;
+<<<<<<< HEAD
+=======
+	atomic_t opened;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 struct pdic_misc_core {

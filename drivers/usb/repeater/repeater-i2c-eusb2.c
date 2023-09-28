@@ -101,6 +101,13 @@ static u8 tune_map_nxp[TUNE_MAX_NXP] = {
 };
 
 static u8 tune_map_ti[TUNE_MAX_TI] = {
+<<<<<<< HEAD
+=======
+	GPIO0_CONFIG,
+	GPIO1_CONFIG,
+	UART_PORT1,
+	EXTRA_PORT1,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	U_TX_ADJUST_PORT1,
 	U_HS_TX_PRE_EMPHASIS_P1,
 	U_RX_ADJUST_PORT1,
@@ -108,10 +115,13 @@ static u8 tune_map_ti[TUNE_MAX_TI] = {
 	E_HS_TX_PRE_EMPHASIS_P1,
 	E_TX_ADJUST_PORT1,
 	E_RX_ADJUST_PORT1,
+<<<<<<< HEAD
 	GPIO0_CONFIG,
 	GPIO1_CONFIG,
 	UART_PORT1,
 	EXTRA_PORT1,
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	REV_ID,
 	GLOBAL_CONFIG,
 	INT_ENABLE_1,
@@ -183,7 +193,11 @@ static int eusb2_i2c_read_reg(struct eusb2_repeater *er, u8 reg, u8 *val)
 	for (i = 0; i < 3 && ret < 0; i++) {
 		dev_err(er->dev, "Failed to read reg:0x%02x ret=%d\n", reg, ret);
 		usleep_range(400, 450);
+<<<<<<< HEAD
 		ret = regmap_read(er->regmap, reg, &reg_val);		
+=======
+		ret = regmap_read(er->regmap, reg, &reg_val);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	}
 #endif
 	if (ret < 0) {
@@ -236,9 +250,15 @@ static void eusb2_repeater_update_seq(struct eusb2_repeater *er, u32 *seq, u8 cn
 static void eusb2_repeater_tune_buf_init(void)
 {
 	int i;
+<<<<<<< HEAD
 	for (i = 0; i < TUNE_BUF_COUNT; i++) {
 		ter->tune_buf[i][0] = ter->tune_buf[i][1] = 0;
 	}
+=======
+
+	for (i = 0; i < TUNE_BUF_COUNT; i++)
+		ter->tune_buf[i][0] = ter->tune_buf[i][1] = 0;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 static void eusb2_repeater_tune_set(void)
@@ -369,7 +389,11 @@ static ssize_t eusb2_repeater_tune_store(struct device *dev,
 }
 
 static DEVICE_ATTR_RW(eusb2_repeater_tune);
+<<<<<<< HEAD
 					       
+=======
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static struct attribute *eusb2_repeater_attributes[] = {
 	&dev_attr_eusb2_repeater_tune.attr,
 	NULL

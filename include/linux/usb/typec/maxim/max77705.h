@@ -421,6 +421,11 @@ enum max77705_usbc_SYSMsg {
 	SYSMSG_56K_TO_22K = 0xB3,
 	SYSMSG_56K_TO_10K = 0xB4,
 	SYSMSG_22K_TO_10K = 0xB5,
+<<<<<<< HEAD
+=======
+
+	SYSMSG_ABNORMAL_TA = 0xC1,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 enum max77705_pdmsg {
@@ -553,6 +558,10 @@ typedef enum {
 	OPCODE_QC2P0_SET = 0x22,
 	OPCODE_SET_SNKCAP = 0x2E,
 	OPCODE_READ_SBU = 0x25,
+<<<<<<< HEAD
+=======
+	OPCODE_READ_CC = 0x2D,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	OPCODE_CURRENT_SRCCAP = 0x30,
 	OPCODE_GET_SRCCAP = 0x31,
 	OPCODE_SRCCAP_REQUEST = 0x32,

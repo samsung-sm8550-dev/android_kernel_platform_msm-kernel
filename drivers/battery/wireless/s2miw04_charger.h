@@ -25,7 +25,11 @@
 #include <linux/pm_wakeup.h>
 #include "../common/sec_charging_common.h"
 
+<<<<<<< HEAD
 #define MFC_FW_BIN_VERSION		0x3035
+=======
+#define MFC_FW_BIN_VERSION		0x3039
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #define MFC_FW_VER_BIN_LSI		0xBFC
 #define MTP_MAX_PROGRAM_SIZE 0x4000
 #define MTP_VERIFY_ADDR			0x0000
@@ -125,9 +129,15 @@
 #define MFC_WPC_TRX_DATA2_VALUE1_REG		0x5A
 /********************************************************************************/
 
+<<<<<<< HEAD
 #define WPCTx_E_FOD_CRADLE_CURRENT			0x56
 #define WPCTx_E_FOD_CRADLE_FREQ				0x57
 #define WPCTx_E_FOD_MAX_Q				0x5B
+=======
+#define WPCTx_E_FOD_MIN_CURRENT_HIGH_F			0x56
+#define WPCTx_E_FOD_POWER_LIMIT				0x57
+#define WPCTx_E_FOD_NU_PEAKING_DELAY			0x5B
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 #define MFC_ADT_TIMEOUT_PKT_REG				0x5C
 #define MFC_ADT_TIMEOUT_STR_REG				0x5D
@@ -185,16 +195,33 @@
 
 #define WPCTx_E_FOD_INIT_FREQ					0x84
 #define WPCTx_E_FOD_INIT_DUTY					0x85
+<<<<<<< HEAD
 #define WPCTx_E_FOD_WATCH_FREQ					0x86
 #define WPCTx_E_FOD_2Q_DESIGNED					0x87
 #define WPCTx_E_FOD_Q_THRESHOLD					0x88 /* [7:4] : normal, [3:0] : watch */
+=======
+#define WPCTx_E_FOD_DELAY					0x86
+#define WPCTx_E_FOD_2Q_DESIGNED					0x87
+#define WPCTx_E_FOD_Q_THRESHOLD_NORMAL				0x88 /* [7:4] : WPCTx_E_FOD_Q_THRESHOLD_NORMAL, [3:0] : WPCTx_E_FOD_MIN_CURRENT_Q */
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #define WPCTx_E_FOD_CURRENT_THRESHOLD_DUTY_INIT		0x89
 #define WPCTx_E_FOD_CURRENT_THRESHOLD_DUTY		0x8A
 #define WPCTx_E_FOD_CURRENT_CHECK_FREQ			0x8B
 
+<<<<<<< HEAD
 #define MFC_ADT_ERROR_CODE_REG				0x8D
 
 #define MFC_TX_FOD_GAIN_REG					0x8F
+=======
+#define WPCTX_E_FOD_Q_LIMIT				0x800
+#define WPCTX_E_FOD_I1_LIMIT				0x801
+#define WPCTX_E_FOD_I2_LIMIT				0x802
+
+#define MFC_ADT_ERROR_CODE_REG				0x8D
+
+#define MFC_TX_FOD_GAIN_REG				0x8F
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #define MFC_TX_FOD_OFFSET_L_REG				0x90
 #define MFC_TX_FOD_OFFSET_H_REG				0x91
 #define MFC_TX_FOD_THRESH1_L_REG			0x92
@@ -822,6 +849,12 @@ struct mfc_iec_data {
 	u8 reg_89;
 	u8 reg_8A;
 	u8 reg_8B;
+<<<<<<< HEAD
+=======
+	u8 reg_800;
+	u8 reg_801;
+	u8 reg_802;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 #if defined(CONFIG_WIRELESS_IC_PARAM)

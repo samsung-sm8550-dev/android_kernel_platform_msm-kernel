@@ -227,6 +227,27 @@ static int mem_profile_entry;
 struct hlist_head mem_profile_root = HLIST_HEAD_INIT;
 #endif
 
+#if defined(SS_MEM_PROFILE)
+#include <linux/samsung/debug/sec_debug.h>
+
+struct mem_profile_private {
+	struct hlist_node list_node;
+
+	int cid;
+	int tgid_open;
+	int tgid;
+	char comm[TASK_COMM_LEN];
+
+	unsigned int profile_len_peak_usage;
+	unsigned int profile_page_peak_usage;
+};
+
+#define MAX_MEM_PROFILE_ENTRY ((PAGE_SIZE/sizeof(struct mem_profile_private)) - 1)
+
+static int mem_profile_entry;
+struct hlist_head mem_profile_root = HLIST_HEAD_INIT;
+#endif
+
 /* Unique index flag used for mini dump */
 static int md_unique_index_flag[MAX_UNIQUE_ID] = { 0, 0, 0, 0, 0 };
 
@@ -5975,6 +5996,10 @@ static int fastrpc_device_open(struct inode *inode, struct file *filp)
 				GFP_KERNEL);
 	spin_lock_init(&fl->dspsignals_lock);
 	mutex_init(&fl->signal_create_mutex);
+<<<<<<< HEAD
+=======
+	init_completion(&fl->shutdown);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 #if defined(SS_MEM_PROFILE)
 	{
@@ -8005,9 +8030,182 @@ static int fastrpc_restore(struct device *dev)
 	return 0;
 }
 
+#if defined(SS_FASTRPC_SYNC)
+#include <linux/delay.h>
+
+//#define TEMP_SYNC_PANIC
+#define SS_MAX_WAIT (300) //300ms
+#define SS_ASYNC_WAIT
+#define SS_SYNC_PENDING_WAIT
+//#define SS_SYNC_INTERRUPTED_WAIT
+
+
+#define SS_DEBUG_FS_STR_LEN (20)
+static struct dentry *debugfs_ss_fastrpc_sync_file;
+static unsigned int ss_fastrpc_sync_wait;
+
+static ssize_t ss_fastrpc_sync_debugfs_read(struct file *filp, char __user *user_buf,
+			size_t count, loff_t *ppos)
+{
+	char str[SS_DEBUG_FS_STR_LEN];
+	ssize_t ret = 0;
+
+	ret = snprintf(str, SS_DEBUG_FS_STR_LEN, "%d\n", ss_fastrpc_sync_wait);
+	if (ret <= 0) {
+		return ret;
+	}
+
+	ret = simple_read_from_buffer(user_buf, count, ppos, str, strlen(str));
+
+	pr_err("%s ss_fastrpc_sync_wait : %d ms\n", __func__, ss_fastrpc_sync_wait);
+
+	return ret;
+}
+
+static ssize_t ss_fastrpc_sync_debugfs_write(struct file *file,
+				const char __user *user_buf, size_t count, loff_t *ppos)
+{
+	char str[SS_DEBUG_FS_STR_LEN];
+	ssize_t ret = 0;
+
+	ret = simple_write_to_buffer(str, count, ppos, user_buf, count);
+	if (ret <= 0) {
+		return ret;
+	}
+
+	ret = kstrtou32(str, 10, &ss_fastrpc_sync_wait);
+	if (unlikely(ret < 0)) {
+		pr_err("%s failed to copy_from_user\n", __func__);
+		return ret;
+	}
+
+	pr_err("%s ss_fastrpc_sync_wait : %d ms %d\n", __func__, ss_fastrpc_sync_wait, count);
+
+	if (ss_fastrpc_sync_wait < 0 || ss_fastrpc_sync_wait > SS_MAX_WAIT) {
+		ss_fastrpc_sync_wait = SS_MAX_WAIT;
+	}
+
+	return count;
+}
+
+static const struct file_operations debugfs_ss_fastrpc_sync_fops = {
+	.open = simple_open,
+	.read = ss_fastrpc_sync_debugfs_read,
+	.write = ss_fastrpc_sync_debugfs_write,
+};
+
+static int fastrpc_suspend_late(struct device *dev)
+{
+	struct fastrpc_apps *me = &gfa;
+	struct fastrpc_file *fl = NULL;
+	struct smq_invoke_ctx *ictx = NULL;
+	struct hlist_node *n;
+	struct hlist_node *n_clst;
+
+	int wait_cnt = SS_MAX_WAIT;
+	int wait_sync_cnt = 0;
+
+	int cdsp_cid_async_cnt = 0;
+	int cdsp_cid_async_empty_queue_cnt = 0;
+	int cdsp_cid_sync_queue_pending_working_cnt = 0;
+	int cdsp_cid_sync_queue_interrupted_working_cnt = 0;
+
+	/*
+		There are channels that fastrpc serves. This channel figure number is varing on chipset.
+		For code generalization, it checks all opened cdsp channel at last channel name calling from suspend driver.
+	*/
+	if (strcmp("qcom,msm_fastrpc_compute_cb1", kbasename(dev->of_node->full_name))) {
+		//pr_err("%s %s return\n", __func__, kbasename(dev->of_node->full_name));
+		return 0;
+	} else {
+		if (ss_fastrpc_sync_wait > 0) {
+			pr_err("%s %s start %dms\n", __func__, kbasename(dev->of_node->full_name), ss_fastrpc_sync_wait);
+			for (wait_sync_cnt = 0; wait_sync_cnt < ss_fastrpc_sync_wait; wait_sync_cnt++) {
+				usleep_range(1000, 1000);
+			}
+			pr_err("%s %s end\n", __func__, kbasename(dev->of_node->full_name));
+		} else {
+			pr_err("%s %s start\n", __func__, kbasename(dev->of_node->full_name));
+		}
+	}
+
+	if (!hlist_empty(&me->drivers)) {
+		while (wait_cnt-- > 0) {
+			cdsp_cid_async_cnt = 0;
+			cdsp_cid_async_empty_queue_cnt = 0;
+			cdsp_cid_sync_queue_pending_working_cnt = 0;
+			cdsp_cid_sync_queue_interrupted_working_cnt = 0;
+
+			spin_lock(&me->hlock);
+			hlist_for_each_entry_safe(fl, n, &me->drivers, hn) {
+				if (fl->cid == CDSP_DOMAIN_ID) {
+					cdsp_cid_async_cnt++;
+
+					/*
+					async_wait_queue dose not get triggred by wake_up_all or wake_up_interruptible_all.
+					Just because wake_up or wake_up_interruptible means that delay is only one thing we can do.
+					*/
+					if (list_empty(&fl->clst.async_queue)) {
+						cdsp_cid_async_empty_queue_cnt++;
+					}
+
+					hlist_for_each_entry_safe(ictx, n_clst, &fl->clst.pending, hn) {
+						if (ictx->is_work_done == false) {
+							cdsp_cid_sync_queue_pending_working_cnt++;
+						}
+					}
+
+					hlist_for_each_entry_safe(ictx, n_clst, &fl->clst.interrupted, hn) {
+						if (ictx->is_work_done == false) {
+							cdsp_cid_sync_queue_interrupted_working_cnt++;
+						}
+					}
+				} //CDSP_DOMAIN_ID end
+			} //hlist end
+			spin_unlock(&me->hlock);
+
+			if (
+#if defined(SS_ASYNC_WAIT)
+				(cdsp_cid_async_cnt == cdsp_cid_async_empty_queue_cnt)
+#else
+				(1)
+#endif
+#if defined(SS_SYNC_PENDING_WAIT)
+				&& (cdsp_cid_sync_queue_pending_working_cnt == 0)
+#endif
+#if defined(SS_SYNC_INTERRUPTED_WAIT)
+				&& (cdsp_cid_sync_queue_interrupted_working_cnt == 0)
+#endif
+			) {
+				wait_cnt = 0;
+			} else {
+#if defined(TEMP_SYNC_PANIC)
+				pr_err("%s wait_cnt %d\n", __func__, wait_cnt);
+				pr_err("%s async %d %d \n", __func__, cdsp_cid_async_cnt, cdsp_cid_async_empty_queue_cnt);
+				pr_err("%s sync pending %d\n", __func__, cdsp_cid_sync_queue_pending_working_cnt);
+				pr_err("%s sync interrupted %d\n", __func__, cdsp_cid_sync_queue_interrupted_working_cnt);
+
+				panic("CDSP_SYNC_QUEUE_FORCE_PANIC");
+#else
+				usleep_range(1000, 1000);
+#endif
+			}
+		} //while end
+	} //if end
+
+	pr_err("%s end\n", __func__);
+
+	return 0;
+}
+#endif
+
 static const struct dev_pm_ops fastrpc_pm = {
 	.freeze = fastrpc_hibernation_suspend,
 	.restore = fastrpc_restore,
+
+#if defined(SS_FASTRPC_SYNC)
+	.suspend_late = fastrpc_suspend_late,
+#endif
 };
 #endif
 static struct platform_driver fastrpc_driver = {
@@ -8417,6 +8615,13 @@ static int __init fastrpc_device_init(void)
 	fastrpc_register_wakeup_source(me->secure_dev,
 		FASTRPC_SECURE_WAKE_SOURCE_CLIENT_NAME,
 		&me->wake_source_secure);
+
+#if defined(SS_FASTRPC_SYNC)
+	if (!IS_ERR_OR_NULL(debugfs_root)) {
+		debugfs_ss_fastrpc_sync_file = debugfs_create_file("ss_fastrpc_sync", 0644,
+						debugfs_root, NULL, &debugfs_ss_fastrpc_sync_fops);
+	}
+#endif
 
 	return 0;
 device_create_bail:

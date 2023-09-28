@@ -50,6 +50,11 @@
 #define TX_ID_CHECK_CNT		3
 #define MISALIGN_TX_TRY_CNT	3
 
+<<<<<<< HEAD
+=======
+#define WL_TO_W 99
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #if IS_ENABLED(CONFIG_USB_FACTORY_MODE)
 #define FOREACH_BOOT_MODE(GEN_BOOT_MODE) \
 	GEN_BOOT_MODE(NO_MODE) \

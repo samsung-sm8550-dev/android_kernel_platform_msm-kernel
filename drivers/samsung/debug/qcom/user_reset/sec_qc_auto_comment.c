@@ -134,6 +134,12 @@ static ssize_t sec_qc_auto_comment_proc_read(struct file *file,
 	struct qc_user_reset_proc *auto_comment = PDE_DATA(file_inode(file));
 	loff_t pos = *ppos;
 
+<<<<<<< HEAD
+=======
+	if (pos < 0 || pos > auto_comment->len)
+		return 0;
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	nbytes = min_t(size_t, nbytes, auto_comment->len - pos);
 	if (copy_to_user(buf, &auto_comment->buf[pos], nbytes))
 		return -EFAULT;

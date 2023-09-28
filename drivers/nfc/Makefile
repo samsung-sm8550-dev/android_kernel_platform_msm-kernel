@@ -10,13 +10,21 @@ endif
 ifeq ($(CONFIG_NFC_NXP_COMBINED),y)
 ifeq ($(CONFIG_SAMSUNG_NFC),m)
 obj-$(CONFIG_SAMSUNG_NFC)		+= nfc_nxp_sec.o
+<<<<<<< HEAD
 nfc_nxp_sec-$(CONFIG_NFC_SN2XX_ESE_SUPPORT)	+= p73.o
+=======
+nfc_nxp_sec-$(CONFIG_NFC_SN2XX_ESE_SUPPORT)	+= p73.o ese_reset.o
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 nfc_nxp_sec-$(CONFIG_SEC_NFC_LOGGER)		+= ../nfc_logger/nfc_logger.o
 nfc_nxp_sec-$(CONFIG_NFC_SN2XX)		+= common.o common_ese.o i2c_drv.o
 else
 obj-$(CONFIG_NFC_SN2XX)	+= nfc.o
 nfc-objs			+= common.o common_ese.o i2c_drv.o
+<<<<<<< HEAD
 obj-$(CONFIG_NFC_SN2XX_ESE_SUPPORT)	+= p73.o
+=======
+obj-$(CONFIG_NFC_SN2XX_ESE_SUPPORT)	+= p73.o ese_reset.o
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 obj-$(CONFIG_SEC_NFC_LOGGER)	+= ../nfc_logger/nfc_logger.o
 endif # CONFIG_SAMSUNG_NFC
 
@@ -24,13 +32,21 @@ else # !CONFIG_NFC_NXP_COMBINED
 # for sn2xx only
 ifeq ($(CONFIG_SAMSUNG_NFC),m)
 obj-$(CONFIG_SAMSUNG_NFC)		+= nfc_sec.o
+<<<<<<< HEAD
 nfc_sec-$(CONFIG_NFC_SN2XX_ESE_SUPPORT)	+= p73.o
+=======
+nfc_sec-$(CONFIG_NFC_SN2XX_ESE_SUPPORT)	+= p73.o ese_reset.o
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 nfc_sec-$(CONFIG_SEC_NFC_LOGGER)		+= nfc_logger/nfc_logger.o
 nfc_sec-$(CONFIG_NFC_SN2XX)		+= common.o common_ese.o i2c_drv.o
 else
 obj-$(CONFIG_NFC_SN2XX)	+= nfc.o
 nfc-objs			+= common.o common_ese.o i2c_drv.o
+<<<<<<< HEAD
 obj-$(CONFIG_NFC_SN2XX_ESE_SUPPORT)	+= p73.o
+=======
+obj-$(CONFIG_NFC_SN2XX_ESE_SUPPORT)	+= p73.o ese_reset.o
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 obj-$(CONFIG_SEC_NFC_LOGGER)	+= nfc_logger/nfc_logger.o
 endif # CONFIG_SAMSUNG_NFC
 

@@ -344,6 +344,11 @@ static struct kretprobe dwc3_msm_probes[] = {
 	ENTRY(trace_dwc3_gadget_ep_cmd),
 	ENTRY(trace_dwc3_prepare_trb),
 	ENTRY(trace_dwc3_event),
+<<<<<<< HEAD
+=======
+	ENTRY_EXIT(dwc3_gadget_init_in_endpoint),
+	ENTRY_EXIT(dwc3_gadget_init_out_endpoint),
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	ENTRY(dwc3_gadget_vbus_draw),
 };
 

@@ -23,7 +23,11 @@ extern struct kunit_suite sec_pd_test_module;
 extern struct kunit_suite sec_step_charging_test_module;
 // FIX ME
 //extern struct kunit_suite usb_typec_manager_notifier_test_module;
+<<<<<<< HEAD
 //extern struct kunit_suite sec_cmd_test_module;
+=======
+extern struct kunit_suite sec_cmd_test_module;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 /*
  * kunit_notifier_chain_init() - initialize kunit notifier for module built

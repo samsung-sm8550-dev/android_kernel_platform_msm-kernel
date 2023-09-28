@@ -750,7 +750,10 @@ static void stm_trusted_touch_pvm_vm_mode_disable(struct stm_ts_data *ts)
 	stm_ts_trusted_touch_set_pvm_driver_state(ts,
 				PVM_IRQ_RECLAIMED);
 	input_err(true, &ts->client->dev, "vm irq reclaim succeded!\n");
+<<<<<<< HEAD
 	enable_irq(ts->irq);
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	stm_ts_trusted_touch_set_pvm_driver_state(ts, PVM_INTERRUPT_ENABLED);
 	stm_ts_bus_put(ts);
@@ -761,6 +764,13 @@ static void stm_trusted_touch_pvm_vm_mode_disable(struct stm_ts_data *ts)
 						TRUSTED_TOUCH_PVM_INIT);
 	atomic_set(&ts->trusted_touch_enabled, 0);
 	input_err(true, &ts->client->dev, " trusted touch disabled\n");
+<<<<<<< HEAD
+=======
+
+	msleep(200);
+	enable_irq(ts->irq);
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	return;
 error:
 	stm_ts_trusted_touch_abort_handler(ts,
@@ -2032,7 +2042,11 @@ static int stm_ts_get_rawdata(struct stm_ts_data *ts)
 	target_mem = ts->raw_pool[ts->raw_write_index++];
 	memcpy(target_mem, ts->raw, ts->raw_len);
 
+<<<<<<< HEAD
 	if (ts->raw_write_index >= 3)
+=======
+	if (ts->raw_write_index >= RAW_VEC_NUM)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		ts->raw_write_index = 0;
 
 /*	input_info(true, &ts->client->dev, "%s: | %d | %d | %d | %d\n", __func__, ts->raw[0], ts->raw[1], ts->raw[2], ts->raw[3]);*/
@@ -2249,7 +2263,11 @@ retry_fodmode:
 
 	return 0;
 }
+<<<<<<< HEAD
 
+=======
+#if IS_ENABLED(CONFIG_INPUT_SEC_SECURE_TOUCH)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #if IS_ENABLED(CONFIG_GH_RM_DRV)
 void stm_ts_close_work(struct work_struct *work)
 {
@@ -2314,7 +2332,11 @@ void stm_ts_close_work(struct work_struct *work)
 	mutex_unlock(&ts->modechange);
 }
 #endif
+<<<<<<< HEAD
 
+=======
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 void stm_ts_input_close(struct input_dev *dev)
 {
 	struct stm_ts_data *ts = input_get_drvdata(dev);
@@ -2640,9 +2662,17 @@ static int stm_ts_init(struct stm_ts_data *ts)
 #if IS_ENABLED(CONFIG_INPUT_SEC_NOTIFIER)
 	INIT_DELAYED_WORK(&ts->plat_data->interrupt_notify_work, stm_ts_interrupt_notify);
 #endif
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_GH_RM_DRV)
 	INIT_DELAYED_WORK(&ts->close_work, stm_ts_close_work);
 #endif
+=======
+#if IS_ENABLED(CONFIG_INPUT_SEC_SECURE_TOUCH)
+#if IS_ENABLED(CONFIG_GH_RM_DRV)
+	INIT_DELAYED_WORK(&ts->close_work, stm_ts_close_work);
+#endif
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	mutex_init(&ts->device_mutex);
 	mutex_init(&ts->read_write_mutex);
 	mutex_init(&ts->eventlock);

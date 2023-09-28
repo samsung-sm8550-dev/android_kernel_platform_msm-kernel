@@ -12,3 +12,7 @@ obj-$(CONFIG_SEC_QC_SMEM)		+= smem/
 obj-$(CONFIG_SEC_QC_HW_PARAM)		+= hw_param/
 obj-$(CONFIG_SEC_QC_RST_EXINFO)		+= rst_exinfo/
 obj-$(CONFIG_SEC_QC_RDX_BOOTDEV)	+= rdx_bootdev/
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_SEC_QC_MSM_POWEROFF)	+= poweroff/
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1

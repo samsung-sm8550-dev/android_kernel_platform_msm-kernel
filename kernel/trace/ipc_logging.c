@@ -1086,14 +1086,21 @@ static int __init ipc_logging_init(void)
 
 	net_ipc_log_init();
 
+<<<<<<< HEAD
 	register_minidump((u64)&ipc_log_context_list, sizeof(struct list_head),
 			  "ipc_log_ctxt_list", minidump_buf_cnt);
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	return 0;
 }
 
 static void __exit ipc_logging_exit(void)
 {
+<<<<<<< HEAD
+=======
+	kfree(ipc_log_context_list);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	net_ipc_log_exit();
 
 	__destory_dummy_ipc_context();

@@ -40,9 +40,19 @@ struct max77705_vibrator_pdata {
 	const char *motor_type;
 
 	int freq;
+<<<<<<< HEAD
 	/* for multi-frequency */
 	int freq_nums;
 	u32 *freq_array;
+=======
+	int fold_open_freq;
+	int fold_close_freq;
+	/* for multi-frequency */
+	int freq_nums;
+	u32 *freq_array;
+	u32 *fold_open_freq_array;
+	u32 *fold_close_freq_array;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	u32 *ratio_array; /* not used now */
 	int normal_ratio;
 	int overdrive_ratio;
@@ -71,6 +81,10 @@ struct max77705_platform_data {
 	bool wakeup;
 	bool blocking_waterevent;
 	bool extra_fw_enable;
+<<<<<<< HEAD
+=======
+	bool siso_ovp;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	int wpc_en;
 	int fw_product_id;
 	struct muic_platform_data *muic_pdata;

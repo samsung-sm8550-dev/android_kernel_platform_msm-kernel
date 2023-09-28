@@ -2,6 +2,11 @@ menu "Samsung Factory Feature"
 config SEC_FACTORY
 	bool "when it comes to sec factory mode"
 	default n
+<<<<<<< HEAD
+=======
+	select SEC_PANIC_PCIE_ERR
+	select SEC_PCIE_KEEP_LINKBW
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	select SEC_FORCE_ERR
 	select EDAC_KYRO_ARM64_PANIC_ON_CE
 	help

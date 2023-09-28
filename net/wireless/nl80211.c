@@ -9939,6 +9939,88 @@ free:
 	return err;
 }
 
+static int nl80211_send_tid_to_link_map(struct sk_buff *msg, u32 cmd, u32 portid,
+				u32 seq, int flags,
+				struct cfg80211_registered_device *rdev,
+				struct net_device *dev,
+				struct cfg80211_mlo_tid_map *map)
+{
+	void *hdr;
+
+	hdr = nl80211hdr_put(msg, portid, seq, flags, cmd);
+	if (!hdr)
+		goto nla_put_failure;
+
+	if (dev && nla_put_u32(msg, NL80211_ATTR_IFINDEX, dev->ifindex))
+		goto nla_put_failure;
+
+	if (map->default_map) {
+		if (nla_put_flag(msg, NL80211_ATTR_MLO_TID_LINK_DEFAULT_MAP))
+			goto nla_put_failure;
+	} else {
+		int i;
+		struct nlattr *tid_link_status = nla_nest_start(msg,
+						NL80211_ATTR_MLO_TID_LINK_MAP);
+		if (!tid_link_status)
+			goto nla_put_failure;
+
+		for (i = 0; i < IEEE80211_NUM_MLO_TIDS; i++) {
+			struct nlattr *tid_status = nla_nest_start(msg, i + 1);
+
+			if (nla_put_u16(msg,
+					NL80211_ATTR_MLO_TID_LINK_MAP_DOWNLINK,
+					map->t2lmap[i].downlink))
+				goto nla_put_failure;
+			if (nla_put_u16(msg,
+					NL80211_ATTR_MLO_TID_LINK_MAP_UPLINK,
+					map->t2lmap[i].uplink))
+				goto nla_put_failure;
+
+			nla_nest_end(msg, tid_status);
+		}
+		nla_nest_end(msg, tid_link_status);
+	}
+
+	genlmsg_end(msg, hdr);
+	return 0;
+
+ nla_put_failure:
+	genlmsg_cancel(msg, hdr);
+	return -EMSGSIZE;
+}
+
+static int nl80211_get_tid_to_link_map(struct sk_buff *skb,
+				       struct genl_info *info)
+{
+	struct cfg80211_registered_device *rdev = info->user_ptr[0];
+	struct net_device *dev = info->user_ptr[1];
+	struct cfg80211_mlo_tid_map map;
+	struct sk_buff *msg;
+	int ret;
+
+	memset(&map, 0, sizeof(map));
+
+	if (!rdev->ops->get_link_tid_map_status)
+		return -EOPNOTSUPP;
+
+	ret = rdev_get_link_tid_map_status(rdev, dev, &map);
+	if (ret != 0)
+		return ret;
+
+	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
+	if (!msg)
+		return -ENOMEM;
+
+	if (nl80211_send_tid_to_link_map(msg, NL80211_CMD_TID_TO_LINK_MAP,
+				 info->snd_portid, info->snd_seq, 0,
+				 rdev, dev, &map) < 0) {
+		nlmsg_free(msg);
+		return -ENOBUFS;
+	}
+
+	return genlmsg_reply(msg, info);
+}
+
 static int nl80211_send_bss(struct sk_buff *msg, struct netlink_callback *cb,
 			    u32 seq, int flags,
 			    struct cfg80211_registered_device *rdev,
@@ -16898,6 +16980,37 @@ static const struct genl_small_ops nl80211_small_ops[] = {
 		.internal_flags = IFLAGS(NL80211_FLAG_NEED_NETDEV_UP |
 					 NL80211_FLAG_MLO_VALID_LINK_ID),
 	},
+<<<<<<< HEAD
+=======
+	{
+		.cmd = NL80211_CMD_ADD_LINK_STA,
+		.doit = nl80211_add_link_station,
+		.flags = GENL_UNS_ADMIN_PERM,
+		.internal_flags = IFLAGS(NL80211_FLAG_NEED_NETDEV_UP |
+					 NL80211_FLAG_MLO_VALID_LINK_ID),
+	},
+	{
+		.cmd = NL80211_CMD_MODIFY_LINK_STA,
+		.doit = nl80211_modify_link_station,
+		.flags = GENL_UNS_ADMIN_PERM,
+		.internal_flags = IFLAGS(NL80211_FLAG_NEED_NETDEV_UP |
+					 NL80211_FLAG_MLO_VALID_LINK_ID),
+	},
+	{
+		.cmd = NL80211_CMD_REMOVE_LINK_STA,
+		.doit = nl80211_remove_link_station,
+		.flags = GENL_UNS_ADMIN_PERM,
+		.internal_flags = IFLAGS(NL80211_FLAG_NEED_NETDEV_UP |
+					 NL80211_FLAG_MLO_VALID_LINK_ID),
+	},
+	{
+		.cmd = NL80211_CMD_TID_TO_LINK_MAP,
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl80211_get_tid_to_link_map,
+		.flags = GENL_UNS_ADMIN_PERM,
+		.internal_flags = IFLAGS(NL80211_FLAG_NEED_NETDEV_UP)
+	},
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 static struct genl_family nl80211_fam __ro_after_init = {
@@ -19339,6 +19452,14 @@ int cfg80211_external_auth_request(struct net_device *dev,
 	if (!wdev->conn_owner_nlportid)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (!is_zero_ether_addr(params->mld_addr))
+		printk("%s: MLD address filled", __func__);
+	if (!is_zero_ether_addr(params->tx_addr))
+		printk("%s: Transmit address filled", __func__);
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	if (!is_zero_ether_addr(params->tx_addr) &&
 	    !ether_addr_equal(params->tx_addr, wdev_address(wdev)) &&
 	    !wiphy_ext_feature_isset(&rdev->wiphy,
@@ -19361,7 +19482,14 @@ int cfg80211_external_auth_request(struct net_device *dev,
 	    nla_put(msg, NL80211_ATTR_BSSID, ETH_ALEN, params->bssid) ||
 	    nla_put(msg, NL80211_ATTR_SSID, params->ssid.ssid_len,
 		    params->ssid.ssid) ||
+<<<<<<< HEAD
 	    (!is_zero_ether_addr(params->tx_addr) &&
+=======
+	    (!is_zero_ether_addr(params->mld_addr) &&
+	     nla_put(msg, NL80211_ATTR_MLD_ADDR, ETH_ALEN, params->mld_addr)) ||
+	    (is_zero_ether_addr(params->mld_addr) &&
+	     !is_zero_ether_addr(params->tx_addr) &&
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	     nla_put(msg, NL80211_ATTR_MAC, ETH_ALEN, params->tx_addr)))
 		goto nla_put_failure;
 
@@ -19424,6 +19552,34 @@ nla_put_failure:
 	nlmsg_free(msg);
 }
 EXPORT_SYMBOL(cfg80211_update_owe_info_event);
+
+
+void cfg80211_tid_to_link_map_change(struct net_device *dev,
+                              struct cfg80211_mlo_tid_map *map)
+{
+	struct wireless_dev *wdev = dev->ieee80211_ptr;
+	struct wiphy *wiphy = wdev->wiphy;
+	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wiphy);
+	struct sk_buff *msg;
+
+	ASSERT_WDEV_LOCK(wdev);
+
+	trace_cfg80211_tid_to_link_map_change(dev, map);
+
+	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
+	if (!msg)
+		return;
+
+	if (nl80211_send_tid_to_link_map(msg, NL80211_CMD_TID_TO_LINK_MAP,
+					 0, 0, 0, rdev, dev, map) < 0) {
+		nlmsg_free(msg);
+		return;
+	}
+
+	genlmsg_multicast_netns(&nl80211_fam, wiphy_net(&rdev->wiphy), msg, 0,
+				NL80211_MCGRP_MLME, GFP_KERNEL);
+}
+EXPORT_SYMBOL(cfg80211_tid_to_link_map_change);
 
 /* initialisation/exit functions */
 

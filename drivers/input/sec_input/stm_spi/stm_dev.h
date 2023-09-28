@@ -152,6 +152,10 @@ extern struct tsp_dump_callbacks dump_callbacks;
 #define ENABLE_RAWDATA_SERVICE
 #undef RAWDATA_MMAP
 #define RAWDATA_IOCTL
+<<<<<<< HEAD
+=======
+#define RAW_VEC_NUM 3
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 
 #define input_raw_info_d(mode, dev, fmt, ...) input_raw_info(mode, dev, fmt, ## __VA_ARGS__)
@@ -660,7 +664,11 @@ struct stm_ts_data {
 	short *mmapdata;
 #endif
 #ifdef RAWDATA_IOCTL
+<<<<<<< HEAD
 	u8 *raw_pool[3];
+=======
+	u8 *raw_pool[RAW_VEC_NUM];
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	u8 raw_read_index;
 	u8 raw_write_index;
 #endif

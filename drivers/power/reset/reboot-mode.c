@@ -52,15 +52,21 @@ static unsigned int get_reboot_mode_magic(struct reboot_mode_driver *reboot,
 }
 
 static int reboot_mode_notify(struct notifier_block *this,
-			      unsigned long mode, void *cmd)
+			      unsigned long mode, void *__cmd)
 {
 	struct reboot_mode_driver *reboot;
 	unsigned int magic;
+	char *cmd = NULL;
+
+	if (__cmd)
+		cmd = kstrdup(__cmd, GFP_KERNEL);
 
 	reboot = container_of(this, struct reboot_mode_driver, reboot_notifier);
 	magic = get_reboot_mode_magic(reboot, cmd);
 	if (magic)
 		reboot->write(reboot, magic);
+
+	kfree(cmd);
 
 	return NOTIFY_DONE;
 }

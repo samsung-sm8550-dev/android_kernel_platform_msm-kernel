@@ -545,7 +545,11 @@ static int ufs_qcom_host_reset(struct ufs_hba *hba)
 
 	host->reset_in_progress = true;
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SEC_UFS_FEATURE) && !IS_ENABLED(CONFIG_SAMSUNG_PRODUCT_SHIP)
+=======
+#if IS_ENABLED(CONFIG_SEC_UFS_FEATURE)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	/* check device_stuck info and call panic before host reset */
 	ufs_sec_check_device_stuck();
 #endif
@@ -1424,8 +1428,20 @@ static int ufs_qcom_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op,
 	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
 	int err = 0;
 
-	if (status == PRE_CHANGE)
+	if (status == PRE_CHANGE) {
+#if IS_ENABLED(CONFIG_SEC_UFS_FEATURE)
+		/*
+		 * Change WB state to WB_OFF to default in suspend sequence.
+		 * If wb_off failed before,
+		 * it can be kept on until the next request.
+		 * Therefore we force wb_off,
+		 * the WB state will be matched by the next request.
+		 */
+		if (pm_op == UFS_SYSTEM_PM)
+			ufs_sec_wb_force_off(hba);
+#endif
 		return 0;
+	}
 
 	/*
 	 * If UniPro link is not active or OFF, PHY ref_clk, main PHY analog
@@ -2004,6 +2020,12 @@ static int ufs_qcom_pwr_change_notify(struct ufs_hba *hba,
 		if (ufshcd_is_hs_mode(&hba->pwr_info) &&
 			!ufshcd_is_hs_mode(dev_req_params))
 			ufs_qcom_dev_ref_clk_ctrl(host, false);
+<<<<<<< HEAD
+=======
+		/* update BER threshold depends on gear mode */
+		if (!override_ber_threshold && !ret)
+			ber_threshold = ber_table[dev_req_params->gear_rx].ber_threshold;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 		host->skip_flush = false;
 		break;
@@ -2336,8 +2358,23 @@ static int ufs_qcom_setup_clocks(struct ufs_hba *hba, bool on,
 					host->ref_clki->enabled = on;
 				else
 					ufs_qcom_msg(ERR, hba->dev,
+<<<<<<< HEAD
 							"%s: Fail dev-ref-clk enabled, ret=%d\n",
 							__func__, err);
+=======
+						"%s: Fail dev-ref-clk enabled, ret=%d\n",
+						__func__, err);
+			}
+
+			if (!host->core_unipro_clki->enabled) {
+				err = clk_prepare_enable(host->core_unipro_clki->clk);
+				if (!err)
+					host->core_unipro_clki->enabled = on;
+				else
+					ufs_qcom_msg(ERR, hba->dev,
+						"%s: Fail core-unipro-clk enabled, ret=%d\n",
+						__func__, err);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			}
 		} else {
 			if (!ufs_qcom_is_link_active(hba)) {
@@ -3117,8 +3154,11 @@ static int ufs_qcom_set_cur_therm_state(struct thermal_cooling_device *tcd,
 	case UFS_QCOM_LVL_NO_THERM:
 		ufs_qcom_msg(WARN, tcd->devdata, "UFS host thermal mitigation stops\n");
 
+<<<<<<< HEAD
 		atomic_set(&host->therm_mitigation, 0);
 
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		/* Set the default auto-hiberate idle timer to 2 ms */
 		ufshcd_auto_hibern8_update(hba, ufs_qcom_us_to_ahit(2000));
 
@@ -3132,10 +3172,19 @@ static int ufs_qcom_set_cur_therm_state(struct thermal_cooling_device *tcd,
 		ufs_qcom_msg(WARN, tcd->devdata,
 			"Going into UFS host thermal mitigation state, performance may be impacted before UFS host thermal mitigation stops\n");
 
+<<<<<<< HEAD
 		/* Stop setting hi-pri to requests and set irq affinity to default value */
 		atomic_set(&host->therm_mitigation, 1);
 		cancel_dwork_unvote_cpufreq(hba);
 		ufs_qcom_toggle_pri_affinity(hba, false);
+=======
+		if (host->irq_affinity_support) {
+			/* Stop setting hi-pri to requests and set irq affinity to default value */
+			atomic_set(&host->therm_mitigation, 1);
+			cancel_dwork_unvote_cpufreq(hba);
+			ufs_qcom_toggle_pri_affinity(hba, false);
+		}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		/* Set the default auto-hiberate idle timer to 2 ms */
 		ufshcd_auto_hibern8_update(hba, ufs_qcom_us_to_ahit(2000));
 
@@ -3871,6 +3920,212 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * ufs_qcom_ber_mon_init - init BER monition history mode name and register domain list.
+ */
+static void ufs_qcom_ber_mon_init(struct ufs_hba *hba)
+{
+	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
+	int m = UFS_QCOM_BER_MODE_G1_G4;
+
+	INIT_LIST_HEAD(&host->regs_list_head);
+
+	for (m = UFS_QCOM_BER_MODE_G1_G4; m < UFS_QCOM_BER_MODE_MAX; m++) {
+		switch (m) {
+		case UFS_QCOM_BER_MODE_G1_G4:
+			host->ber_hist[m].name = "gear1-4";
+			break;
+		case UFS_QCOM_BER_MODE_G5:
+			host->ber_hist[m].name = "gear5";
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+static void ufs_qcom_print_ber_hist(struct ufs_qcom_host *host)
+{
+	struct ufs_qcom_ber_hist *h;
+	int m = UFS_QCOM_BER_MODE_G1_G4;
+	int i;
+
+	for (m = UFS_QCOM_BER_MODE_G1_G4; m < UFS_QCOM_BER_MODE_MAX; m++) {
+		h = &host->ber_hist[m];
+		for (i = 0; i < UFS_QCOM_EVT_LEN; i++) {
+			int p = (i + h->pos) % UFS_QCOM_EVT_LEN;
+
+			if (h->tstamp[p] == 0)
+				continue;
+			dev_err(host->hba->dev, "pa_err_%d=0x%x, err_code=0x%x, gear=%d, time=%lld us\n",
+						p, h->uec_pa[p], h->err_code[p], h->gear[p],
+						ktime_to_us(h->tstamp[p]));
+		}
+		dev_err(host->hba->dev, "total %llu PA error on %s mode\n", h->cnt, h->name);
+	}
+}
+
+static bool ufs_qcom_cal_ber(struct ufs_qcom_host *host, struct ufs_qcom_ber_hist *h)
+{
+	int idx_start, idx_end, i;
+	s64 total_run_time = 0;
+	s64 total_full_time = 0;
+	u32 gear = h->gear[h->pos-1];
+
+	if (!override_ber_threshold)
+		ber_threshold = ber_table[gear].ber_threshold;
+
+	if (!override_ber_duration)
+		ber_mon_dur_ms = UFS_QCOM_BER_DUR_DEF_MS;
+
+	dev_dbg(host->hba->dev, "ber=%d, dur_ms=%d, h->cnt=%d, pos=%d\n",
+					ber_threshold, ber_mon_dur_ms, h->cnt, h->pos);
+
+	/* return from here if total error count is not more than BER threshold */
+	if (h->cnt <= ber_threshold)
+		return false;
+
+	/*
+	 * BER threshold allows num (ber_threshold) of errors, and we have h->cnt errors,
+	 * go find the error event slot which records the #(h->cnt - ber_threshold) error.
+	 */
+	idx_end = (h->cnt - 1) % UFS_QCOM_EVT_LEN;
+	idx_start = ((h->cnt - 1) - ber_threshold) % UFS_QCOM_EVT_LEN;
+
+
+	/*
+	 * Calcuate the total valid running time
+	 * plus one here due to the first step in
+	 * following while loop is i--.
+	 */
+	i = idx_end + 1;
+	do {
+		i--;
+		if (i < 0)
+			i += UFS_QCOM_EVT_LEN;
+		total_run_time += h->run_time[i];
+		total_full_time += h->full_time[i];
+	} while (i != idx_start);
+
+	dev_dbg(host->hba->dev, "idx_start=%d, idx_end=%d, total_time=%lld ms, total_run_time=%lld ms\n",
+					idx_start, idx_end, total_full_time, total_run_time);
+
+	if (total_run_time < ber_mon_dur_ms)
+		return true;
+
+	return false;
+}
+
+static bool ufs_qcom_update_ber_event(struct ufs_qcom_host *host,
+									  u32 data,
+									  enum ufs_hs_gear_tag gear)
+{
+	struct ufs_qcom_ber_hist *h;
+	ktime_t t_prv;
+	u32 mode = ber_table[gear].mode;
+	bool rc = false;
+
+	h = &host->ber_hist[mode];
+	h->uec_pa[h->pos] = data;
+
+	/* For PHY errors, record PA error code */
+	if ((data & 0xFF) & ~UIC_PHY_ADAPTER_LAYER_GENERIC_ERROR)
+		h->err_code[h->pos] = ufshcd_readl(host->hba, UFS_MEM_REG_PA_ERR_CODE);
+
+	h->gear[h->pos] = gear;
+	h->tstamp[h->pos] = ktime_get();
+
+	if (h->pos != 0)
+		t_prv = h->tstamp[h->pos - 1];
+	else if (h->cnt == 0)
+		t_prv = ms_to_ktime(0);
+	else
+		t_prv = h->tstamp[UFS_QCOM_EVT_LEN - 1];
+
+	/* Calcuate the valid running time since last PA error event */
+	h->full_time[h->pos] = ktime_to_ms(ktime_sub(h->tstamp[h->pos], t_prv));
+	h->run_time[h->pos] = h->full_time[h->pos] - idle_time[mode];
+
+	/* reset idle time for next error event. */
+	idle_time[mode] = 0;
+
+	h->cnt++;
+	h->pos = (h->pos + 1) % UFS_QCOM_EVT_LEN;
+
+	/* don't need to calculate again if BER has already exceeded threshold */
+	if (!host->ber_th_exceeded)
+		rc = ufs_qcom_cal_ber(host, h);
+
+	return rc;
+}
+
+
+static void ufs_qcom_save_all_regs(struct ufs_qcom_host *host)
+{
+	struct phy *phy = host->generic_phy;
+
+	ufs_qcom_save_regs(host, 0, UFSHCI_REG_SPACE_SIZE,
+							"host_regs ");
+	ufs_qcom_save_regs(host, REG_UFS_SYS1CLK_1US, 16 * 4,
+							"HCI Vendor Specific Registers ");
+	ufs_qcom_save_regs(host, UFS_MEM_ICE, 29 * 4,
+							"HCI Shared ICE Registers ");
+	ufs_qcom_save_regs(host, UFS_TEST_BUS, 4,
+							"UFS_TEST_BUS ");
+	ufs_qcom_save_testbus(host);
+	ufs_qcom_phy_dbg_register_save(phy);
+
+}
+
+static void ufs_qcom_event_notify(struct ufs_hba *hba,
+								  enum ufs_event_type evt,
+								  void *data)
+{
+	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
+	struct phy *phy = host->generic_phy;
+	u32 reg = *(u32 *)data;
+	bool ber_th_exceeded = false;
+	bool evt_valid = true;
+
+	switch (evt) {
+	case UFS_EVT_PA_ERR:
+		ber_th_exceeded = ufs_qcom_update_ber_event(host, reg,
+								hba->pwr_info.gear_rx);
+
+		if (ber_th_exceeded) {
+			host->ber_th_exceeded = true;
+			ufs_qcom_save_all_regs(host);
+			ufs_qcom_print_ber_hist(host);
+
+			if (crash_on_ber) {
+				ufs_qcom_phy_dbg_register_dump(phy);
+				BUG_ON(1);
+			}
+		}
+
+		if (host->ber_th_exceeded)
+			dev_err(hba->dev, "Warning: BER exceed threshlod !!!\n");
+
+		break;
+	case UFS_EVT_DL_ERR:
+		if (reg == UIC_DATA_LINK_LAYER_EC_PA_ERROR_IND_RECEIVED)
+			evt_valid = false;
+		break;
+	default:
+		break;
+	}
+
+	if (evt_valid)
+		host->valid_evt_cnt[evt]++;
+
+#if IS_ENABLED(CONFIG_SEC_UFS_FEATURE)
+	ufs_sec_inc_op_err(hba, evt, data);
+#endif
+}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 void ufs_qcom_print_hw_debug_reg_all(struct ufs_hba *hba,
 		void *priv, void (*print_fn)(struct ufs_hba *hba,
 		int offset, int num_regs, const char *str, void *priv))
@@ -4303,6 +4558,8 @@ static struct ufs_dev_fix ufs_qcom_dev_fixups[] = {
 static void ufs_qcom_fixup_dev_quirks(struct ufs_hba *hba)
 {
 	ufshcd_fixup_dev_quirks(hba, ufs_qcom_dev_fixups);
+
+	hba->dev_quirks &= ~(UFS_DEVICE_QUIRK_RECOVERY_FROM_DL_NAC_ERRORS);
 }
 
 static void ufs_qcom_event_notify(struct ufs_hba *hba,
@@ -4778,6 +5035,19 @@ static int ufs_qcom_probe(struct platform_device *pdev)
 	 * the regulators.
 	 */
 
+<<<<<<< HEAD
+=======
+	/*
+	 *Defer secondary UFS device probe if all the LUNS of
+	 *primary UFS boot device are not enumerated.
+	 */
+	if ((of_property_read_bool(np, "secondary-storage")) && (!ufs_qcom_hosts[0]
+		|| !(ufs_qcom_hosts[0]->hba->luns_avail == 1))) {
+		err = -EPROBE_DEFER;
+		return err;
+	}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #if IS_ENABLED(CONFIG_SEC_UFS_FEATURE)
 	ufs_sec_init_logging(dev);
 #endif
@@ -4841,12 +5111,6 @@ static void ufs_qcom_shutdown(struct platform_device *pdev)
 
 	ufs_qcom_log_str(host, "0xdead\n");
 	ufshcd_pltfrm_shutdown(pdev);
-
-	/* UFS_RESET TLMM register cannot reset to POR value '1' after warm
-	 * reset, so deassert ufs device reset line after UFS device shutdown
-	 * to ensure the UFS_RESET TLMM register value is POR value
-	 */
-	ufs_qcom_device_reset_ctrl(hba, false);
 }
 
 static int ufs_qcom_system_suspend(struct device *dev)

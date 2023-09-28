@@ -1220,4 +1220,10 @@ config SEC_CDSP_NO_CRASH_FOR_ENG
 	help
 	  This option protects crash for the ENG Binary.	
 
+config SEC_CDSP_NO_CRASH_FOR_ENG
+	bool "crash trigger for USER/USERDEBUG only"
+	default n
+	help
+	  This option protects crash for the ENG Binary.	
+
 endmenu

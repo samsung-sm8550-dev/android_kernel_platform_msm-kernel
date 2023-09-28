@@ -401,6 +401,10 @@ int sec_bat_choose_cable_type(struct sec_battery_info *battery)
 	int cur_ct = wr_sts;
 	int prev_ct = battery->cable_type;
 	int wrl_sts = battery->wc_status;
+<<<<<<< HEAD
+=======
+	union power_supply_propval value = {0, };
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	if (wrl_sts != SEC_BATTERY_CABLE_NONE) {
 		cur_ct = wrl_sts;
@@ -415,8 +419,32 @@ int sec_bat_choose_cable_type(struct sec_battery_info *battery)
 					__func__, wrl_pwr, wr_pwr, wrl_sts, wr_sts, cur_ct);
 			if (is_wireless_type(cur_ct))
 				sec_bat_switch_to_wrl(battery, wr_sts, prev_ct);
+<<<<<<< HEAD
 			else
 				sec_bat_switch_to_wr(battery, wrl_sts, prev_ct);
+=======
+			else {
+				if (is_hv_wireless_type(wrl_sts)) {
+					value.intval = WIRELESS_VOUT_FORCE_9V;
+					psy_do_property(battery->pdata->wireless_charger_name, set,
+						POWER_SUPPLY_EXT_PROP_INPUT_VOLTAGE_REGULATION, value);
+				}
+				if (is_wireless_fake_type(prev_ct)) {
+					msleep(200);
+					sec_vote(battery->fcc_vote, VOTER_WL_TO_W, true, 300);
+					msleep(200);
+					sec_vote(battery->fcc_vote, VOTER_WL_TO_W, true, 100);
+					msleep(200);
+					sec_vote(battery->chgen_vote, VOTER_WL_TO_W, true, SEC_BAT_CHG_MODE_BUCK_OFF);
+					value.intval = WL_TO_W;
+					psy_do_property(battery->pdata->charger_name, set,
+						POWER_SUPPLY_EXT_PROP_CHGINSEL, value);
+				}
+				sec_bat_switch_to_wr(battery, wrl_sts, prev_ct);
+				sec_vote(battery->fcc_vote, VOTER_WL_TO_W, false, 0);
+				sec_vote(battery->chgen_vote, VOTER_WL_TO_W, false, 0);
+			}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		} else {
 			if (battery->wc_need_ldo_on)
 				sec_bat_mfc_ldo_cntl(battery, MFC_LDO_ON);

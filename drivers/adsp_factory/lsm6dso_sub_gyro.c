@@ -16,11 +16,23 @@
 #include <linux/module.h>
 #include "adsp.h"
 #define VENDOR "STM"
+<<<<<<< HEAD
 #define CHIP_ID "LSM6DSOW"
+=======
+#if IS_ENABLED(CONFIG_LSM6DSV_FACTORY)
+#define CHIP_ID "LSM6DSVW"
+#else
+#define CHIP_ID "LSM6DSOW"
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #define ST_PASS 1
 #define ST_FAIL 0
 #define STARTUP_BIT_FAIL 2
 #define G_ZRL_DELTA_FAIL 4
+<<<<<<< HEAD
+=======
+#define SFLP_FAIL 6
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #define SELFTEST_REVISED 1
 
 static ssize_t sub_gyro_vendor_show(struct device *dev,
@@ -90,23 +102,50 @@ static ssize_t sub_gyro_selftest_show(struct device *dev,
 	uint8_t cnt = 0;
 	int st_diff_res = ST_FAIL;
 	int st_zro_res = ST_FAIL;
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_AK09973) || defined(CONFIG_SUPPORT_AK09973)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	int msg_buf = LSM6DSO_SELFTEST_TRUE;
 
 	adsp_unicast(&msg_buf, sizeof(msg_buf),
 		MSG_DIGITAL_HALL_ANGLE, 0, MSG_TYPE_OPTION_DEFINE);
+<<<<<<< HEAD
+=======
+#elif IS_ENABLED(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL) || defined(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL)
+	int msg_buf = LSM6DSO_SELFTEST_TRUE;
+
+	adsp_unicast(&msg_buf, sizeof(msg_buf),
+		MSG_REF_ANGLE, 0, MSG_TYPE_OPTION_DEFINE);
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	pr_info("[FACTORY] %s - start", __func__);
 	adsp_unicast(NULL, 0, MSG_GYRO_SUB, 0, MSG_TYPE_ST_SHOW_DATA);
 
 	while (!(data->ready_flag[MSG_TYPE_ST_SHOW_DATA] & 1 << MSG_GYRO_SUB) &&
 		cnt++ < TIMEOUT_CNT)
+<<<<<<< HEAD
 		msleep(26);
+=======
+		usleep_range(30000, 30100); /* 30 * 200 = 6 sec */
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	data->ready_flag[MSG_TYPE_ST_SHOW_DATA] &= ~(1 << MSG_GYRO_SUB);
 
 	if (cnt >= TIMEOUT_CNT) {
 		pr_err("[FACTORY] %s: Timeout!!!\n", __func__);
+<<<<<<< HEAD
 		schedule_delayed_work(&data->lsm6dso_selftest_stop_work, msecs_to_jiffies(300));
+=======
+#ifdef CONFIG_SEC_FACTORY
+		panic("sensor force crash : sub gyro selftest timeout\n");
+#endif
+#if IS_ENABLED(CONFIG_SUPPORT_AK09973) || defined(CONFIG_SUPPORT_AK09973) ||\
+	IS_ENABLED(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL) || defined(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL)
+		schedule_delayed_work(&data->lsm6dso_selftest_stop_work, msecs_to_jiffies(300));
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		return snprintf(buf, PAGE_SIZE,
 			"0,0,0,0,0,0,0,0,0,0,0,0,%d,%d\n",
 			ST_FAIL, ST_FAIL);
@@ -122,9 +161,18 @@ static ssize_t sub_gyro_selftest_show(struct device *dev,
 			data->msg_buf[MSG_GYRO_SUB][3],
 			data->msg_buf[MSG_GYRO_SUB][4]);
 
+<<<<<<< HEAD
 		schedule_delayed_work(&data->lsm6dso_selftest_stop_work, msecs_to_jiffies(300));
 
 		if (data->msg_buf[MSG_GYRO][5] == G_ZRL_DELTA_FAIL)
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_AK09973) || defined(CONFIG_SUPPORT_AK09973) ||\
+	IS_ENABLED(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL) || defined(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL)
+		schedule_delayed_work(&data->lsm6dso_selftest_stop_work, msecs_to_jiffies(300));
+#endif
+
+		if (data->msg_buf[MSG_GYRO_SUB][5] == G_ZRL_DELTA_FAIL)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			pr_info("[FACTORY] %s - ZRL Delta fail\n", __func__);
 		return snprintf(buf, PAGE_SIZE, "%d,%d,%d\n",
 			data->msg_buf[MSG_GYRO_SUB][2],
@@ -138,6 +186,13 @@ static ssize_t sub_gyro_selftest_show(struct device *dev,
 		st_diff_res = ST_PASS;
 	else if (data->msg_buf[MSG_GYRO_SUB][5] == STARTUP_BIT_FAIL)
 		pr_info("[FACTORY] %s - Gyro Start Up Bit fail\n", __func__);
+<<<<<<< HEAD
+=======
+	else if (data->msg_buf[MSG_GYRO_SUB][5] == SFLP_FAIL) {
+		pr_info("[FACTORY] %s - SFLP sanity test fail\n", __func__);
+		st_diff_res = SFLP_FAIL;
+	}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	pr_info("[FACTORY]: %s - %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
 		__func__,
@@ -149,7 +204,14 @@ static ssize_t sub_gyro_selftest_show(struct device *dev,
 		data->msg_buf[MSG_GYRO_SUB][13], data->msg_buf[MSG_GYRO_SUB][14],
 		st_diff_res, st_zro_res);
 
+<<<<<<< HEAD
 	schedule_delayed_work(&data->lsm6dso_selftest_stop_work, msecs_to_jiffies(300));
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_AK09973) || defined(CONFIG_SUPPORT_AK09973) ||\
+	IS_ENABLED(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL) || defined(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL)
+	schedule_delayed_work(&data->lsm6dso_selftest_stop_work, msecs_to_jiffies(300));
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	return snprintf(buf, PAGE_SIZE,
 		"%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",

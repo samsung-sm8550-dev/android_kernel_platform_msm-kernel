@@ -382,6 +382,12 @@ struct sk_buff *get_dummy(struct sk_buff *skb, char *pos, int st_depth)
 	return dummy;
 }
 
+<<<<<<< HEAD
+=======
+#if 0
+// somtimes this log causes lock starvation when too many called (P230510-05174)
+// tempory disable until find smart solution
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static void drd_print_skb(struct sk_buff *skb, unsigned int len)
 {
 	struct iphdr *ip4hdr = (struct iphdr *)skb_network_header(skb);
@@ -397,6 +403,10 @@ static void drd_print_skb(struct sk_buff *skb, unsigned int len)
 			&ip6hdr->saddr, &ip6hdr->daddr, len < 48 ? len : 48, ip4hdr);
 	}
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 extern struct list_head ptype_all;
 struct sk_buff *drd_queue_skb(struct sk_buff *skb, int mode)
@@ -498,7 +508,11 @@ out_unlock:
 	rcu_read_unlock_bh();
 
 	if (mode && logged) {
+<<<<<<< HEAD
 		drd_print_skb(skb, len);
+=======
+		//drd_print_skb(skb, len);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		return get_dummy(skb, pos, st_depth);
 	}
 
@@ -587,7 +601,16 @@ void trace_android_vh_ptype_head(const struct packet_type *pt, struct list_head 
 EXPORT_SYMBOL_GPL(trace_android_vh_ptype_head);
 #endif
 
+<<<<<<< HEAD
 static void drd_kfree_skb_handler(void *data, struct sk_buff *skb, void *location)
+=======
+#if defined(TRACE_SKB_DROP_REASON) || defined(DEFINE_DROP_REASON)
+static void drd_kfree_skb_handler(void *data, struct sk_buff *skb,
+				  void *location, enum skb_drop_reason reason)
+#else
+static void drd_kfree_skb_handler(void *data, struct sk_buff *skb, void *location)
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 {
 	drd_kfree_skb(skb);
 }

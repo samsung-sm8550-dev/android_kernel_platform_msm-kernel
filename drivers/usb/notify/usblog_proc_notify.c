@@ -223,6 +223,23 @@ static const char *usbstate_string(enum usblog_state usbstate)
 		return "CONNDONE FS";
 	case NOTIFY_CONNDONE_LS:
 		return "CONNDONE LS";
+<<<<<<< HEAD
+=======
+	case NOTIFY_SUSPEND_ALREADY:
+		return "SUSPEND_ALREADY";
+	case NOTIFY_SUSPEND_ERRPREPARE:
+		return "SUSPEND_ERRPREPARE";
+	case NOTIFY_SUSPEND_LPMDELAY:
+		return "SUSPEND_LPMDELAY";
+	case NOTIFY_SUSPEND_NOVBUS:
+		return "SUSPEND_NOVBUS";
+	case NOTIFY_SUSPEND_PENDING:
+		return "SUSPEND_PENDING";
+	case NOTIFY_SUSPEND_TUNNEL:
+		return "SUSPEND_TUNNEL";
+	case NOTIFY_SUSPEND_UNCONFIGURED:
+		return "SUSPEND_UNCONFIGURED";
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	default:
 		return "UNDEFINED";
 	}
@@ -1479,6 +1496,42 @@ void state_store_usblog_notify(int type, char *param1)
 	case 'H': /*HIGH SPEED */
 		usbstate = NOTIFY_HIGH;
 		break;
+<<<<<<< HEAD
+=======
+	case 'P': /* SUSPEND */
+		name = strsep(&b, ":");
+		if (b) {
+			index2 = *b;
+			switch (index2) {
+			case 'A': /* A*/
+				usbstate = NOTIFY_SUSPEND_ALREADY;
+				break;
+			case 'E': /* E */
+				usbstate = NOTIFY_SUSPEND_ERRPREPARE;
+				break;
+			case 'L': /* L */
+				usbstate = NOTIFY_SUSPEND_LPMDELAY;
+				break;
+			case 'N': /* N */
+				usbstate = NOTIFY_SUSPEND_NOVBUS;
+				break;
+			case 'P': /* P */
+				usbstate = NOTIFY_SUSPEND_PENDING;
+				break;
+			case 'T': /* T */
+				usbstate = NOTIFY_SUSPEND_TUNNEL;
+				break;
+			case 'U': /* U*/
+				usbstate = NOTIFY_SUSPEND_UNCONFIGURED;
+				break;
+			default:
+				usbstate = NOTIFY_SUSPEND;
+				break;
+			}
+		} else
+			usbstate = NOTIFY_SUSPEND;
+		break;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	case 'M': /* USB ENUMERATION */
 		name = strsep(&b, ":");
 		if (b) {

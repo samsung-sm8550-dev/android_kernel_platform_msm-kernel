@@ -16,6 +16,10 @@
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/qcom-cpufreq-hw.h>
+<<<<<<< HEAD
+=======
+#include <linux/topology.h>
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #include <trace/events/power.h>
 #if IS_ENABLED(CONFIG_SEC_PM_LOG)
 #include <linux/sec_pm_log.h>
@@ -434,6 +438,7 @@ static void qcom_lmh_dcvs_notify(struct qcom_cpufreq_data *data)
 		data->limiting = false;
 		data->lowest_freq = UINT_MAX;
 #endif
+<<<<<<< HEAD
 	} else {
 #if IS_ENABLED(CONFIG_SEC_PM_LOG)
 	if (data->limiting == false) {
@@ -441,6 +446,15 @@ static void qcom_lmh_dcvs_notify(struct qcom_cpufreq_data *data)
 		data->lowest_freq = throttled_freq;
 		data->limiting = true;
 	} else {
+=======
+	} else {
+#if IS_ENABLED(CONFIG_SEC_PM_LOG)
+	if (data->limiting == false) {
+		ss_thermal_print("Start lmh cpu%d @%lu\n", cpu, throttled_freq);
+		data->lowest_freq = throttled_freq;
+		data->limiting = true;
+	} else {
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		if (throttled_freq < data->lowest_freq)
 			data->lowest_freq = throttled_freq;
 	}

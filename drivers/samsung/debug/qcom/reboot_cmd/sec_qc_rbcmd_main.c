@@ -12,6 +12,7 @@
 #include <linux/of_address.h>
 #include <linux/platform_device.h>
 
+<<<<<<< HEAD
 #include <linux/samsung/builder_pattern.h>
 #include <linux/samsung/debug/sec_reboot_cmd.h>
 #include <linux/samsung/debug/qcom/sec_qc_rbcmd.h>
@@ -38,11 +39,56 @@ static inline void __rbcmd_write_pon_rr(unsigned int pon_rr,
 	pr_warn("power on reason: 0x%08X\n", pon_rr);
 
 	atomic_notifier_call_chain(&pon_rr_writers, pon_rr, param);
+=======
+#include <linux/samsung/sec_kunit.h>
+
+#include "sec_qc_rbcmd.h"
+
+struct qc_rbcmd_drvdata *qc_rbcmd;
+
+__ss_static int __rbcmd_register_pon_rr_writer(
+		struct qc_rbcmd_drvdata *drvdata, struct notifier_block *nb)
+{
+	return atomic_notifier_chain_register(&drvdata->pon_rr_writers, nb);
+}
+
+int sec_qc_rbcmd_register_pon_rr_writer(struct notifier_block *nb)
+{
+	if (!__rbcmd_is_probed())
+		return -EBUSY;
+
+	return __rbcmd_register_pon_rr_writer(qc_rbcmd, nb);
+}
+EXPORT_SYMBOL_GPL(sec_qc_rbcmd_register_pon_rr_writer);
+
+__ss_static void __rbcmd_unregister_pon_rr_writer(
+		struct qc_rbcmd_drvdata *drvdata, struct notifier_block *nb)
+{
+	atomic_notifier_chain_unregister(&drvdata->pon_rr_writers, nb);
+}
+
+void sec_qc_rbcmd_unregister_pon_rr_writer(struct notifier_block *nb)
+{
+	if (!__rbcmd_is_probed())
+		return /* -EBUSY */;
+
+	__rbcmd_unregister_pon_rr_writer(qc_rbcmd, nb);
+}
+EXPORT_SYMBOL_GPL(sec_qc_rbcmd_unregister_pon_rr_writer);
+
+__ss_static void __rbcmd_write_pon_rr(struct qc_rbcmd_drvdata *drvdata,
+		unsigned int pon_rr, struct sec_reboot_param *param)
+{
+	pr_warn("power on reason: 0x%08X\n", pon_rr);
+
+	atomic_notifier_call_chain(&drvdata->pon_rr_writers, pon_rr, param);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 void __qc_rbcmd_write_pon_rr(unsigned int pon_rr,
 		struct sec_reboot_param *param)
 {
+<<<<<<< HEAD
 	__rbcmd_write_pon_rr(pon_rr, param);
 }
 
@@ -53,6 +99,20 @@ int sec_qc_rbcmd_register_sec_rr_writer(struct notifier_block *nb)
 	int err;
 
 	err = atomic_notifier_chain_register(&sec_rr_writers, nb);
+=======
+	if (!__rbcmd_is_probed())
+		return /* -EBUSY */;
+
+	__rbcmd_write_pon_rr(qc_rbcmd, pon_rr, param);
+}
+
+__ss_static int __rbcmd_register_sec_rr_writer(
+		struct qc_rbcmd_drvdata *drvdata, struct notifier_block *nb)
+{
+	int err;
+
+	err = atomic_notifier_chain_register(&drvdata->sec_rr_writers, nb);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	if (err)
 		return err;
 
@@ -66,6 +126,7 @@ int sec_qc_rbcmd_register_sec_rr_writer(struct notifier_block *nb)
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(sec_qc_rbcmd_register_sec_rr_writer);
 
 void sec_qc_rbcmd_unregister_sec_rr_writer(struct notifier_block *nb)
@@ -80,23 +141,81 @@ static inline void __rbcmd_write_sec_rr(unsigned int sec_rr,
 	pr_warn("reboot mode: 0x%08X\n", sec_rr);
 
 	atomic_notifier_call_chain(&sec_rr_writers, sec_rr, param);
+=======
+
+int sec_qc_rbcmd_register_sec_rr_writer(struct notifier_block *nb)
+{
+	if (!__rbcmd_is_probed())
+		return -EBUSY;
+
+	return __rbcmd_register_sec_rr_writer(qc_rbcmd, nb);
+}
+EXPORT_SYMBOL_GPL(sec_qc_rbcmd_register_sec_rr_writer);
+
+__ss_static void __rbcmd_unregister_sec_rr_writer(
+		struct qc_rbcmd_drvdata *drvdata, struct notifier_block *nb)
+{
+	atomic_notifier_chain_unregister(&drvdata->sec_rr_writers, nb);
+}
+
+void sec_qc_rbcmd_unregister_sec_rr_writer(struct notifier_block *nb)
+{
+	if (!__rbcmd_is_probed())
+		return /* -EBUSY */;
+
+	__rbcmd_unregister_sec_rr_writer(qc_rbcmd, nb);
+}
+EXPORT_SYMBOL_GPL(sec_qc_rbcmd_unregister_sec_rr_writer);
+
+__ss_static void __rbcmd_write_sec_rr(struct qc_rbcmd_drvdata *drvdata,
+		unsigned int sec_rr, struct sec_reboot_param *param)
+{
+	pr_warn("reboot mode: 0x%08X\n", sec_rr);
+
+	atomic_notifier_call_chain(&drvdata->sec_rr_writers, sec_rr, param);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 void __qc_rbcmd_write_sec_rr(unsigned int sec_rr,
 		struct sec_reboot_param *param)
 {
+<<<<<<< HEAD
 	__rbcmd_write_sec_rr(sec_rr, param);
+=======
+	if (!__rbcmd_is_probed())
+		return /* -EBUSY */;
+
+	__rbcmd_write_sec_rr(qc_rbcmd, sec_rr, param);
+}
+
+void __qc_rbcmd_set_restart_reason(unsigned int pon_rr, unsigned int sec_rr,
+		struct sec_reboot_param *param)
+{
+	__rbcmd_write_pon_rr(qc_rbcmd, pon_rr, param);
+	__rbcmd_write_sec_rr(qc_rbcmd, sec_rr, param);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 void sec_qc_rbcmd_set_restart_reason(unsigned int pon_rr, unsigned int sec_rr,
 		struct sec_reboot_param *param)
 {
+<<<<<<< HEAD
 	__rbcmd_write_pon_rr(pon_rr, param);
 	__rbcmd_write_sec_rr(sec_rr, param);
 }
 EXPORT_SYMBOL(sec_qc_rbcmd_set_restart_reason);
 
 static int __rbcmd_parse_dt_use_on_reboot(struct builder *bd,
+=======
+	if (!__rbcmd_is_probed())
+		return /* -EBUSY */;
+
+	__qc_rbcmd_set_restart_reason(pon_rr, sec_rr, param);
+}
+EXPORT_SYMBOL_GPL(sec_qc_rbcmd_set_restart_reason);
+
+__ss_static int __rbcmd_parse_dt_use_on_reboot(struct builder *bd,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		struct device_node *np)
 {
 	struct qc_rbcmd_drvdata *drvdata =
@@ -108,7 +227,11 @@ static int __rbcmd_parse_dt_use_on_reboot(struct builder *bd,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __rbcmd_parse_dt_use_on_restart(struct builder *bd,
+=======
+__ss_static int __rbcmd_parse_dt_use_on_restart(struct builder *bd,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		struct device_node *np)
 {
 	struct qc_rbcmd_drvdata *drvdata =
@@ -131,6 +254,20 @@ static int __rbcmd_parse_dt(struct builder *bd)
 			ARRAY_SIZE(__qc_rbcmd_dt_builder));
 }
 
+<<<<<<< HEAD
+=======
+static int __rbcmd_probe_prolog(struct builder *bd)
+{
+	struct qc_rbcmd_drvdata *drvdata =
+			container_of(bd, struct qc_rbcmd_drvdata, bd);
+
+	ATOMIC_INIT_NOTIFIER_HEAD(&drvdata->pon_rr_writers);
+	ATOMIC_INIT_NOTIFIER_HEAD(&drvdata->sec_rr_writers);
+
+	return 0;
+}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static int __rbcmd_set_drvdata(struct builder *bd)
 {
 	struct qc_rbcmd_drvdata *drvdata =
@@ -142,6 +279,24 @@ static int __rbcmd_set_drvdata(struct builder *bd)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int __rbcmd_probe_epilog(struct builder *bd)
+{
+	struct qc_rbcmd_drvdata *drvdata =
+			container_of(bd, struct qc_rbcmd_drvdata, bd);
+
+	qc_rbcmd = drvdata;
+
+	return 0;
+}
+
+static void __rbcmd_remove_prolog(struct builder *bd)
+{
+	qc_rbcmd = NULL;
+}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static int __rbcmd_probe(struct platform_device *pdev,
 		const struct dev_builder *builder, ssize_t n)
 {
@@ -189,6 +344,10 @@ static int __rbcmd_remove_threaded(struct platform_device *pdev,
 
 static const struct dev_builder __qc_rbcmd_dev_builder[] = {
 	DEVICE_BUILDER(__rbcmd_parse_dt, NULL),
+<<<<<<< HEAD
+=======
+	DEVICE_BUILDER(__rbcmd_probe_prolog, NULL),
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	DEVICE_BUILDER(__qc_rbcmd_register_panic_handle,
 		       __qc_rbcmd_unregister_panic_handle),
 	DEVICE_BUILDER(__rbcmd_set_drvdata, NULL),
@@ -199,6 +358,11 @@ static const struct dev_builder __qc_rbcmd_dev_builder_threaded[] = {
 		       __qc_rbcmd_exit_on_reboot),
 	DEVICE_BUILDER(__qc_rbcmd_init_on_restart,
 		       __qc_rbcmd_exit_on_restart),
+<<<<<<< HEAD
+=======
+	DEVICE_BUILDER(__rbcmd_probe_epilog,
+		       __rbcmd_remove_prolog),
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 static int sec_qc_rbcmd_probe(struct platform_device *pdev)

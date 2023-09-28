@@ -135,8 +135,11 @@ struct qbt2000_drvdata {
 	bool enabled_wuhb;
 	bool enabled_ldo;
 	bool tz_mode;
+<<<<<<< HEAD
 	bool wuhb_test_flag;
 	int wuhb_test_result;
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	const char *model_info;
 	const char *chipid;
 	struct pinctrl *p;

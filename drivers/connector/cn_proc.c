@@ -20,6 +20,8 @@
 #include <linux/cn_proc.h>
 #include <linux/local_lock.h>
 
+int is_heimdall_enabled = 0;
+
 /*
  * Size of a cn_msg followed by a proc_event structure.  Since the
  * sizeof struct cn_msg is a multiple of 4 bytes, but not 8 bytes, we
@@ -424,6 +426,14 @@ static void cn_proc_mcast_ctl(struct cn_msg *msg,
 	pr_info("%s: client connected with event mask=0x%x\n", __func__, mask);
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PROC_CONNECTOR_SELECT_EVENTS
+	if (msg->len != sizeof(*mc_op))
+		is_heimdall_enabled = 1;
+#endif
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	switch (*mc_op) {
 	case PROC_CN_MCAST_LISTEN:
 		atomic_inc(&proc_event_num_listeners);

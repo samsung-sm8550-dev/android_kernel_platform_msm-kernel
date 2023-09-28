@@ -39,7 +39,15 @@ struct i2c_dev {
 long nfc_i2c_dev_ioctl(struct file *pfile, unsigned int cmd, unsigned long arg);
 int nfc_i2c_dev_probe(struct i2c_client *client,
 		      const struct i2c_device_id *id);
+<<<<<<< HEAD
 int nfc_i2c_dev_remove(struct i2c_client *client);
+=======
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 0)
+int nfc_i2c_dev_remove(struct i2c_client *client);
+#else
+void nfc_i2c_dev_remove(struct i2c_client *client);
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 int nfc_i2c_dev_suspend(struct device *device);
 int nfc_i2c_dev_resume(struct device *device);
 #ifdef CONFIG_CLK_ACPM_INIT

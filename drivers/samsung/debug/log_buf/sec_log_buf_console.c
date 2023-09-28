@@ -12,6 +12,12 @@
 static void sec_log_buf_write_console(struct console *console, const char *s,
 		unsigned int count)
 {
+<<<<<<< HEAD
+=======
+	if (!__log_buf_is_acceptable(s, count))
+		return;
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	__log_buf_write(s, count);
 }
 

@@ -85,8 +85,15 @@ extern void muic_pdic_notifier_attach_attached_dev(muic_attached_dev_t new_dev);
 extern void muic_pdic_notifier_detach_attached_dev(muic_attached_dev_t new_dev);
 extern void muic_notifier_logically_attach_attached_dev(muic_attached_dev_t new_dev);
 extern void muic_notifier_logically_detach_attached_dev(muic_attached_dev_t cur_dev);
+<<<<<<< HEAD
 extern void vt_muic_notifier_attach_attached_dev(muic_attached_dev_t new_dev);
 extern void vt_muic_notifier_detach_attached_dev(muic_attached_dev_t cur_dev);
+=======
+#if IS_ENABLED(CONFIG_VIRTUAL_MUIC)
+extern void vt_muic_notifier_attach_attached_dev(muic_attached_dev_t new_dev);
+extern void vt_muic_notifier_detach_attached_dev(muic_attached_dev_t cur_dev);
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 #if IS_ENABLED(CONFIG_PDIC_SLSI_NON_MCU)
 extern int muic_pdic_notifier_register(struct notifier_block *nb,

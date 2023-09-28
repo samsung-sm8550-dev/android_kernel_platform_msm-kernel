@@ -1222,8 +1222,12 @@ static int send_signal(int sig, struct kernel_siginfo *info, struct task_struct 
 	/* [SystemF/W, si_code is 0 : from userspace, si_code is over 0 : from kernel */
 	if (!is_si_special(info)) {
 		if ((current->pid != 1) && ((sig == SIGKILL && !strncmp("main", t->group_leader->comm, 4))
+<<<<<<< HEAD
 				|| ((sig == SIGKILL || sig == SIGSEGV)
 					&& !strncmp("system_server", t->group_leader->comm, 13)))) {
+=======
+				|| (sig == SIGKILL && !strncmp("system_server", t->group_leader->comm, 13)))) {
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			pr_info("Send signal %d from %s(%d) to %s(%d) : %d\n",
 						sig, current->comm, current->pid, t->comm, t->pid, info->si_code);
 		}

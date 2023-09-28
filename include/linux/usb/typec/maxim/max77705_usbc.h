@@ -147,6 +147,10 @@ struct max77705_usbc_platform_data {
 	struct work_struct op_wait_work;
 	struct work_struct op_send_work;
 	struct work_struct cc_open_req_work;
+<<<<<<< HEAD
+=======
+	struct work_struct dp_configure_work;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #ifdef MAX77705_SYS_FW_UPDATE
 	struct work_struct fw_update_work;
 #endif
@@ -184,6 +188,10 @@ struct max77705_usbc_platform_data {
 	int is_samsung_accessory_enter_mode;
 	int send_enter_mode_req;
 	u8 sbu[2];
+<<<<<<< HEAD
+=======
+	u8 cc[2];
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	struct completion ccic_sysfs_completion;
 	struct completion psrdy_wait;
 	struct max77705_muic_data *muic_data;
@@ -268,6 +276,11 @@ struct max77705_usbc_platform_data {
 	bool rid_check;
 	int lapse_idx;
 	u64 time_lapse[MAX_NVCN_CNT];
+<<<<<<< HEAD
+=======
+
+	int wait_entermode;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 /* Function Status from s2mm005 definition */

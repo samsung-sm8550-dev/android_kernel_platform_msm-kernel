@@ -62,16 +62,35 @@ static ssize_t show_attrs(struct device *dev,
 	{
 		char temp_buf[1024] = {0,};
 		int size = 1024;
+<<<<<<< HEAD
 
 		snprintf(temp_buf + strlen(temp_buf), size,
 			"%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%s,%s,%s,%d,%s,%d,%d,%lu,0x%x,0x%x,0x%x,",
+=======
+		union power_supply_propval dc_state = {0, };
+
+		dc_state.strval = "NO_CHARGING";
+#if IS_ENABLED(CONFIG_DIRECT_CHARGING)
+		psy_do_property(battery->pdata->charger_name, get,
+			POWER_SUPPLY_EXT_PROP_DIRECT_CHARGER_CHG_STATUS, dc_state);
+#endif
+
+		snprintf(temp_buf + strlen(temp_buf), size,
+			"%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%s,%s,%s,%s,%d,%s,%d,%d,%lu,0x%x,0x%x,0x%x,",
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			battery->voltage_now, battery->current_now,
 			battery->current_max, battery->charging_current,
 			battery->capacity,
 			battery->temperature, battery->usb_temp,
 			battery->chg_temp, battery->wpc_temp,
 			battery->blkt_temp, battery->lrp,
+<<<<<<< HEAD
 			sb_get_bst_str(battery->status),
+=======
+			battery->dchg_temp, battery->sub_bat_temp,
+			sb_get_bst_str(battery->status),
+			dc_state.strval,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			sb_get_cm_str(battery->charging_mode),
 			sb_get_hl_str(battery->health),
 			sb_get_ct_str(battery->cable_type),
@@ -95,12 +114,16 @@ static ssize_t show_attrs(struct device *dev,
 		size = sizeof(temp_buf) - strlen(temp_buf);
 	}
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		snprintf(temp_buf+strlen(temp_buf), size,
 			"%d,%d,%d,%d,",
 			battery->voltage_pack_main, battery->voltage_pack_sub,
 			battery->current_now_main, battery->current_now_sub);
 		size = sizeof(temp_buf) - strlen(temp_buf);
+<<<<<<< HEAD
 #endif
 
 #if defined(CONFIG_BATTERY_AGE_FORECAST)
@@ -115,6 +138,30 @@ static ssize_t show_attrs(struct device *dev,
 			value.intval = SB_WRL_RX_MODE;
 		else
 			goto skip_wc;
+=======
+
+		snprintf(temp_buf+strlen(temp_buf), size, "%d,", battery->batt_cycle);
+		size = sizeof(temp_buf) - strlen(temp_buf);
+
+		psy_do_property(battery->pdata->fuelgauge_name, get,
+			POWER_SUPPLY_EXT_PROP_BATT_DUMP, value);
+		snprintf(temp_buf+strlen(temp_buf), size, "%s,", value.strval);
+		size = sizeof(temp_buf) - strlen(temp_buf);
+
+		/* Wireless charging related log added at the end of the string */
+		value.intval = SB_WRL_NONE;
+#if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
+		if (battery->wc_tx_enable) {
+			value.intval = SB_WRL_TX_MODE;
+			snprintf(temp_buf+strlen(temp_buf), size, "%d,", SB_WRL_TX_MODE);
+		} else if (is_wireless_fake_type(battery->cable_type)) {
+			value.intval = SB_WRL_RX_MODE;
+			snprintf(temp_buf+strlen(temp_buf), size, "%d,", SB_WRL_RX_MODE);
+		} else
+			goto skip_wc;
+
+		size = sizeof(temp_buf) - strlen(temp_buf);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		psy_do_property(battery->pdata->wireless_charger_name, get,
 			POWER_SUPPLY_EXT_PROP_BATT_DUMP, value);
 
@@ -122,10 +169,17 @@ static ssize_t show_attrs(struct device *dev,
 		size = sizeof(temp_buf) - strlen(temp_buf);
 skip_wc:
 #endif
+<<<<<<< HEAD
 		psy_do_property(battery->pdata->fuelgauge_name, get,
 			POWER_SUPPLY_EXT_PROP_BATT_DUMP, value);
 		snprintf(temp_buf+strlen(temp_buf), size, "%s,", value.strval);
 		size = sizeof(temp_buf) - strlen(temp_buf);
+=======
+		if (value.intval == SB_WRL_NONE) {
+			snprintf(temp_buf+strlen(temp_buf), size, "%d,", 0);
+			size = sizeof(temp_buf) - strlen(temp_buf);
+		}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 		count += scnprintf(buf + count, PAGE_SIZE - count, "%s\n", temp_buf);
 	}

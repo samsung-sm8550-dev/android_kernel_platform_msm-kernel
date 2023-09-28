@@ -53,6 +53,12 @@ static void __trace_android_vh_logbuf(void *unused,
 	if (text_len > buf_size)
 		text_len = buf_size;
 
+<<<<<<< HEAD
+=======
+	if (!__log_buf_is_acceptable(text, text_len))
+		return;
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	prefix_len = info_print_prefix(r->info, prefix);
 	__log_buf_write(prefix, prefix_len);
 	__log_buf_write(text, text_len);
@@ -64,6 +70,12 @@ static void __trace_android_vh_logbuf_pr_cont(void *unused,
 	size_t offset = r->info->text_len - text_len;
 	char *text = &r->text_buf[offset];
 
+<<<<<<< HEAD
+=======
+	if (!__log_buf_is_acceptable(text, text_len))
+		return;
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	__log_buf_write(text, text_len);
 }
 

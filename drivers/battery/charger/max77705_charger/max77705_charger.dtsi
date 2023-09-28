@@ -10,7 +10,11 @@
 };
 
 
+<<<<<<< HEAD
 /* /home/dpi/qb5_8815/workspace/P4_1716/android/kernel_platform/kmodule/battery/stable/dm/charger/max77705/max77705_charger.dm2q.dtsi */
+=======
+/* /home/dpi/qb5_8814/workspace/P4_1788/android/kernel_platform/kmodule/battery/stable/dm/charger/max77705/max77705_charger.dm1q.dtsi */
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 &max77705_charger {
 	charger,enable_sysovlo_irq;
 	charger,fac_vsys = <4400>;

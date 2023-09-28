@@ -29,6 +29,10 @@
 
 /* FIXME: use a modified COMMAND_LINE_SIZE for a recovery mode */
 #undef COMMAND_LINE_SIZE
+<<<<<<< HEAD
 #define COMMAND_LINE_SIZE	4096
+=======
+#define COMMAND_LINE_SIZE	8192
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 #endif

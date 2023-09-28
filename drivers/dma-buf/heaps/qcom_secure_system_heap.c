@@ -665,7 +665,11 @@ static long get_secure_system_heap_total_kbytes(struct dma_heap *heap)
 	if (!sys_heap)
 		return 0;
 
+<<<<<<< HEAD
 	return atomic_long_read(&sys_heap->total_bytes) >> 10;
+=======
+	return atomic_long_read(&sys_heap->total_allocated) >> 10;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 static void qcom_secure_system_heap_show_mem(void *data, unsigned int filter, nodemask_t *nodemask)

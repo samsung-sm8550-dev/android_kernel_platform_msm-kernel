@@ -46,6 +46,12 @@ static ssize_t sec_ap_klog_read(struct file *file, char __user * buf,
 	loff_t pos = *offset;
 	ssize_t count;
 
+<<<<<<< HEAD
+=======
+	if (pos < 0 || pos > ap_klog->size)
+		return 0;
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	count = min(len, (size_t) (ap_klog->size - pos));
 	if (copy_to_user(buf, ap_klog->buf + pos, count))
 		return -EFAULT;

@@ -54,15 +54,26 @@ static u8 msg_size[MSG_SENSOR_MAX] = {
 	MSG_FLIP_COVER_DETECTOR_MAX,
 #endif
 #if IS_ENABLED(CONFIG_SUPPORT_VIRTUAL_OPTIC)
+<<<<<<< HEAD
 	MSG_TYPE_SIZE_ZERO,
 #endif
 	MSG_TYPE_SIZE_ZERO,
+=======
+	MSG_VOPTIC_MAX,
+#endif
+	MSG_REG_SNS_MAX,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #if IS_ENABLED(CONFIG_SUPPORT_AK09973)
 	MSG_DIGITAL_HALL_MAX,
 	MSG_DIGITAL_HALL_ANGLE_MAX,
 #if ENABLE_LF_STREAM
 	MSG_DIGITAL_HALL_ANGLE_MAX,
 #endif
+<<<<<<< HEAD
+=======
+#elif IS_ENABLED(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL) || defined(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL)
+	MSG_REF_ANGLE_MAX,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 #if IS_ENABLED(CONFIG_SUPPORT_DUAL_DDI_COPR_FOR_LIGHT_SENSOR)
 	MSG_DDI_MAX,
@@ -79,7 +90,12 @@ struct adsp_data *data;
 
 DEFINE_MUTEX(factory_mutex);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER)
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && \
+	(IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER_V2) || IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER))
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 struct adsp_data* adsp_get_struct_data(void)
 {
 	return data;
@@ -245,6 +261,7 @@ int adsp_factory_unregister(unsigned int type)
 }
 EXPORT_SYMBOL(adsp_factory_unregister);
 
+<<<<<<< HEAD
 int get_prox_raw_data(int *raw_data, int *offset)
 {
 	uint8_t cnt = 0;
@@ -299,6 +316,8 @@ int get_sub_prox_raw_data(int *raw_data, int *offset)
 }
 #endif
 
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 int get_accel_raw_data(int32_t *raw_data)
 {
 	uint8_t cnt = 0;
@@ -344,15 +363,33 @@ int get_sub_accel_raw_data(int32_t *raw_data)
 
 	return 0;
 }
+<<<<<<< HEAD
 
+=======
+#endif
+#if IS_ENABLED(CONFIG_SUPPORT_AK09973)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 void lsm6dso_selftest_stop_work_func(struct work_struct *work)
 {
 	int msg_buf = LSM6DSO_SELFTEST_FALSE;
 	adsp_unicast(&msg_buf, sizeof(msg_buf),
 		MSG_DIGITAL_HALL_ANGLE, 0, MSG_TYPE_OPTION_DEFINE);
 }
+<<<<<<< HEAD
 #endif
 
+=======
+#elif IS_ENABLED(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL) || defined(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL)
+void lsm6dso_selftest_stop_work_func(struct work_struct *work)
+{
+	int msg_buf = LSM6DSO_SELFTEST_FALSE;
+	adsp_unicast(&msg_buf, sizeof(msg_buf),
+		MSG_REF_ANGLE, 0, MSG_TYPE_OPTION_DEFINE);
+}
+#endif
+
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #ifdef CONFIG_SEC_FACTORY
 int get_mag_raw_data(int32_t *raw_data)
 {
@@ -458,7 +495,11 @@ static int process_received_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
 #if IS_ENABLED(CONFIG_SUPPORT_LIGHT_SEAMLESS)
 		light_seamless_init_work(data);
 #endif
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_LPS22HH_FACTORY)
+=======
+#if IS_ENABLED(CONFIG_LPS22HH_FACTORY) || IS_ENABLED(CONFIG_PRESSURE_FACTORY)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		pressure_factory_init_work(data);
 #endif
 		return 0;
@@ -529,6 +570,12 @@ static int __init factory_adsp_init(void)
 	mutex_init(&data->prox_factory_mutex);
 	mutex_init(&data->light_factory_mutex);
 	mutex_init(&data->remove_sysfs_mutex);
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_DUAL_OPTIC)
+	mutex_init(&data->vir_optic_factory_mutex);
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #if IS_ENABLED(CONFIG_FLIP_COVER_DETECTOR_FACTORY)
 	mutex_init(&data->flip_cover_factory_mutex);
 #endif
@@ -550,17 +597,28 @@ static int __init factory_adsp_init(void)
 	INIT_DELAYED_WORK(&data->light_fifo_debug_work,
 		light_fifo_debug_work_func);
 #endif
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER)
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && \
+	(IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER_V2) || IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER))
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	INIT_WORK(&data->light_br_work, light_brightness_work_func);
 #endif
 	INIT_DELAYED_WORK(&data->accel_cal_work, accel_cal_work_func);
 #if IS_ENABLED(CONFIG_SUPPORT_DUAL_6AXIS)
 	INIT_DELAYED_WORK(&data->sub_accel_cal_work, sub_accel_cal_work_func);
+<<<<<<< HEAD
+=======
+#endif
+#if IS_ENABLED(CONFIG_SUPPORT_AK09973) || IS_ENABLED(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL) || defined(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	INIT_DELAYED_WORK(&data->lsm6dso_selftest_stop_work, lsm6dso_selftest_stop_work_func);
 #endif
 #if IS_ENABLED(CONFIG_SUPPORT_LIGHT_SEAMLESS)
 	INIT_DELAYED_WORK(&data->light_seamless_work, light_seamless_work_func);
 #endif
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_LPS22HH_FACTORY)
 	INIT_DELAYED_WORK(&data->pressure_cal_work, pressure_cal_work_func);
 #endif
@@ -578,6 +636,27 @@ static int __init factory_adsp_init(void)
 #endif
 #if IS_ENABLED(CONFIG_LPS22HH_FACTORY)
 	lps22hh_pressure_factory_init();
+=======
+#if IS_ENABLED(CONFIG_LPS22HH_FACTORY) || IS_ENABLED(CONFIG_PRESSURE_FACTORY)
+	INIT_DELAYED_WORK(&data->pressure_cal_work, pressure_cal_work_func);
+#endif
+	core_factory_init();
+#if IS_ENABLED(CONFIG_LSM6DSO_FACTORY)
+	lsm6dso_accel_factory_init();
+	lsm6dso_gyro_factory_init();
+#endif
+#if IS_ENABLED(CONFIG_LSM6DSL_FACTORY)
+	lsm6dsl_accel_factory_init();
+	lsm6dsl_gyro_factory_init();
+#endif
+#if IS_ENABLED(CONFIG_AK09918_FACTORY)
+	ak09918_factory_init();
+#endif
+#if IS_ENABLED(CONFIG_LPS22HH_FACTORY)
+	lps22hh_pressure_factory_init();
+#elif IS_ENABLED(CONFIG_PRESSURE_FACTORY)
+	pressure_factory_init();
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 #if IS_ENABLED(CONFIG_LIGHT_FACTORY)
 	light_factory_init();
@@ -587,7 +666,11 @@ static int __init factory_adsp_init(void)
 #endif
 #if IS_ENABLED(CONFIG_SUPPORT_DUAL_6AXIS)
 	lsm6dso_sub_accel_factory_init();
+<<<<<<< HEAD
   lsm6dso_sub_gyro_factory_init();
+=======
+	lsm6dso_sub_gyro_factory_init();
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 
 #if IS_ENABLED(CONFIG_SUPPORT_AK09973)
@@ -620,6 +703,11 @@ static void __exit factory_adsp_exit(void)
 #endif
 #if IS_ENABLED(CONFIG_LPS22HH_FACTORY)
 	lps22hh_pressure_factory_exit();
+<<<<<<< HEAD
+=======
+#elif IS_ENABLED(CONFIG_PRESSURE_FACTORY)
+	pressure_factory_exit();
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 #if IS_ENABLED(CONFIG_LIGHT_FACTORY)
 	cancel_delayed_work_sync(&data->light_init_work);
@@ -643,12 +731,24 @@ static void __exit factory_adsp_exit(void)
 	mutex_destroy(&data->prox_factory_mutex);
 	mutex_destroy(&data->light_factory_mutex);
 	mutex_destroy(&data->remove_sysfs_mutex);
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_DUAL_OPTIC)
+	mutex_destroy(&data->vir_optic_factory_mutex);
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #if IS_ENABLED(CONFIG_FLIP_COVER_DETECTOR_FACTORY)
 	mutex_destroy(&data->flip_cover_factory_mutex);
 #endif
 #if IS_ENABLED(CONFIG_SUPPORT_AK09973)
 	mutex_destroy(&data->digital_hall_mutex);
 	cancel_delayed_work_sync(&data->dhall_cal_work);
+<<<<<<< HEAD
+=======
+	cancel_delayed_work_sync(&data->lsm6dso_selftest_stop_work);
+#elif IS_ENABLED(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL) || defined(CONFIG_SUPPORT_REF_ANGLE_WITHOUT_DIGITAL_HALL)
+	cancel_delayed_work_sync(&data->lsm6dso_selftest_stop_work);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 #if IS_ENABLED(CONFIG_SUPPORT_LIGHT_CALIBRATION)
 	cancel_delayed_work_sync(&data->light_cal_work);
@@ -665,7 +765,10 @@ static void __exit factory_adsp_exit(void)
 	cancel_delayed_work_sync(&data->accel_cal_work);
 #if IS_ENABLED(CONFIG_SUPPORT_DUAL_6AXIS)
 	cancel_delayed_work_sync(&data->sub_accel_cal_work);
+<<<<<<< HEAD
 	cancel_delayed_work_sync(&data->lsm6dso_selftest_stop_work);
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 #if IS_ENABLED(CONFIG_SUPPORT_LIGHT_SEAMLESS)
 	cancel_delayed_work_sync(&data->light_seamless_work);

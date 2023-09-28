@@ -57,6 +57,11 @@ snd-soc-cs35l35-objs := cs35l35.o
 snd-soc-cs35l36-objs := cs35l36.o
 snd-soc-cs35l43-i2c-objs := cs35l43-i2c.o cs35l43.o cs35l43-tables.o
 snd-soc-cs35l43-spi-objs := cs35l43-spi.o cs35l43.o cs35l43-tables.o
+<<<<<<< HEAD
+=======
+snd-soc-cs35l45-spi-objs := cs35l45-spi.o cs35l45.o cs35l45-tables.o
+snd-soc-cs35l45-i2c-objs := cs35l45-i2c.o cs35l45.o cs35l45-tables.o
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 snd-soc-cs42l42-objs := cs42l42.o
 snd-soc-cs42l51-objs := cs42l51.o
 snd-soc-cs42l51-i2c-objs := cs42l51-i2c.o
@@ -391,6 +396,11 @@ obj-$(CONFIG_SND_SOC_CS35L35)	+= snd-soc-cs35l35.o
 obj-$(CONFIG_SND_SOC_CS35L36)	+= snd-soc-cs35l36.o
 obj-$(CONFIG_SND_SOC_CS35L43_I2C)	+= snd-soc-cs35l43-i2c.o
 obj-$(CONFIG_SND_SOC_CS35L43_SPI)	+= snd-soc-cs35l43-spi.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_SND_SOC_CS35L45_SPI)	+= snd-soc-cs35l45-spi.o
+obj-$(CONFIG_SND_SOC_CS35L45_I2C)	+= snd-soc-cs35l45-i2c.o
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 obj-$(CONFIG_SND_SOC_CS42L42)	+= snd-soc-cs42l42.o
 obj-$(CONFIG_SND_SOC_CS42L51)	+= snd-soc-cs42l51.o
 obj-$(CONFIG_SND_SOC_CS42L51_I2C)	+= snd-soc-cs42l51-i2c.o

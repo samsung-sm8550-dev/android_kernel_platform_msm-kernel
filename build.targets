@@ -10,4 +10,10 @@ build.config.msm.sdxbaagha
 build.config.msm.bengal
 build.config.msm.sa410m
 build.config.msm.monaco
+<<<<<<< HEAD
+=======
+build.config.msm.kona
+build.config.msm.kona.le
+build.config.msm.qcs405
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 build.config.msm.kalama.sec

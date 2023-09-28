@@ -549,7 +549,10 @@ int msm_geni_serial_resources_on(struct msm_geni_serial_port *port)
 		return ret;
 	}
 
-return ret;
+	geni_write_reg(0x7F, port->uport.membase, GENI_OUTPUT_CTRL);
+	udelay(10);
+
+	return ret;
 }
 
 int msm_geni_serial_resources_off(struct msm_geni_serial_port *port)
@@ -2989,6 +2992,7 @@ static bool handle_tx_dma_xfer(u32 m_irq_status, struct uart_port *uport)
 
 		if (dma_tx_status & (TX_RESET_DONE | TX_GENI_CANCEL_IRQ))
 			return true;
+		
 
 		if (dma_tx_status & TX_DMA_DONE)
 			msm_geni_serial_handle_dma_tx(uport);
@@ -3295,10 +3299,19 @@ static void msm_geni_serial_shutdown(struct uart_port *uport)
 	} else {
 		if (!msm_port->is_clk_aon)
 			msm_geni_serial_power_on(uport, false);
+<<<<<<< HEAD
 		ret = wait_for_transfers_inflight(uport);
 		if (ret)
 			UART_LOG_DBG(msm_port->ipc_log_misc, uport->dev,
 				  "%s wait_for_transfer_inflight return ret: %d", __func__, ret);
+=======
+
+		if (msm_port->wakeup_irq > 0 && msm_port->wakeup_enabled) {
+			irq_set_irq_wake(msm_port->wakeup_irq, 0);
+			disable_irq(msm_port->wakeup_irq);
+			msm_port->wakeup_enabled = false;
+		}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 		if (msm_port->xfer_mode == GENI_GPI_DMA) {
 			/* From the framework every time the stop
@@ -3412,6 +3425,10 @@ static void msm_geni_serial_shutdown(struct uart_port *uport)
 		/* Reset UART error to default during port_close() */
 		msm_port->uart_error = UART_ERROR_DEFAULT;
 	}
+<<<<<<< HEAD
+=======
+	msm_port->shutdown_in_progress = false;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	msm_port->startup = false;
 	UART_LOG_DBG(msm_port->ipc_log_misc, uport->dev, "%s: End %d\n", __func__, ret);
@@ -3490,6 +3507,11 @@ static int msm_geni_serial_startup(struct uart_port *uport)
 	msm_port->startup_in_progress = true;
 
 	if (likely(!uart_console(uport))) {
+<<<<<<< HEAD
+=======
+		msm_port->resuming_from_deep_sleep = false;
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		ret = msm_geni_serial_power_on(&msm_port->uport, false);
 		if (ret) {
 			dev_err(uport->dev, "%s:Failed to power on %d\n",
@@ -3682,9 +3704,12 @@ static void msm_geni_serial_set_termios(struct uart_port *uport,
 	}
 
 	if (!uart_console(uport)) {
+<<<<<<< HEAD
 		int ret;
 
 		UART_LOG_DBG(port->ipc_log_misc, uport->dev, "%s: start %d\n", __func__, true);
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		ret = msm_geni_serial_power_on(uport, false);
 
 		if (ret) {
@@ -3708,6 +3733,7 @@ static void msm_geni_serial_set_termios(struct uart_port *uport,
 		timeout = wait_for_completion_timeout(&port->xfer,
 						      msecs_to_jiffies(POLL_WAIT_TIMEOUT_MSEC));
 
+<<<<<<< HEAD
 		if (!timeout)
 			UART_LOG_DBG(port->ipc_log_misc, uport->dev,
 				     "%s:Timeout for stop_rx\n", __func__);
@@ -3716,6 +3742,35 @@ static void msm_geni_serial_set_termios(struct uart_port *uport,
 	baud = uart_get_baud_rate(uport, termios, old,
 			MIN_SUPPORTED_BAUD_RATE, MAX_SUPPORTED_BAUD_RATE);
 	port->cur_baud = baud;
+=======
+	msm_geni_serial_start_rx(uport);
+	if (!uart_console(uport))
+		msm_geni_serial_power_off(uport, false);
+
+	return ret;
+}
+
+/*
+ * msm_geni_serial_config_baud_rate() - Configure the baud rate
+ *
+ * @uport: pointer to uart port
+ * @termios: pointer to termios structure
+ * @baud: baud rate which need to be configured
+ *
+ * Return: 0 on success else returns a error
+ */
+static int msm_geni_serial_config_baud_rate(struct uart_port *uport,
+					    struct ktermios *termios, unsigned int baud)
+{
+	int clk_div, ret;
+	unsigned long ser_clk_cfg = 0;
+	struct msm_geni_serial_port *port = GET_DEV_PORT(uport);
+	unsigned long clk_rate;
+	unsigned long desired_rate;
+	unsigned int clk_idx;
+	int uart_sampling;
+	int clk_freq_diff;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	/* sampling is halved for QUP versions >= 2.5 */
 	uart_sampling = UART_OVERSAMPLING;
@@ -3765,8 +3820,67 @@ static void msm_geni_serial_set_termios(struct uart_port *uport,
 	msm_geni_enable_disable_se_clk(uport, true);
 
 	msm_geni_serial_termios_cfg(uport, termios, clk_div);
+<<<<<<< HEAD
 	UART_LOG_DBG(port->ipc_log_misc, uport->dev, "%s: baud %d ser_clk_cfg:0x%x\n",
 			__func__, baud, port->ser_clk_cfg);
+=======
+	return 0;
+}
+
+static void msm_geni_serial_set_termios(struct uart_port *uport,
+					struct ktermios *termios, struct ktermios *old)
+{
+	unsigned int baud;
+	struct msm_geni_serial_port *port = GET_DEV_PORT(uport);
+	unsigned long poll_wait_time;
+
+	/* QUP_2.5.0 and older RUMI has sampling rate as 32 */
+	if (IS_ENABLED(CONFIG_SERIAL_MSM_GENI_HALF_SAMPLING) &&
+	    port->rumi_platform && port->is_console) {
+		geni_write_reg(0x21, uport->membase, GENI_SER_M_CLK_CFG);
+		geni_write_reg(0x21, uport->membase, GENI_SER_S_CLK_CFG);
+		geni_read_reg(uport->membase, GENI_SER_M_CLK_CFG);
+	}
+
+	if (!uart_console(uport)) {
+		int ret;
+
+		ret = msm_geni_serial_power_on(uport, false);
+		if (ret) {
+			IPC_LOG_MSG(port->ipc_log_misc,
+				    "%s: Failed to vote clock on:%d\n",
+				    __func__, ret);
+			return;
+		}
+	}
+
+	if (port->tx_wq)
+		flush_workqueue(port->tx_wq);
+
+	if (port->rx_wq)
+		flush_workqueue(port->rx_wq);
+
+	reinit_completion(&port->xfer);
+	msm_geni_serial_stop_rx(uport);
+
+	if (!uart_console(uport)) {
+		poll_wait_time = msecs_to_jiffies(POLL_WAIT_TIMEOUT_MSEC);
+		if (!wait_for_completion_timeout(&port->xfer, poll_wait_time))
+			IPC_LOG_MSG(port->ipc_log_misc,
+				    "%s:Timeout for stop_rx\n", __func__);
+	}
+
+	/* baud rate */
+	baud = uart_get_baud_rate(uport, termios, old, 300, 4000000);
+	port->cur_baud = baud;
+	if (msm_geni_serial_config_baud_rate(uport, termios, baud))
+		goto exit_set_termios;
+
+	if (!uart_console(uport))
+		port->current_termios = termios;
+
+	IPC_LOG_MSG(port->ipc_log_misc, "%s: baud %d\n", __func__, baud);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 exit_set_termios:
 	msm_geni_serial_start_rx(uport);
 	if (!uart_console(uport))
@@ -4495,7 +4609,10 @@ static int msm_geni_serial_probe(struct platform_device *pdev)
 				dev_err(&pdev->dev, "%s: Console enabled. Skip registering.\n", id->compatible);
 				return -ENODEV;
 			}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			if (line < 0)
 				line = uart_line_id++;
 			else
@@ -4673,7 +4790,11 @@ static int msm_geni_serial_remove(struct platform_device *pdev)
 	 */
 	if (port->is_console && !con_enabled)
 		return 0;
+<<<<<<< HEAD
 	if (!uart_console(&port->uport) && !port->is_clk_aon)
+=======
+	if (!uart_console(&port->uport) && !port->is_clk_aon) {
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		wakeup_source_unregister(port->geni_wake);
 	if (port->pm_auto_suspend_disable)
 		pm_runtime_allow(&pdev->dev);
@@ -4953,6 +5074,37 @@ static int msm_geni_serial_sys_suspend(struct device *dev)
 	return 0;
 }
 
+static int msm_geni_serial_sys_resume_noirq(struct device *dev)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	struct msm_geni_serial_port *port = platform_get_drvdata(pdev);
+	struct uart_port *uport = &port->uport;
+
+	if (!uart_console(uport) && port->is_clk_aon && port->startup) {
+		msm_geni_serial_power_on(uport, true);
+		msm_geni_serial_start_rx(uport);
+	}
+
+	return 0;
+}
+<<<<<<< HEAD
+=======
+
+
+static int msm_geni_serial_sys_suspend(struct device *dev)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	struct msm_geni_serial_port *port = platform_get_drvdata(pdev);
+	struct uart_port *uport = &port->uport;
+
+	if (!uart_console(uport) && port->is_clk_aon && port->startup) {
+		msm_geni_serial_stop_rx(uport);
+		msm_geni_serial_power_off(uport, true);
+	}
+
+	return 0;
+}
+
 static int msm_geni_serial_sys_resume(struct device *dev)
 {
 	struct platform_device *pdev = to_platform_device(dev);
@@ -4966,6 +5118,7 @@ static int msm_geni_serial_sys_resume(struct device *dev)
 
 	return 0;
 }
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #else
 static int msm_geni_serial_runtime_suspend(struct device *dev)
 {

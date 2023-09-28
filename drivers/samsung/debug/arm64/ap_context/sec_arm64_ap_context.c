@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * COPYRIGHT(C) 2020-2022 Samsung Electronics Co., Ltd. All Right Reserved.
+=======
+ * COPYRIGHT(C) 2020-2023 Samsung Electronics Co., Ltd. All Right Reserved.
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
  */
 
 #define pr_fmt(fmt)	KBUILD_MODNAME ":%s() " fmt, __func__
@@ -57,6 +61,7 @@ static void __always_inline __ap_context_save_core_regs_from_pt_regs(
 void __naked __ap_context_save_core_regs_on_current(struct pt_regs *regs)
 {
 	asm volatile (
+<<<<<<< HEAD
 		"stp	x1, x2, [sp, #-0x30]! \n\t"
 		"stp	x3, x4, [sp, #0x10] \n\t"
 		"stp	x0, x29, [sp, #0x20] \n\t"
@@ -87,6 +92,27 @@ void __naked __ap_context_save_core_regs_on_current(struct pt_regs *regs)
 		*/
 		"add	x29, sp, #0x30 \n\t"
 		"stp	x29, x30, [x0], #0x10 \n\t"
+=======
+		"stp	x1, x2, [sp, #-0x20]! \n\t"
+		"stp	x3, x4, [sp, #0x10] \n\t"
+
+		/* x0 ~ x28 */
+		"stp	x0, x1, [x0] \n\t"
+		"stp	x2, x3, [x0, #0x10] \n\t"
+		"stp	x4, x5, [x0, #0x20] \n\t"
+		"stp	x6, x7, [x0, #0x30] \n\t"
+		"stp	x8, x9, [x0, #0x40] \n\t"
+		"stp	x10, x11, [x0, #0x50] \n\t"
+		"stp	x12, x13, [x0, #0x60] \n\t"
+		"stp	x14, x15, [x0, #0x70] \n\t"
+		"stp	x16, x17, [x0, #0x80] \n\t"
+		"stp	x18, x19, [x0, #0x90] \n\t"
+		"stp	x20, x21, [x0, #0xA0] \n\t"
+		"stp	x22, x23, [x0, #0xB0] \n\t"
+		"stp	x24, x25, [x0, #0xC0] \n\t"
+		"stp	x26, x27, [x0, #0xD0] \n\t"
+		"str	x28, [x0, #0xE0] \n\t"
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 		/* pstate */
 		"mrs	x1, nzcv \n\t"
@@ -100,6 +126,7 @@ void __naked __ap_context_save_core_regs_on_current(struct pt_regs *regs)
 		"mrs	x4, spsel \n\t"
 		"bic	x4, x4, #0xFFFFFFFFFFFFFFFE \n\t"
 		"orr	x1, x1, x4 \n\t"
+<<<<<<< HEAD
 		"str	x1, [x0] \n\t"
 
 		/* x0 */
@@ -111,6 +138,11 @@ void __naked __ap_context_save_core_regs_on_current(struct pt_regs *regs)
 
 		/* restore lr */
 		"ldr	x30, [x0, #0xF0] \n\t"
+=======
+		"str	x1, [x0, #0x108] \n\t"
+		"ldp	x3, x4, [sp, #0x10] \n\t"
+		"ldp	x1, x2, [sp], #0x20 \n\t"
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		"ret \n\t"
 	);
 }
@@ -318,6 +350,7 @@ static void __ap_context_unregister_vh(struct builder *bd)
 static __always_inline void __ap_context_hack_core_regs_for_panic(
 		struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	uint64_t *fp;
 
 	/* FIXME: stack is corrupted by another callees of 'panic'. */
@@ -325,10 +358,23 @@ static __always_inline void __ap_context_hack_core_regs_for_panic(
 	regs->regs[29] = fp[0];
 	regs->sp = fp[0];	/* maybe incorrect value */
 	regs->pc = PAGE_OFFSET | fp[1];
+=======
+	/* FIXME: stack is corrupted by another callees of 'panic'. */
+	regs->sp = (uintptr_t)__builtin_frame_address(3);
+	regs->regs[29] = (uintptr_t)__builtin_frame_address(3);
+	regs->regs[30] = (uintptr_t)__builtin_return_address(2) - AARCH64_INSN_SIZE;
+	regs->pc = (uintptr_t)__builtin_return_address(2) - AARCH64_INSN_SIZE;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 static int __used __sec_arm64_ap_context_on_panic(struct pt_regs *regs)
 {
+<<<<<<< HEAD
+=======
+	/* NOTE: x0 MUST BE SAVED before this function is called.
+	 * see, 'sec_arm64_ap_context_on_panic'.
+	 */
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	struct notifier_block *this = (void *)regs->regs[0];
 	struct ap_context_drvdata *drvdata =
 			container_of(this, struct ap_context_drvdata, nb_panic);
@@ -368,6 +414,7 @@ static int __naked sec_arm64_ap_context_on_panic(struct notifier_block *nb,
 		"mov	x0, sp \n\t"
 		"bl	__ap_context_save_core_regs_on_current \n\t"
 
+<<<<<<< HEAD
 		/* x0, x30 registers */
 		"ldp	x0, x30, [sp, %0] \n\t"
 		"str	x0, [sp] \n\t"
@@ -377,10 +424,18 @@ static int __naked sec_arm64_ap_context_on_panic(struct notifier_block *nb,
 		"add	x0, sp, %0 \n\t"
 		"add	x0, x0, #0x10 \n\t"
 		"stp	x0, x30, [sp, %2] \n\t"
+=======
+		/* save 'x0' on 'struct pt_regs' before calling
+		 * '__sec_arm64_ap_context_on_panic'
+		 */
+		"ldr	x0, [sp, %0] \n\t"
+		"str	x0, [sp] \n\t"
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 		/* concrete notifier */
 		"mov	x0, sp \n\t"
 		"bl	__sec_arm64_ap_context_on_panic \n\t"
+<<<<<<< HEAD
 		"add	sp, sp, %0 \n\t"
 		"ldp	x1, x30, [sp], #0x10 \n\t"
 		"ret \n\t"
@@ -388,6 +443,14 @@ static int __naked sec_arm64_ap_context_on_panic(struct notifier_block *nb,
 		: "i"(sizeof(struct pt_regs)),
 		  "i"(offsetof(struct pt_regs, regs[30])),
 		  "i"(offsetof(struct pt_regs, sp))
+=======
+
+		"add	sp, sp, %0 \n\t"
+		"ldp	x0, x30, [sp], #0x10 \n\t"
+		"ret \n\t"
+		:
+		: "i"(sizeof(struct pt_regs))
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		:
 	);
 }
@@ -463,6 +526,20 @@ static void __ap_context_unregister_die_notifier(struct builder *bd)
 	unregister_die_notifier(nb);
 }
 
+<<<<<<< HEAD
+=======
+static int __ap_context_probe_epilog(struct builder *bd)
+{
+	struct ap_context_drvdata *drvdata =
+			container_of(bd, struct ap_context_drvdata, bd);
+	struct device *dev = bd->dev;
+
+	dev_set_drvdata(dev, drvdata);
+
+	return 0;
+}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static int __ap_context_probe(struct platform_device *pdev,
 		const struct dev_builder *builder, ssize_t n)
 {
@@ -496,6 +573,10 @@ static const struct dev_builder __ap_context_dev_builder[] = {
 		       __ap_context_unregister_panic_notifier),
 	DEVICE_BUILDER(__ap_context_register_die_notifier,
 		       __ap_context_unregister_die_notifier),
+<<<<<<< HEAD
+=======
+	DEVICE_BUILDER(__ap_context_probe_epilog, NULL),
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 static int sec_ap_context_probe(struct platform_device *pdev)
@@ -511,7 +592,12 @@ static int sec_ap_context_remove(struct platform_device *pdev)
 }
 
 static const struct of_device_id sec_ap_context_match_table[] = {
+<<<<<<< HEAD
 	{ .compatible = "samsung,ap_context" },
+=======
+	{ .compatible = "samsung,arm64-ap_context" },
+	{ .compatible = "samsung,ap_context" },	/* TODO: should be removed in future */
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	{},
 };
 MODULE_DEVICE_TABLE(of, sec_ap_context_match_table);
@@ -538,5 +624,9 @@ static void __exit sec_ap_context_exit(void)
 module_exit(sec_ap_context_exit);
 
 MODULE_AUTHOR("Samsung Electronics");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("AP CORE/MMU context snaphot");
+=======
+MODULE_DESCRIPTION("AP CORE/MMU context snaphot (ARM64)");
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 MODULE_LICENSE("GPL v2");

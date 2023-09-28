@@ -31,6 +31,10 @@
 #include <uapi/linux/mount.h>
 #include <linux/fs_context.h>
 #include <linux/shmem_fs.h>
+<<<<<<< HEAD
+=======
+#include <linux/mnt_idmapping.h>
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #ifdef CONFIG_KDP_NS
 #include <linux/kdp.h>
 #endif
@@ -602,7 +606,11 @@ static void free_vfsmnt(struct mount *mnt)
 #else
 	mnt_userns = mnt_user_ns(&mnt->mnt);
 #endif
+<<<<<<< HEAD
 	if (mnt_userns != &init_user_ns)
+=======
+	if (!initial_idmapping(mnt_userns))
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		put_user_ns(mnt_userns);
 	kfree_const(mnt->mnt_devname);
 #ifdef CONFIG_SMP
@@ -1053,6 +1061,21 @@ struct vfsmount *vfs_create_mount(struct fs_context *fc)
 #endif
 	mnt->mnt_parent		= mnt;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KDP_NS
+	fs_userns = ((struct kdp_mount *)mnt)->mnt->mnt_sb->s_user_ns;
+#else
+	fs_userns = mnt->mnt.mnt_sb->s_user_ns;
+#endif
+	if (!initial_idmapping(fs_userns))
+#ifdef CONFIG_KDP_NS
+		((struct kdp_mount *)mnt)->mnt->mnt_userns = get_user_ns(fs_userns);
+#else
+		mnt->mnt.mnt_userns = get_user_ns(fs_userns);
+#endif
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	lock_mount_hash();
 #ifdef CONFIG_KDP_NS
 	list_add_tail(&mnt->mnt_instance, &((struct kdp_mount *)mnt)->mnt->mnt_sb->s_mounts);
@@ -1162,7 +1185,11 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
 	userns = mnt_user_ns(((struct kdp_mount *)old)->mnt);
 	kdp_set_mnt_userns(((struct kdp_mount *)mnt)->mnt, userns);
 
+<<<<<<< HEAD
 	if (((struct kdp_mount *)mnt)->mnt->mnt_userns != &init_user_ns) {
+=======
+	if (!initial_idmapping(((struct kdp_mount *)mnt)->mnt->mnt_userns)) {
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		userns = get_user_ns(((struct kdp_mount *)mnt)->mnt->mnt_userns);
 		kdp_set_mnt_userns(((struct kdp_mount *)mnt)->mnt, userns);
 	}
@@ -4318,6 +4345,10 @@ static int can_idmap_mount(const struct mount_kattr *kattr, struct mount *mnt)
 #else
 	struct vfsmount *m = &mnt->mnt;
 #endif
+<<<<<<< HEAD
+=======
+	struct user_namespace *fs_userns = m->mnt_sb->s_user_ns;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	if (!kattr->mnt_userns)
 		return 0;
@@ -4406,6 +4437,19 @@ static void do_idmap_mount(const struct mount_kattr *kattr, struct mount *mnt)
 	if (!kattr->mnt_userns)
 		return;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * We're the only ones able to change the mount's idmapping. So
+	 * mnt->mnt.mnt_userns is stable and we can retrieve it directly.
+	 */
+#ifdef CONFIG_KDP_NS
+	old_mnt_userns = ((struct kdp_mount *)mnt)->mnt->mnt_userns;
+#else
+	old_mnt_userns = mnt->mnt.mnt_userns;
+#endif
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	mnt_userns = get_user_ns(kattr->mnt_userns);
 	/* Pairs with smp_load_acquire() in mnt_user_ns(). */
 #ifdef CONFIG_KDP_NS
@@ -4415,6 +4459,16 @@ static void do_idmap_mount(const struct mount_kattr *kattr, struct mount *mnt)
 #else
 	smp_store_release(&mnt->mnt.mnt_userns, mnt_userns);
 #endif
+<<<<<<< HEAD
+=======
+
+	/*
+	 * If this is an idmapped filesystem drop the reference we've taken
+	 * in vfs_create_mount() before.
+	 */
+	if (!initial_idmapping(old_mnt_userns))
+		put_user_ns(old_mnt_userns);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 static void mount_setattr_commit(struct mount_kattr *kattr,
@@ -4866,6 +4920,7 @@ static bool mnt_already_visible(struct mnt_namespace *ns,
 #ifdef CONFIG_KDP_NS
 		if (((struct kdp_mount *)mnt)->mnt->mnt_sb->s_type != sb->s_type)
 			continue;
+<<<<<<< HEAD
 
 		/* This mount is not fully visible if it's root directory
 		 * is not the root directory of the filesystem.
@@ -4876,6 +4931,18 @@ static bool mnt_already_visible(struct mnt_namespace *ns,
 		/* A local view of the mount flags */
 		mnt_flags = ((struct kdp_mount *)mnt)->mnt->mnt_flags;
 
+=======
+
+		/* This mount is not fully visible if it's root directory
+		 * is not the root directory of the filesystem.
+		 */
+		if (((struct kdp_mount *)mnt)->mnt->mnt_root != ((struct kdp_mount *)mnt)->mnt->mnt_sb->s_root)
+			continue;
+
+		/* A local view of the mount flags */
+		mnt_flags = ((struct kdp_mount *)mnt)->mnt->mnt_flags;
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		/* Don't miss readonly hidden in the superblock flags */
 		if (sb_rdonly(((struct kdp_mount *)mnt)->mnt->mnt_sb))
 			mnt_flags |= MNT_LOCK_READONLY;

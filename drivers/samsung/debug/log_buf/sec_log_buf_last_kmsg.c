@@ -120,6 +120,14 @@ static ssize_t sec_last_kmsg_buf_read(struct file *file, char __user *buf,
 	loff_t pos = *offset;
 	ssize_t count;
 
+<<<<<<< HEAD
+=======
+	if (pos >= last_kmsg->size || !last_kmsg->buf) {
+		pr_warn("pos %lld, size %zu\n", pos, last_kmsg->size);
+		return 0;
+	}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	count = min(len, (size_t)(last_kmsg->size - pos));
 	if (copy_to_user(buf, last_kmsg->buf + pos, count))
 		return -EFAULT;

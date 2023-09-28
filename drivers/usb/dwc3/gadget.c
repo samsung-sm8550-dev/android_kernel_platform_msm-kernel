@@ -423,6 +423,8 @@ static int dwc3_send_clear_stall_ep_cmd(struct dwc3_ep *dep)
 	struct dwc3_gadget_ep_cmd_params params;
 	u32 cmd = DWC3_DEPCMD_CLEARSTALL;
 
+	dump_stack();
+
 	/*
 	 * As of core revision 2.60a the recommended programming model
 	 * is to set the ClearPendIN bit when issuing a Clear Stall EP
@@ -1649,6 +1651,58 @@ static int __dwc3_gadget_get_frame(struct dwc3 *dwc)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * __dwc3_stop_active_transfer - stop the current active transfer
+ * @dep: isoc endpoint
+ * @force: set forcerm bit in the command
+ * @interrupt: command complete interrupt after End Transfer command
+ *
+ * When setting force, the ForceRM bit will be set. In that case
+ * the controller won't update the TRB progress on command
+ * completion. It also won't clear the HWO bit in the TRB.
+ * The command will also not complete immediately in that case.
+ */
+static int __dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force, bool interrupt)
+{
+	struct dwc3 *dwc = dep->dwc;
+	struct dwc3_gadget_ep_cmd_params params;
+	u32 cmd;
+	int ret;
+
+	cmd = DWC3_DEPCMD_ENDTRANSFER;
+	cmd |= force ? DWC3_DEPCMD_HIPRI_FORCERM : 0;
+	cmd |= interrupt ? DWC3_DEPCMD_CMDIOC : 0;
+	cmd |= DWC3_DEPCMD_PARAM(dep->resource_index);
+	memset(&params, 0, sizeof(params));
+	ret = dwc3_send_gadget_ep_cmd(dep, cmd, &params);
+	/*
+	 * If the End Transfer command was timed out while the device is
+	 * not in SETUP phase, it's possible that an incoming Setup packet
+	 * may prevent the command's completion. Let's retry when the
+	 * ep0state returns to EP0_SETUP_PHASE.
+	 */
+	if (ret == -ETIMEDOUT && dep->dwc->ep0state != EP0_SETUP_PHASE) {
+		dep->flags |= DWC3_EP_DELAY_STOP;
+		return 0;
+	}
+	WARN_ON_ONCE(ret);
+	dep->resource_index = 0;
+
+	if (!interrupt) {
+		if (!DWC3_IP_IS(DWC3) || DWC3_VER_IS_PRIOR(DWC3, 310A))
+			mdelay(1);
+		dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
+	} else if (!ret) {
+		dep->flags |= DWC3_EP_END_TRANSFER_PENDING;
+	}
+
+	dep->flags &= ~DWC3_EP_DELAY_STOP;
+	return ret;
+}
+
+/**
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
  * dwc3_gadget_start_isoc_quirk - workaround invalid frame number
  * @dep: isoc endpoint
  *
@@ -2519,6 +2573,7 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
 	spin_lock_irqsave(&dwc->lock, flags);
 
 	if (!is_on) {
+<<<<<<< HEAD
 		u32 count;
 
 		dwc->connected = false;
@@ -2546,25 +2601,40 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
 			dwc->ev_buf->lpos = (dwc->ev_buf->lpos + count) %
 						dwc->ev_buf->length;
 		}
+=======
+		pr_err("[dwc3 debug] %s: dwc3 pullup 0\n", __func__);
+		ret = dwc3_gadget_soft_disconnect(dwc);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	} else {
+		pr_err("[dwc3 debug] %s: dwc3 pullup 1\n", __func__);
 		/*
 		 * In the Synopsys DWC_usb31 1.90a programming guide section
 		 * 4.1.9, it specifies that for a reconnect after a
 		 * device-initiated disconnect requires a core soft reset
 		 * (DCTL.CSftRst) before enabling the run/stop bit.
 		 */
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&dwc->lock, flags);
 		dwc3_core_soft_reset(dwc);
 		spin_lock_irqsave(&dwc->lock, flags);
+=======
+		ret = dwc3_core_soft_reset(dwc);
+		if (ret)
+			goto done;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 		dwc3_event_buffers_setup(dwc);
 		__dwc3_gadget_start(dwc);
 	}
 
+<<<<<<< HEAD
 	ret = dwc3_gadget_run_stop(dwc, is_on, false);
 	spin_unlock_irqrestore(&dwc->lock, flags);
 	enable_irq(dwc->irq_gadget);
 
+=======
+done:
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	pm_runtime_put(dwc->dev);
 
 	return ret;
@@ -2574,6 +2644,7 @@ static void dwc3_gadget_enable_irq(struct dwc3 *dwc)
 {
 	u32			reg;
 
+	pr_err("[dwc3 debug] %s: dwc3 irq enable\n", __func__);
 	/* Enable all but Start and End of Frame IRQs */
 	reg = (DWC3_DEVTEN_EVNTOVERFLOWEN |
 			DWC3_DEVTEN_CMDCMPLTEN |
@@ -2596,6 +2667,7 @@ static void dwc3_gadget_enable_irq(struct dwc3 *dwc)
 static void dwc3_gadget_disable_irq(struct dwc3 *dwc)
 {
 	/* mask all interrupts */
+	pr_err("[dwc3 debug] %s: dwc3 irq disable\n", __func__);
 	dwc3_writel(dwc->regs, DWC3_DEVTEN, 0x00);
 }
 
@@ -3645,8 +3717,10 @@ void dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force,
 	u32 cmd;
 	int ret;
 
+	if (interrupt && (dep->flags & DWC3_EP_DELAY_STOP))
+		return;
+
 	if (!(dep->flags & DWC3_EP_TRANSFER_STARTED) ||
-	    (dep->flags & DWC3_EP_DELAY_STOP) ||
 	    (dep->flags & DWC3_EP_END_TRANSFER_PENDING))
 		return;
 
@@ -3674,7 +3748,11 @@ void dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force,
 	 * enabled, the EndTransfer command will have completed upon
 	 * returning from this function.
 	 *
-	 * This mode is NOT available on the DWC_usb31 IP.
+	 * This mode is NOT available on the DWC_usb31 IP.  In this
+	 * case, if the IOC bit is not set, then delay by 1ms
+	 * after issuing the EndTransfer command.  This allows for the
+	 * controller to handle the command completely before DWC3
+	 * remove requests attempts to unmap USB request buffers.
 	 */
 
 	cmd = DWC3_DEPCMD_ENDTRANSFER;

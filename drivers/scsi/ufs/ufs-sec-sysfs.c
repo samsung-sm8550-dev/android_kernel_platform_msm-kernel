@@ -13,10 +13,20 @@
 #include "ufs-sec-sysfs.h"
 
 #define get_vdi_member(member) ufs_sec_features.vdi->member
+<<<<<<< HEAD
 #define get_wb_member(member) ufs_sec_features.ufs_wb->member
 
 /* sec specific vendor sysfs nodes */
 static struct device *sec_ufs_cmd_dev;
+=======
+
+/* sec specific vendor sysfs nodes */
+#if IS_ENABLED(CONFIG_MQ_IOSCHED_SSG_WB)
+struct device *sec_ufs_cmd_dev;
+#else
+static struct device *sec_ufs_cmd_dev;
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 /* UFS info nodes : begin */
 static ssize_t ufs_sec_unique_number_show(struct device *dev,
@@ -131,6 +141,7 @@ static void ufs_sec_create_info_sysfs(struct ufs_hba *hba)
 }
 /* UFS info nodes : end */
 
+<<<<<<< HEAD
 /* UFS SEC WB : begin */
 static ssize_t ufs_sec_wb_support_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
@@ -260,6 +271,8 @@ static void ufs_sec_create_wb_sysfs(struct ufs_hba *hba)
 }
 /* UFS SEC WB : end */
 
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 /* SEC error info : begin */
 static ssize_t SEC_UFS_op_cnt_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
@@ -625,9 +638,12 @@ void ufs_sec_add_sysfs_nodes(struct ufs_hba *hba)
 		/* sec specific vendor sysfs nodes */
 		ufs_sec_create_info_sysfs(hba);
 
+<<<<<<< HEAD
 		/* create WB sysfs-nodes */
 		ufs_sec_create_wb_sysfs(hba);
 
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #if IS_ENABLED(CONFIG_SEC_UFS_CMD_LOGGING)
 		if (ufs_sec_is_cmd_log_allowed())
 			ufs_sec_create_cmd_log_sysfs(hba);

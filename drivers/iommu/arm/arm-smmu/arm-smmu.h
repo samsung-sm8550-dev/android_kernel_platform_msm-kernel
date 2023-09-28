@@ -335,7 +335,10 @@ struct arm_smmu_power_resources {
 	int (*resume)(struct arm_smmu_power_resources *pwr);
 	void (*suspend)(struct arm_smmu_power_resources *pwr);
 
+<<<<<<< HEAD
 	struct arm_smmu_device *smmu;	
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 struct arm_smmu_s2cr {

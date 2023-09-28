@@ -65,6 +65,10 @@ static struct device_attribute pdic_attributes[] = {
 	PDIC_SYSFS_ATTR(cc_pin_status),
 	PDIC_SYSFS_ATTR(ram_test),
 	PDIC_SYSFS_ATTR(sbu_adc),
+<<<<<<< HEAD
+=======
+	PDIC_SYSFS_ATTR(cc_adc),
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	PDIC_SYSFS_ATTR(vsafe0v_status),
 	PDIC_SYSFS_ATTR(ovp_ic_shutdown),
 	PDIC_SYSFS_ATTR(hmd_power),

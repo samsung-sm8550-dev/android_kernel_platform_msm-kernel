@@ -689,6 +689,10 @@ enum fastrpc_msg_type {
 
 #define SS_MEM_PROFILE
 #define SS_MEM_DEBUG
+<<<<<<< HEAD
+=======
+#define SS_FASTRPC_SYNC
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 struct secure_vm {
 	int *vmid;
@@ -981,6 +985,10 @@ struct fastrpc_mmap {
 	struct timespec64 map_end_time;
 	/* Mapping for fastrpc shell */
 	bool is_filemap;
+<<<<<<< HEAD
+=======
+	char *servloc_name;			/* Indicate which daemon mapped this */
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 #if defined(SS_MEM_DEBUG)
 	uint32_t pid;           /* alloc real pid */

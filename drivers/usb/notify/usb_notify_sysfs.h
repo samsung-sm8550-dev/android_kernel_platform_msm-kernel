@@ -52,6 +52,10 @@ struct usb_notify_dev {
 	struct otg_notify *o_notify;
 	int index;
 	unsigned int request_action;
+<<<<<<< HEAD
+=======
+	unsigned int lpm_charging_type_done;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	unsigned long usb_data_enabled;
 	unsigned long disable_state;
 	int (*set_disable)(struct usb_notify_dev *udev, int param);

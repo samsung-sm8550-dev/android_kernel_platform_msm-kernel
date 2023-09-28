@@ -21,3 +21,8 @@ fingerprint-$(CONFIG_SENSORS_GW3X)		+= gw3x_common.o gw3x_spidev.o
 fingerprint-$(CONFIG_SENSORS_GW9558X)	+= gw9558x_common.o gw9558x_spidev.o
 fingerprint-$(CONFIG_SENSORS_QBT2000)	+= qbt2000_common.o
 obj-$(CONFIG_SENSORS_QBT2000)			+= qbt2000_spidev.o
+<<<<<<< HEAD
+=======
+fingerprint-$(CONFIG_SENSORS_QFS4008)	+= qfs4008_common.o
+obj-$(CONFIG_SENSORS_QFS4008)			+= qfs4008_spidev.o
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1

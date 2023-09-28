@@ -543,7 +543,11 @@ static void disable_regulators(struct qcom_adsp *adsp)
 {
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < adsp->reg_cnt; i++) {
+=======
+	for (i = (adsp->reg_cnt - 1); i >= 0; i--) {
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #if IS_ENABLED(CONFIG_SEC_SENSORS_SSC)
 		if (!strcmp(adsp->info_name, "adsp")) {
 			if ((i == sensor_supply_reg_idx)
@@ -1371,6 +1375,14 @@ static int adsp_probe(struct platform_device *pdev)
 	if (ret)
 		goto remove_attr_txn_id;
 
+	adsp->adsp_wq = alloc_workqueue("ssr_wq",
+		WQ_UNBOUND | WQ_HIGHPRI | WQ_CPU_INTENSIVE, 0);
+	BUG_ON(!adsp->adsp_wq);
+	INIT_WORK(&adsp->ssr_handler, adsp_ssr_handler_work);
+	ret = device_create_file(adsp->dev, &dev_attr_ssr);
+	if (ret)
+		goto remove_attr_ssr;
+
 	ret = rproc_add(rproc);
 	if (ret)
 		goto remove_attr_ssr;
@@ -1378,7 +1390,15 @@ static int adsp_probe(struct platform_device *pdev)
 	return 0;
 remove_attr_ssr:
 	device_remove_file(adsp->dev, &dev_attr_ssr);
+<<<<<<< HEAD
 remove_attr_txn_id:
+=======
+
+destroy_minidump_dev:
+	if (adsp->minidump_dev)
+		qcom_destroy_ramdump_device(adsp->minidump_dev);
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	device_remove_file(adsp->dev, &dev_attr_txn_id);
 remove_subdevs:
 	qcom_remove_sysmon_subdev(adsp->sysmon);
@@ -1402,6 +1422,11 @@ static int adsp_remove(struct platform_device *pdev)
 	destroy_workqueue(adsp->adsp_wq);
 
 	rproc_del(adsp->rproc);
+<<<<<<< HEAD
+=======
+	if (adsp->minidump_dev)
+		qcom_destroy_ramdump_device(adsp->minidump_dev);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	device_remove_file(adsp->dev, &dev_attr_ssr);
 	device_remove_file(adsp->dev, &dev_attr_txn_id);
 	qcom_remove_glink_subdev(adsp->rproc, &adsp->glink_subdev);

@@ -1311,6 +1311,9 @@ static void socinfo_print(void)
 	uint32_t v_maj = SOCINFO_MAJOR(le32_to_cpu(socinfo->ver));
 	uint32_t v_min = SOCINFO_MINOR(le32_to_cpu(socinfo->ver));
 
+	if (IS_ENABLED(CONFIG_SAMSUNG_PRODUCT_SHIP))
+		return;
+
 	switch (socinfo_format) {
 	case SOCINFO_VERSION(0, 1):
 		pr_info("v%u.%u, id=%u, ver=%u.%u\n",

@@ -76,6 +76,11 @@ enum core_ldo_levels {
 #define DP_MODE			BIT(1) /* enables DP mode */
 #define USB3_DP_COMBO_MODE	(USB3_MODE | DP_MODE) /*enables combo mode */
 
+<<<<<<< HEAD
+=======
+/* USB3_DP_COM_TYPEC_STATUS */
+#define PORTSELECT_RAW		BIT(0)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #if IS_ENABLED(CONFIG_USB_PHY_TUNING_QCOM)
 #define ADDRESS_START 0
 #define ADDRESS_END 0x1FFC

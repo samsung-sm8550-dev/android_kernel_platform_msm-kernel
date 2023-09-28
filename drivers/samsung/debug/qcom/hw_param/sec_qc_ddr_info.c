@@ -42,9 +42,15 @@ static ssize_t __ddr_info_report_header(char *buf,
 	union {
 		uint32_t raw;
 		struct {
+<<<<<<< HEAD
 			uint32_t lv2:8;
 			uint32_t lv1:8;
 			uint32_t lv0:16;
+=======
+			uint32_t lv2:16;
+			uint32_t lv1:8;
+			uint32_t lv0:8;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		};
 	} dsf;
 

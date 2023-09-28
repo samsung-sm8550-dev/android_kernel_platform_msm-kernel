@@ -16,7 +16,15 @@
 #include <linux/module.h>
 #include "adsp.h"
 #define VENDOR "STM"
+<<<<<<< HEAD
 #define CHIP_ID "LPS22HH"
+=======
+#if IS_ENABLED(CONFIG_LPS22DF_FACTORY)
+#define CHIP_ID "LPS22DF"
+#else
+#define CHIP_ID "LPS22HH"
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 #define CALIBRATION_FILE_PATH "/efs/FactoryApp/baro_delta"
 
@@ -282,8 +290,11 @@ void pressure_cal_work_func(struct work_struct *work)
 		struct adsp_data, pressure_cal_work);
 	int cnt = 0;
 	int temp = 0;
+<<<<<<< HEAD
 	int check_efs_sw_offset_msg = 0x7FFFFFFF;
 	int sw_offset = 0;
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	
 	adsp_unicast(&temp, sizeof(temp), MSG_PRESSURE, 0, MSG_TYPE_SET_CAL_DATA);
 
@@ -300,6 +311,7 @@ void pressure_cal_work_func(struct work_struct *work)
 
 	pressure_cal = data->msg_buf[MSG_PRESSURE][0];
 	pr_info("[FACTORY] %s: pressure_cal = %d (lsb)\n", __func__, data->msg_buf[MSG_PRESSURE][0]);
+<<<<<<< HEAD
 
 	/* check efs sw offset and update */
 	adsp_unicast(&check_efs_sw_offset_msg, sizeof(int),
@@ -319,6 +331,8 @@ void pressure_cal_work_func(struct work_struct *work)
 
 	pr_info("[FACTORY] %s: sw_offset %d\n", __func__, sw_offset);
 
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 EXPORT_SYMBOL(pressure_cal_work_func);
 void pressure_factory_init_work(struct adsp_data *data)

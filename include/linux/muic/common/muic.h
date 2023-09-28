@@ -35,6 +35,10 @@
 #define AFC_REQUEST_CHARGER SIOP
 #define FLED (1 << 1)
 #define AFC_REQUEST_MST (1 << 2)
+<<<<<<< HEAD
+=======
+#define AFC_REQUEST_MFC (1 << 3)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #define AFC_REQUEST_DETACH_CLEAR_BIT ((SIOP))
 /* Status of IF PMIC chip (suspend and resume) */
 enum {
@@ -227,7 +231,12 @@ typedef enum {
 	ATTACHED_DEV_TURBO_CHARGER,
 	ATTACHED_DEV_SPECOUT_CHARGER_MUIC,
 	ATTACHED_DEV_UNKNOWN_MUIC,
+<<<<<<< HEAD
 	ATTACHED_DEV_POGO_DOCK_MUIC,
+=======
+
+	ATTACHED_DEV_POGO_DOCK_MUIC = 81,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	ATTACHED_DEV_POGO_DOCK_5V_MUIC,
 	ATTACHED_DEV_POGO_DOCK_9V_MUIC,
 	ATTACHED_DEV_POGO_DOCK_34K_MUIC,
@@ -236,6 +245,10 @@ typedef enum {
 	ATTACHED_DEV_RETRY_TIMEOUT_OPEN_MUIC,
 	ATTACHED_DEV_RETRY_AFC_CHARGER_5V_MUIC,
 	ATTACHED_DEV_RETRY_AFC_CHARGER_9V_MUIC,
+<<<<<<< HEAD
+=======
+	ATTACHED_DEV_WIRELESS_TA_MUIC,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	ATTACHED_DEV_NUM,
 } muic_attached_dev_t;
 
@@ -321,6 +334,14 @@ struct muic_platform_data {
 #endif
 	struct device *muic_device;
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_IF_CB_MANAGER)
+	struct muic_dev	*muic_d;
+	struct if_cb_manager	*man;
+#endif
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	int switch_sel;
 
 	/* muic current USB/UART path */
@@ -442,7 +463,11 @@ enum muic_param_en {
 #define IS_VCHGIN_5V(x) ((4000 <= x) && (x <= 6000))
 
 #define AFC_MRXRDY_CNT_LIMIT (3)
+<<<<<<< HEAD
 #define AFC_MPING_RETRY_CNT_LIMIT (20)
+=======
+#define AFC_MPING_RETRY_CNT_LIMIT (10)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #define AFC_QC_RETRY_CNT_LIMIT (3)
 #define VCHGIN_CHECK_CNT_LIMIT (3)
 #define AFC_QC_RETRY_WAIT_CNT_LIMIT (3)
@@ -528,6 +553,12 @@ enum power_supply_lsi_property {
 	POWER_SUPPLY_LSI_PROP_VSYS,
 	POWER_SUPPLY_LSI_PROP_VBAT,
 	POWER_SUPPLY_LSI_PROP_VGPADC,
+<<<<<<< HEAD
+=======
+	POWER_SUPPLY_LSI_PROP_VGPADC1,
+	POWER_SUPPLY_LSI_PROP_VGPADC2,
+	POWER_SUPPLY_LSI_PROP_ENABLE_WATER,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	POWER_SUPPLY_LSI_PROP_VCC1,
 	POWER_SUPPLY_LSI_PROP_VCC2,
 	POWER_SUPPLY_LSI_PROP_ICHGIN,
@@ -670,6 +701,11 @@ extern int muic_afc_get_voltage(void);
 extern int muic_afc_set_voltage(int voltage);
 extern int muic_afc_request_voltage(int cause, int voltage);
 extern int muic_afc_request_cause_clear(void);
+<<<<<<< HEAD
+=======
+extern int muic_afc_get_request_cause(void);
+extern bool muic_is_enable_afc_request(void);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 extern int muic_hv_charger_disable(bool en);
 
 #else
@@ -684,6 +720,11 @@ static inline int muic_set_pogo_adc(int adc) {return 0};
 static inline int muic_afc_set_voltage(int voltage) {return 0; }
 static inline int muic_afc_request_voltage(int cause, int voltage);
 static inline int muic_afc_request_cause_clear(void);
+<<<<<<< HEAD
+=======
+static inline int muic_afc_get_request_cause(void) {return 0;}
+static inline bool muic_is_enable_afc_request(void) {return false;}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static inline int muic_hv_charger_disable(bool en) {return 0; }
 #endif
 

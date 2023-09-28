@@ -888,6 +888,7 @@ struct sec_battery_info {
 	int charge_counter;		/* remaining capacity (uAh) */
 	int current_adc;
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 	int voltage_pack_main;		/* pack voltage main battery (mV) */
 	int voltage_pack_sub;		/* pack voltage sub battery (mV) */
@@ -895,6 +896,15 @@ struct sec_battery_info {
 	int voltage_cell_sub;		/* cell voltage sub battery (mV) */
 	int current_now_main;		/* current from main battery (mA) */
 	int current_now_sub;		/* current from sub battery (mA) */
+=======
+	int voltage_pack_main;		/* pack voltage main battery (mV) */
+	int voltage_pack_sub;		/* pack voltage sub battery (mV) */
+	int current_now_main;		/* current from main battery (mA) */
+	int current_now_sub;		/* current from sub battery (mA) */
+#if IS_ENABLED(CONFIG_DUAL_BATTERY)
+	int voltage_cell_main;		/* cell voltage main battery (mV) */
+	int voltage_cell_sub;		/* cell voltage sub battery (mV) */
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	unsigned int limiter_check;
 #endif
 
@@ -1157,9 +1167,13 @@ struct sec_battery_info {
 	struct wakeup_source *wc_ept_timeout_ws;
 #endif
 	struct delayed_work slowcharging_work;
+<<<<<<< HEAD
 #if defined(CONFIG_BATTERY_AGE_FORECAST)
 	int batt_cycle;
 #endif
+=======
+	int batt_cycle;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	int batt_asoc;
 #if IS_ENABLED(CONFIG_STEP_CHARGING)
 	bool step_charging_skip_lcd_on;
@@ -1247,6 +1261,12 @@ struct sec_battery_info {
 #endif
 	unsigned int batt_f_mode;
 #endif
+<<<<<<< HEAD
+=======
+	bool abnormal_ta;
+	int srccap_transit_cnt;
+	int dc_check_cnt;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	bool usb_slow_chg;
 	bool usb_bootcomplete;
 	unsigned int flash_state;

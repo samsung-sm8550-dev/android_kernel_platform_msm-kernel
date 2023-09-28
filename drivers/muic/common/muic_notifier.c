@@ -516,6 +516,10 @@ void muic_notifier_logically_detach_attached_dev(muic_attached_dev_t cur_dev)
 }
 EXPORT_SYMBOL(muic_notifier_logically_detach_attached_dev);
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_VIRTUAL_MUIC)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 void vt_muic_notifier_attach_attached_dev(muic_attached_dev_t new_dev)
 {
 	pr_info("%s: (%d)\n", __func__, new_dev);
@@ -556,6 +560,10 @@ void vt_muic_notifier_detach_attached_dev(muic_attached_dev_t cur_dev)
 	__set_noti_cxt(0, ATTACHED_DEV_NONE_MUIC);
 }
 EXPORT_SYMBOL(vt_muic_notifier_detach_attached_dev);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 static int muic_notifier_init(void)
 {

@@ -62,7 +62,11 @@ int sec_input_get_lcd_id(struct device *dev)
 #if !IS_ENABLED(CONFIG_SMCDSD_PANEL)
 	int lcdtype = 0;
 #endif
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_EXYNOS_DPU30) || IS_ENABLED(CONFIG_MCD_PANEL)
+=======
+#if IS_ENABLED(CONFIG_EXYNOS_DPU30) || IS_ENABLED(CONFIG_MCD_PANEL) || IS_ENABLED(CONFIG_USDM_PANEL)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	int connected;
 #endif
 	int lcd_id_param = 0;
@@ -75,7 +79,11 @@ int sec_input_get_lcd_id(struct device *dev)
 	}
 #endif
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_EXYNOS_DPU30) || IS_ENABLED(CONFIG_MCD_PANEL)
+=======
+#if IS_ENABLED(CONFIG_EXYNOS_DPU30) || IS_ENABLED(CONFIG_MCD_PANEL) || IS_ENABLED(CONFIG_USDM_PANEL)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	connected = get_lcd_info("connected");
 	if (connected < 0) {
 		input_err(true, dev, "%s: Failed to get lcd info(connected)\n", __func__);

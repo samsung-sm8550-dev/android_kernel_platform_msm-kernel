@@ -274,7 +274,11 @@ static void sec_hall_dumpkey_event(struct input_handle *handle, unsigned int eve
 	if (!is_event_supported(event_type, event_code))
 		return;
 
+<<<<<<< HEAD
 	pr_info("%s key_event: %u, %d\n", SECLOG, event_code, value);
+=======
+	//pr_info("%s key_event: %u, %d\n", SECLOG, event_code, value);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	spin_lock(&sec_hall_dumpkey_event_lock);
 

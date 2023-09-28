@@ -57,6 +57,9 @@ static int madvise_need_mmap_write(int behavior)
 	case MADV_FREE:
 	case MADV_POPULATE_READ:
 	case MADV_POPULATE_WRITE:
+#if IS_ENABLED(CONFIG_ZRAM)
+	case MADV_PREFETCH:
+#endif
 		return 0;
 	default:
 		/* be safe, default to 1. list exceptions explicitly */
@@ -575,6 +578,11 @@ static long madvise_pageout(struct vm_area_struct *vma,
 		return -EBUSY;
 #endif
 
+#if IS_ENABLED(CONFIG_ZRAM)
+	if (rwsem_is_contended(&mm->mmap_lock))
+		return -EBUSY;
+#endif
+
 	lru_add_drain();
 	tlb_gather_mmu(&tlb, mm);
 	madvise_pageout_page_range(&tlb, vma, start_addr, end_addr);
@@ -653,6 +661,82 @@ static long madvise_writeback(struct vm_area_struct *vma,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_ZRAM)
+static DEFINE_SPINLOCK(madvise_writeback_lock);
+static bool madvise_writeback_ongoing;
+
+static int madvise_writeback_pte_range(pmd_t *pmd, unsigned long addr,
+				       unsigned long end, struct mm_walk *walk)
+{
+	struct list_head *list = walk->private;
+	struct vm_area_struct *vma = walk->vma;
+	pte_t *orig_pte, *pte, ptent;
+	spinlock_t *ptl;
+	swp_entry_t entry;
+
+	if (fatal_signal_pending(current))
+		return -EINTR;
+	if (pmd_trans_unstable(pmd))
+		return 0;
+
+	orig_pte = pte = pte_offset_map_lock(vma->vm_mm, pmd, addr, &ptl);
+	for (; addr < end; pte++, addr += PAGE_SIZE) {
+		ptent = *pte;
+		if (!is_swap_pte(ptent))
+			continue;
+		entry = pte_to_swp_entry(ptent);
+		if (unlikely(non_swap_entry(entry)))
+			continue;
+		if (swp_swapcount(entry) > 1)
+			continue;
+		zram_oem_fn_nocfi(ZRAM_ADD_TO_WRITEBACK_LIST, list, swp_offset(entry));
+	}
+	pte_unmap_unlock(orig_pte, ptl);
+	cond_resched();
+
+	return 0;
+}
+
+static const struct mm_walk_ops writeback_walk_ops = {
+	.pmd_entry = madvise_writeback_pte_range,
+};
+
+static long madvise_writeback(struct vm_area_struct *vma,
+			      struct vm_area_struct **prev,
+			      struct list_head *list,
+			      unsigned long addr, unsigned long end)
+{
+	struct mm_struct *mm = vma->vm_mm;
+	struct mmu_gather tlb;
+
+	if (!zram_oem_fn)
+		return -EINVAL;
+
+	*prev = vma;
+	if (!can_madv_lru_vma(vma))
+		return 0;
+
+	if (!vma_is_anonymous(vma))
+		return 0;
+
+	if (am_app_launch)
+		return -EBUSY;
+
+	if (rwsem_is_contended(&mm->mmap_lock))
+		return -EBUSY;
+
+	tlb_gather_mmu(&tlb, mm);
+	tlb_start_vma(&tlb, vma);
+	walk_page_range(vma->vm_mm, addr, end, &writeback_walk_ops, list);
+	tlb_end_vma(&tlb, vma);
+	tlb_finish_mmu(&tlb);
+
+	return 0;
+}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static int madvise_prefetch_pte_range(pmd_t *pmd, unsigned long start,
 				      unsigned long end, struct mm_walk *walk)
 {
@@ -703,7 +787,11 @@ static bool madvise_rw_behavior(int behavior)
 }
 
 int do_madvise_writeback(struct mm_struct *mm, struct list_head *list,
+<<<<<<< HEAD
 			 void *buf, unsigned long start, size_t len_in)
+=======
+			 unsigned long start, size_t len_in)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 {
 	unsigned long end, tmp;
 	struct vm_area_struct *vma, *prev;
@@ -711,7 +799,10 @@ int do_madvise_writeback(struct mm_struct *mm, struct list_head *list,
 	int error = -EINVAL;
 	size_t len;
 	struct blk_plug plug;
+<<<<<<< HEAD
 	bool rw = buf ? WRITE : READ;
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	start = untagged_addr(start);
 
@@ -763,10 +854,14 @@ int do_madvise_writeback(struct mm_struct *mm, struct list_head *list,
 			tmp = end;
 
 		/* Here vma->vm_start <= start < tmp <= (end|vma->vm_end). */
+<<<<<<< HEAD
 		if (rw == WRITE)
 			error = madvise_writeback(vma, &prev, list, buf, start, tmp);
 		else
 			error = madvise_prefetch(vma, &prev, start, tmp);
+=======
+		error = madvise_writeback(vma, &prev, list, start, tmp);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		if (error)
 			goto out;
 		start = tmp;
@@ -1173,6 +1268,10 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
 		return madvise_cold(vma, prev, start, end);
 	case MADV_PAGEOUT:
 		return madvise_pageout(vma, prev, start, end);
+#if IS_ENABLED(CONFIG_ZRAM)
+	case MADV_PREFETCH:
+		return madvise_prefetch(vma, prev, start, end);
+#endif
 	case MADV_FREE:
 	case MADV_DONTNEED:
 		return madvise_dontneed_free(vma, prev, start, end, behavior);
@@ -1306,6 +1405,9 @@ madvise_behavior_valid(int behavior)
 	case MADV_FREE:
 	case MADV_COLD:
 	case MADV_PAGEOUT:
+#if IS_ENABLED(CONFIG_ZRAM)
+	case MADV_PREFETCH:
+#endif
 	case MADV_POPULATE_READ:
 	case MADV_POPULATE_WRITE:
 #ifdef CONFIG_KSM
@@ -1607,10 +1709,27 @@ SYSCALL_DEFINE5(process_madvise, int, pidfd, const struct iovec __user *, vec,
 #if IS_ENABLED(CONFIG_ZRAM)
 	struct blk_plug plug;
 	LIST_HEAD(list);
+<<<<<<< HEAD
 	void *buf = NULL;
 
 	if (!zram_oem_fn && madvise_rw_behavior(behavior))
 		return -EINVAL;
+=======
+
+	if (!zram_oem_fn && madvise_rw_behavior(behavior))
+		return -EINVAL;
+
+	/* we only allow single MADV_WRITEBACK at a time */
+	if (behavior == MADV_WRITEBACK) {
+		spin_lock(&madvise_writeback_lock);
+		if (madvise_writeback_ongoing) {
+			spin_unlock(&madvise_writeback_lock);
+			return -EBUSY;
+		}
+		madvise_writeback_ongoing = true;
+		spin_unlock(&madvise_writeback_lock);
+	}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 	if (flags != 0) {
 		ret = -EINVAL;
@@ -1666,8 +1785,13 @@ SYSCALL_DEFINE5(process_madvise, int, pidfd, const struct iovec __user *, vec,
 	while (iov_iter_count(&iter)) {
 		iovec = iov_iter_iovec(&iter);
 #if IS_ENABLED(CONFIG_ZRAM)
+<<<<<<< HEAD
 		if (madvise_rw_behavior(behavior))
 			ret = do_madvise_writeback(mm, &list, buf,
+=======
+		if (behavior == MADV_WRITEBACK)
+			ret = do_madvise_writeback(mm, &list,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 				(unsigned long)iovec.iov_base, iovec.iov_len);
 		else
 #endif
@@ -1681,11 +1805,18 @@ SYSCALL_DEFINE5(process_madvise, int, pidfd, const struct iovec __user *, vec,
 	if (behavior == MADV_WRITEBACK) {
 		if (ret == 0) {
 			blk_start_plug(&plug);
+<<<<<<< HEAD
 			ret = zram_oem_fn_nocfi(ZRAM_WRITEBACK_LIST,
 						&list, (unsigned long)buf);
 			blk_finish_plug(&plug);
 		}
 		zram_oem_fn_nocfi(ZRAM_FREE_WRITEBACK_BUFFER, &list, (unsigned long)buf);
+=======
+			ret = zram_oem_fn_nocfi(ZRAM_WRITEBACK_LIST, &list, 0);
+			blk_finish_plug(&plug);
+		}
+		zram_oem_fn_nocfi(ZRAM_FLUSH_WRITEBACK_BUFFER, &list, 0);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		if (ret < 0)
 			goto release_mm;
 	}
@@ -1701,5 +1832,12 @@ put_pid:
 free_iov:
 	kfree(iov);
 out:
+#if IS_ENABLED(CONFIG_ZRAM)
+	if (behavior == MADV_WRITEBACK) {
+		spin_lock(&madvise_writeback_lock);
+		madvise_writeback_ongoing = false;
+		spin_unlock(&madvise_writeback_lock);
+	}
+#endif
 	return ret;
 }

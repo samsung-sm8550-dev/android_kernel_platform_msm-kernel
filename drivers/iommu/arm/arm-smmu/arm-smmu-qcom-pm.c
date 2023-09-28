@@ -159,7 +159,10 @@ int arm_smmu_power_on(struct arm_smmu_power_resources *pwr)
 			goto out_disable_clocks;
 	}
 	
+<<<<<<< HEAD
   arm_smmu_debug_power_on(pwr->smmu);
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	pwr->power_count = 1;
 	mutex_unlock(&pwr->power_lock);
 	return 0;
@@ -204,7 +207,10 @@ void arm_smmu_power_off(struct arm_smmu_device *smmu,
 	arm_smmu_lower_interconnect_bw(pwr);
 	pwr->power_count = 0;
 
+<<<<<<< HEAD
 	arm_smmu_debug_power_off(smmu);	
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	mutex_unlock(&pwr->power_lock);
 }
 

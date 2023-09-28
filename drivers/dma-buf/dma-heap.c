@@ -23,6 +23,10 @@
 #include <linux/sched/cputime.h>
 #include <linux/vmstat.h>
 
+<<<<<<< HEAD
+=======
+#include <trace/hooks/dmabuf.h>
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #include <trace/events/tracing_mark_write.h>
 
 #define DEVNAME "dma_heap"
@@ -122,7 +126,12 @@ static void dma_heap_print_vmstat(unsigned long before[], unsigned long after[])
 		pr_cont("%lu ", (after[i] - before[i]) << (PAGE_SHIFT - 10));
 
 	pr_cont("na %lu ", K(global_node_page_state_pages(NR_ANON_MAPPED)));
+<<<<<<< HEAD
 	pr_cont("nf %lu\n", K(global_node_page_state_pages(NR_FILE_PAGES)));
+=======
+	pr_cont("nf %lu ", K(global_node_page_state_pages(NR_FILE_PAGES)));
+	pr_cont("ns %lu\n", K(global_node_page_state_pages(NR_SHMEM)));
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 struct dma_buf *dma_heap_buffer_alloc(struct dma_heap *heap, size_t len,
@@ -135,6 +144,14 @@ struct dma_buf *dma_heap_buffer_alloc(struct dma_heap *heap, size_t len,
 	static DEFINE_RATELIMIT_STATE(show_mem_ratelimit, HZ * 10, 1);
 	unsigned long vm_events_before[ARRAY_SIZE(vm_events_item)];
 	unsigned long vm_events_after[ARRAY_SIZE(vm_events_item)];
+<<<<<<< HEAD
+=======
+
+	bool vh_valid = false;
+
+	trace_android_vh_dmabuf_heap_flags_validation(heap,
+		len, fd_flags, heap_flags, &vh_valid);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	if (fd_flags & ~DMA_HEAP_VALID_FD_FLAGS)
 		return ERR_PTR(-EINVAL);
@@ -531,8 +548,11 @@ long try_get_dma_heap_pool_size_kb(void)
 	return (long)(total_pool_size / 1024);
 }
 
+<<<<<<< HEAD
 extern void dma_heap_trace_init(void);
 
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static int dma_heap_init(void)
 {
 	int ret;

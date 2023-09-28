@@ -3449,6 +3449,10 @@ void put_vma(struct vm_area_struct *vma);
 #endif	/* CONFIG_SPECULATIVE_PAGE_FAULT */
 #endif	/* CONFIG_MMU */
 
+<<<<<<< HEAD
+=======
+extern phys_addr_t memmapsize;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 extern unsigned long physpages, codesize, datasize, rosize, bss_size;
 extern unsigned long init_code_size, init_data_size;
 

@@ -22,6 +22,8 @@
 #include "walt.h"
 #include "trace.h"
 
+#include <soc/qcom/watchdog.h>
+
 const char *task_event_names[] = {
 	"PUT_PREV_TASK",
 	"PICK_NEXT_TASK",
@@ -123,6 +125,30 @@ int set_task_boost(int boost, u64 period)
 }
 EXPORT_SYMBOL(set_task_boost);
 
+
+static bool walt_wdt_triggerred;
+static void assert_rq_lock_held(struct rq *rq, struct walt_rq *wrq, enum walt_lock_read_event event, int line) {
+
+	if (!raw_spin_is_locked(&rq->__lock)) {
+		walt_wdt_triggerred = true;
+		printk_deferred("%s:%d - Trigger watchdog bite!", __FILE__, line);
+		qcom_wdt_trigger_bite();
+	}
+
+	if (wrq->walt_debug && !walt_wdt_triggerred) {
+		u32 idx = (wrq->walt_debug->read_lock_hist_idx++) % NR_HIST_ENTRIES;
+		struct walt_rq_lock_history *hist = &wrq->walt_debug->rq_lock_hist_array[idx];
+
+		hist->latest_rq_lock_val = atomic_read(&rq->__lock.raw_lock.val);
+		hist->latest_read_ts = sched_clock();
+		hist->last_read_task = current;
+		hist->latest_read_cpu = raw_smp_processor_id();
+		hist->event = event;
+		hist->latest_read_caller[0] = __builtin_return_address(1);
+		hist->latest_read_caller[1] = __builtin_return_address(2);
+	}
+}
+
 static inline void acquire_rq_locks_irqsave(const cpumask_t *cpus,
 				     unsigned long *flags)
 {
@@ -158,6 +184,7 @@ static inline u64 walt_rq_clock(struct rq *rq)
 		return sched_clock_last;
 
 	lockdep_assert_held(&rq->__lock);
+	assert_rq_lock_held(rq, wrq, EVENT_WALT_RQ_CLOCK, __LINE__);
 
 	if (!(rq->clock_update_flags & RQCF_UPDATED))
 		update_rq_clock(rq);
@@ -312,8 +339,10 @@ fixup_cumulative_runnable_avg(struct rq *rq,
 		stats->cumulative_runnable_avg_scaled + demand_scaled_delta;
 	s64 pred_demands_sum_scaled =
 		stats->pred_demands_sum_scaled + pred_demand_scaled_delta;
+	struct walt_rq *wrq = (struct walt_rq *) rq->android_vendor_data1;
 
 	lockdep_assert_held(&rq->__lock);
+	assert_rq_lock_held(rq, wrq, EVENT_FIXUP_CUMULATIVE, __LINE__);
 
 	if (task_rq(p) != rq)
 		WALT_BUG(WALT_BUG_UPSTREAM, p, "on CPU %d task %s(%d) not on rq %d",
@@ -408,6 +437,12 @@ update_window_start(struct rq *rq, u64 wallclock, int event)
 	u64 old_window_start = wrq->window_start;
 	bool full_window;
 
+	if (!raw_spin_is_locked(&rq->__lock)) {
+		walt_wdt_triggerred = true;
+		printk_deferred("%s:%d - Trigger watchdog bite!", __FILE__, __LINE__);
+		qcom_wdt_trigger_bite();
+	}
+
 	if (wallclock < wrq->latest_clock) {
 		printk_deferred("WALT-BUG CPU%d; wallclock=%llu(0x%llx) is lesser than latest_clock=%llu(0x%llx) walt_clock_suspended=%d sched_clock_last=%llu(0x%llx)",
 				rq->cpu, wallclock, wallclock, wrq->latest_clock,
@@ -423,10 +458,24 @@ update_window_start(struct rq *rq, u64 wallclock, int event)
 		WALT_PANIC(1);
 	}
 	wrq->latest_clock = wallclock;
+<<<<<<< HEAD
 	wrq->latest_clock_update_cpu = raw_smp_processor_id();
 	wrq->latest_clock_update_ts = sched_clock();
 	wrq->latest_clock_update_caller[0] = __builtin_return_address(1);
 	wrq->latest_clock_update_caller[1] = __builtin_return_address(2);
+=======
+
+	if (wrq->walt_debug && !walt_wdt_triggerred) {
+		int idx = (wrq->walt_debug->update_hist_idx++) % NR_HIST_ENTRIES;
+		struct walt_update_history *hist = &wrq->walt_debug->update_hist_array[idx];
+		hist->latest_clock_update_ts = sched_clock();
+		hist->prev_latest_clock = wallclock;
+		hist->latest_clock_update_cpu = raw_smp_processor_id();
+		hist->latest_clock_update_caller[0] = __builtin_return_address(1);
+		hist->latest_clock_update_caller[1] = __builtin_return_address(2);
+	}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	if (delta < sched_ravg_window)
 		return old_window_start;
 
@@ -1040,6 +1089,7 @@ static void migrate_busy_time_subtraction(struct task_struct *p, int new_cpu)
 		raw_spin_rq_lock(src_rq);
 
 	lockdep_assert_held(&src_rq->__lock);
+	assert_rq_lock_held(src_rq, src_wrq, EVENT_MIGRATE_BUSY_TIME, __LINE__);
 
 	if (task_rq(p) != src_rq)
 		WALT_BUG(WALT_BUG_UPSTREAM, p, "on CPU %d task %s(%d) not on src_rq %d",
@@ -2207,6 +2257,7 @@ update_task_rq_cpu_cycles(struct task_struct *p, struct rq *rq, int event,
 	struct walt_task_struct *wts = (struct walt_task_struct *) p->android_vendor_data1;
 
 	lockdep_assert_held(&rq->__lock);
+	assert_rq_lock_held(rq, wrq, EVENT_UPDATE_TASK_RQ, __LINE__);
 
 	if (!use_cycle_counter) {
 		wrq->task_exec_scale = DIV64_U64_ROUNDUP(cpu_cur_freq(cpu) *
@@ -3987,6 +4038,14 @@ static void walt_sched_init_rq(struct rq *rq)
 	wrq->notif_pending = false;
 
 	wrq->num_mvp_tasks = 0;
+
+	wrq->walt_debug = kzalloc(sizeof(struct walt_debug_struct), GFP_ATOMIC);
+	if (wrq->walt_debug) {
+		wrq->walt_debug->update_hist_idx = 0;
+		wrq->walt_debug->read_lock_hist_idx = 0;
+	}
+	
+	pr_err("[%s] %d %px\n", __func__, rq->cpu, wrq->walt_debug);
 	INIT_LIST_HEAD(&wrq->mvp_tasks);
 }
 
@@ -4199,6 +4258,7 @@ static void android_rvh_enqueue_task(void *unused, struct rq *rq, struct task_st
 		return;
 
 	lockdep_assert_held(&rq->__lock);
+	assert_rq_lock_held(rq, wrq, EVENT_RVH_ENQUEUE_TASK, __LINE__);
 
 	if (!is_per_cpu_kthread(p))
 		wrq->enqueue_counter++;
@@ -4259,6 +4319,7 @@ static void android_rvh_dequeue_task(void *unused, struct rq *rq, struct task_st
 		return;
 
 	lockdep_assert_held(&rq->__lock);
+	assert_rq_lock_held(rq, wrq, EVENT_RVH_DEQUEUE_TASK, __LINE__);
 
 	/*
 	 * a task can be enqueued before walt is started, and dequeued after.
@@ -4369,11 +4430,13 @@ static DECLARE_COMPLETION(tick_sched_clock_completion);
 static void android_rvh_tick_entry(void *unused, struct rq *rq)
 {
 	u64 wallclock;
+	struct walt_rq *wrq = (struct walt_rq *) rq->android_vendor_data1;
 
 	if (unlikely(walt_disabled))
 		return;
 
 	lockdep_assert_held(&rq->__lock);
+	assert_rq_lock_held(rq, wrq, EVENT_RVH_TICK_ENTRY, __LINE__);
 	wallclock = walt_rq_clock(rq);
 
 	walt_update_task_ravg(rq->curr, rq, TASK_UPDATE, wallclock, 0);
@@ -4507,11 +4570,14 @@ static void walt_do_sched_yield(void *unused, struct rq *rq)
 {
 	struct task_struct *curr = rq->curr;
 	struct walt_task_struct *wts = (struct walt_task_struct *) curr->android_vendor_data1;
+	struct walt_rq *wrq = (struct walt_rq *) rq->android_vendor_data1;
 
 	if (unlikely(walt_disabled))
 		return;
 
 	lockdep_assert_held(&rq->__lock);
+	assert_rq_lock_held(rq, wrq, EVENT_WALT_DO_SCHED_YIELD, __LINE__);
+
 	if (!list_empty(&wts->mvp_list) && wts->mvp_list.next)
 		walt_cfs_deactivate_mvp_task(rq, curr);
 

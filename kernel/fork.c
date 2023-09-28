@@ -1202,6 +1202,10 @@ void mmput(struct mm_struct *mm)
 	might_sleep();
 
 	if (atomic_dec_and_test(&mm->mm_users)) {
+<<<<<<< HEAD
+=======
+		trace_android_vh_mmput(mm);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		RECLAIMER_LOG("UMR: B|last_exit");
 		__mmput(mm);
 		RECLAIMER_LOG("UMR: E|last_exit");

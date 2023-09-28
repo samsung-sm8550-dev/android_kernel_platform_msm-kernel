@@ -1151,6 +1151,23 @@
  *	%NL80211_ATTR_STATUS_CODE attribute in %NL80211_CMD_EXTERNAL_AUTH
  *	command interface.
  *
+ *	Host driver sends MLD address of the AP with %NL80211_ATTR_MLD_ADDR in
+ *	%NL80211_CMD_EXTERNAL_AUTH event to indicate user space to enable MLO
+ *	during the authentication offload in STA mode while connecting to MLD
+ *	APs. Host driver should check %NL80211_ATTR_MLO_SUPPORT flag capability
+ *	in %NL80211_CMD_CONNECT to know whether the user space supports enabling
+ *	MLO during the authentication offload or not.
+ *	User space should enable MLO during the authentication only when it
+ *	receives the AP MLD address in authentication offload request. User
+ *	space shouldn't enable MLO when the authentication offload request
+ *	doesn't indicate the AP MLD address even if the AP is MLO capable.
+ *	User space should use %NL80211_ATTR_MLD_ADDR as peer's MLD address and
+ *	interface address identified by %NL80211_ATTR_IFINDEX as self MLD
+ *	address. User space and host driver to use MLD addresses in RA, TA and
+ *	BSSID fields of the frames between them, and host driver translates the
+ *	MLD addresses to/from link addresses based on the link chosen for the
+ *	authentication.
+ *
  *	Host driver reports this status on an authentication failure to the
  *	user space through the connect result as the user space would have
  *	initiated the connection through the connect request.
@@ -1262,6 +1279,18 @@
  *	without %NL80211_ATTR_MLO_LINK_ID as an easy way to remove all links
  *	in preparation for e.g. roaming to a regular (non-MLO) AP.
  *
+<<<<<<< HEAD
+=======
+ * @NL80211_CMD_ADD_LINK_STA: Add a link to an MLD station
+ * @NL80211_CMD_MODIFY_LINK_STA: Modify a link of an MLD station
+ * @NL80211_CMD_REMOVE_LINK_STA: Remove a link of an MLD station
+ *
+ * @NL80211_CMD_TID_TO_LINK_MAP: This is used as a command to fetch the
+ * current TID to link map information affiliated with the MLD.
+ * %NL80211_ATTR_MLO_TID_LINK_DEFAULT_MAP and
+ * %NL80211_ATTR_MLO_TID_LINK_MAP is used with this command.
+ *
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
  * @NL80211_CMD_MAX: highest used command number
  * @__NL80211_CMD_AFTER_LAST: internal use
  */
@@ -1517,6 +1546,8 @@ enum nl80211_commands {
 	NL80211_CMD_RESERVED_DO_NOT_USE_8 = 155,
 	NL80211_CMD_RESERVED_DO_NOT_USE_9 = 156,
 	NL80211_CMD_RESERVED_DO_NOT_USE_10 = 157,
+
+	NL80211_CMD_TID_TO_LINK_MAP,
 
 	/* add new commands above here */
 
@@ -2718,6 +2749,34 @@ enum nl80211_commands {
  *	connection. Used with %NL80211_CMD_CONNECT. If this attribute is not
  *	included in NL80211_CMD_CONNECT drivers must not perform MLO connection.
  *
+<<<<<<< HEAD
+=======
+ * @NL80211_ATTR_EML_CAPABILITY: EML Capability information (u16)
+ * @NL80211_ATTR_MLD_CAPA_AND_OPS: MLD Capabilities and Operations (u16)
+ *
+ * @NL80211_ATTR_TX_HW_TIMESTAMP: Hardware timestamp for TX operation in
+ *	nanoseconds (u64). This is the device clock timestamp so it will
+ *	probably reset when the device is stopped or the firmware is reset.
+ *	When used with %NL80211_CMD_FRAME_TX_STATUS, indicates the frame TX
+ *	timestamp. When used with %NL80211_CMD_FRAME RX notification, indicates
+ *	the ack TX timestamp.
+ * @NL80211_ATTR_RX_HW_TIMESTAMP: Hardware timestamp for RX operation in
+ *	nanoseconds (u64). This is the device clock timestamp so it will
+ *	probably reset when the device is stopped or the firmware is reset.
+ *	When used with %NL80211_CMD_FRAME_TX_STATUS, indicates the ack RX
+ *	timestamp. When used with %NL80211_CMD_FRAME RX notification, indicates
+ *	the incoming frame RX timestamp.
+ * @NL80211_ATTR_MLO_TID_LINK_DEFAULT_MAP: flag attribute, indicating if the
+ *	TID to link mapping is default or not.
+ *	See P802.11be_D3.0 specifications 35.3.7.1.2 Default mapping mode
+ *	section for default mapping definition.
+ *
+ * @NL80211_ATTR_MLO_TID_LINK_MAP: A nested array of TID to links mapping.
+ *	This will have TID to link mapping for TID0 to TID7, each containing
+ *	the uplink and downlink map information.
+ *	See &enum nl80211_mlo_tid_link_map.
+ *
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
  * @NUM_NL80211_ATTR: total number of nl80211_attrs available
  * @NL80211_ATTR_MAX: highest attribute number currently defined
  * @__NL80211_ATTR_AFTER_LAST: internal use
@@ -3260,6 +3319,9 @@ enum nl80211_attrs {
 	NL80211_ATTR_RESERVED_DO_NOT_USE_23 = 334,
 	NL80211_ATTR_RESERVED_DO_NOT_USE_24 = 335,
 	NL80211_ATTR_RESERVED_DO_NOT_USE_25 = 336,
+
+	NL80211_ATTR_MLO_TID_LINK_DEFAULT_MAP,
+	NL80211_ATTR_MLO_TID_LINK_MAP,
 
 	/* add attributes here, update the policy in nl80211.c */
 
@@ -6304,6 +6366,9 @@ enum nl80211_feature_flags {
  * @NL80211_EXT_FEATURE_AUTH_TX_RANDOM_TA: Device supports randomized TA
  *	for authentication frames in @NL80211_CMD_FRAME.
  *
+ * @NL80211_EXT_FEATURE_AUTH_TX_RANDOM_TA: Device supports randomized TA
+ *	for authentication frames in @NL80211_CMD_FRAME.
+ *
  * @NUM_NL80211_EXT_FEATURES: number of extended features.
  * @MAX_NL80211_EXT_FEATURES: highest extended feature index.
  */
@@ -6371,6 +6436,10 @@ enum nl80211_ext_feature_index {
 	NL80211_EXT_FEATURE_BSS_COLOR,
 	NL80211_EXT_FEATURE_FILS_CRYPTO_OFFLOAD,
 	NL80211_EXT_FEATURE_RADAR_BACKGROUND,
+<<<<<<< HEAD
+=======
+	NL80211_EXT_FEATURE_POWERED_ADDR_CHANGE,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	NL80211_EXT_FEATURE_AUTH_TX_RANDOM_TA,
 	NL80211_EXT_FEATURE_RESERVED_DO_NOT_USE_2 = 63,
 	NL80211_EXT_FEATURE_RESERVED_DO_NOT_USE_3 = 64,
@@ -7745,4 +7814,26 @@ enum nl80211_ap_settings_flags {
 	NL80211_AP_SETTINGS_SA_QUERY_OFFLOAD_SUPPORT	= 1 << 1,
 };
 
+/**
+ * enum nl80211_mlo_tid_link_map - MLO TID to link mapping.
+ *
+ * @NL80211_ATTR_MLO_TID_LINK_MAP_UPLINK:(u16) Uplink mapping bitmap of TID.
+ *	It is bitmask of link IDs in which a bit set would mean that the TID
+ *	is mapped with the link ID in uplink direction. Otherwise, the TID is
+ *	not mapped the link ID is not in uplink direction.
+ * @NL80211_ATTR_MLO_TID_LINK_MAP_DOWNLINK: (u16) Downlink mapping bitmap of
+ * 	TID. It is bitmask of link IDs in which a bit set would mean that the
+ *	TID is mapped with the link ID in downlink direction. Otherwise, the TID
+ *	is not mapped the link ID is not in downlink direction.
+ */
+enum nl80211_mlo_tid_link_map {
+	__NL80211_ATTR_MLO_TID_LINK_MAP_INVALID,
+	NL80211_ATTR_MLO_TID_LINK_MAP_UPLINK,
+	NL80211_ATTR_MLO_TID_LINK_MAP_DOWNLINK,
+
+	/* keep last */
+	__NL80211_ATTR_MLO_TID_LINK_MAP_AFTER_LAST,
+	NL80211_ATTR_MLO_TID_LINK_MAP_MAX =
+				 __NL80211_ATTR_MLO_TID_LINK_MAP_AFTER_LAST - 1
+};
 #endif /* __LINUX_NL80211_H */

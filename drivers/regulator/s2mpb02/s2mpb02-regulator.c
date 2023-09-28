@@ -354,7 +354,11 @@ static struct regulator_desc regulators[S2MPB02_REGULATOR_MAX] = {
 int s2mpb02_need_recovery(struct s2mpb02_data *s2mpb02)
 {
 	struct regulator_dev *rdev;
+<<<<<<< HEAD
 	int i;
+=======
+	int i, ret = 0;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	// Check whether S2MPB02 Recovery is needed
 	for (i = 0; i < s2mpb02->num_regulators; i++) {
@@ -366,13 +370,22 @@ int s2mpb02_need_recovery(struct s2mpb02_data *s2mpb02)
 				if(!s2m_is_enabled_regmap(rdev)) {
 					pr_info("%s: s2mpb02->rdev[%d]->desc->name(%s)\n",
 								__func__, i, rdev->desc->name);
+<<<<<<< HEAD
 					return 1;
+=======
+					ret = 1;
+					continue;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 				}
 			}
 		}
 	}
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return ret;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 int s2mpb02_recovery(struct s2mpb02_data *s2mpb02)
@@ -392,11 +405,20 @@ int s2mpb02_recovery(struct s2mpb02_data *s2mpb02)
 	// S2MPB02 Recovery
 	for (i = 0; i < s2mpb02->num_regulators; i++) {
 		if (s2mpb02->rdev[i]) {
+<<<<<<< HEAD
 			pr_debug("%s: s2mpb02->rdev[%d]->desc->name(%s)\n",
 					__func__, i, s2mpb02->rdev[i]->desc->name);
 
 			rdev = s2mpb02->rdev[i];
 
+=======
+			rdev = s2mpb02->rdev[i];
+
+			pr_info("%s: s2mpb02->rdev[%d]->desc->name(%s): max_uV(%d), min_uV(%d), always_on(%d), use_count(%d)\n",
+					__func__, i, rdev->desc->name, rdev->constraints->max_uV, rdev->desc->min_uV,
+						rdev->constraints->always_on, rdev->use_count);
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			// Make sure enabled registers are cleared
 			s2m_disable_regmap(rdev);
 

@@ -219,7 +219,11 @@ static int __reloc_gpio_relocated_to_actual(struct reloc_gpio_drvdata *drvdata)
 
 	gc = gpiochip_find(drvdata, sec_reloc_gpio_is_matched_gpio_chip);
 	if (IS_ERR_OR_NULL(gc))
+<<<<<<< HEAD
 		return drvdata->gpio_num;
+=======
+		return -ENOENT;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	return __reloc_gpio_from_legacy_number(drvdata, gc);
 }

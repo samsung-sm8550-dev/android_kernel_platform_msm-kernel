@@ -27,6 +27,10 @@
 #include <linux/io.h>
 #include <linux/irq.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/limits.h>
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #include <linux/module.h>
 #include <linux/of_gpio.h>
 #include <linux/platform_device.h>
@@ -105,6 +109,12 @@ const struct file_operations ops_name = {				\
 #define INPUT_LOG_BUF_SIZE		512
 #define INPUT_TCLM_LOG_BUF_SIZE		64
 
+<<<<<<< HEAD
+=======
+#define MAIN_TOUCH	1
+#define SUB_TOUCH	2
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #if IS_ENABLED(CONFIG_SEC_DEBUG_TSP_LOG)
 //#include <linux/sec_debug.h>		/* exynos */
 #include "sec_tsp_log.h"
@@ -149,9 +159,12 @@ const struct file_operations ops_name = {				\
 	}									\
 })
 
+<<<<<<< HEAD
 #define MAIN_TOUCH	1
 #define SUB_TOUCH	2
 
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #if IS_ENABLED(CONFIG_TOUCHSCREEN_DUAL_FOLDABLE)
 #define input_raw_info(mode, dev, fmt, ...)					\
 ({										\
@@ -401,6 +414,10 @@ typedef enum {
 #if IS_ENABLED(CONFIG_SEC_ABC)
 #define SEC_ABC_SEND_EVENT_TYPE "MODULE=tsp@WARN=tsp_int_fault"
 #define SEC_ABC_SEND_EVENT_TYPE_SUB "MODULE=tsp_sub@WARN=tsp_int_fault"
+<<<<<<< HEAD
+=======
+#define SEC_ABC_SEND_EVENT_TYPE_WACOM_DIGITIZER_NOT_CONNECTED "MODULE=wacom@WARN=digitizer_not_connected"
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 
 enum display_state {
@@ -801,7 +818,11 @@ int sec_tclm_execute_force_calibration(struct i2c_client *client, int cal_mode);
 extern int get_lcd_attached(char *mode);
 #endif
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_EXYNOS_DPU30) || IS_ENABLED(CONFIG_MCD_PANEL)
+=======
+#if IS_ENABLED(CONFIG_EXYNOS_DPU30) || IS_ENABLED(CONFIG_MCD_PANEL) || IS_ENABLED(CONFIG_USDM_PANEL)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 extern int get_lcd_info(char *arg);
 #endif
 

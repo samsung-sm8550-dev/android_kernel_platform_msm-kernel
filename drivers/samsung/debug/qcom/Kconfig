@@ -12,3 +12,7 @@ source "drivers/samsung/debug/qcom/smem/Kconfig"
 source "drivers/samsung/debug/qcom/hw_param/Kconfig"
 source "drivers/samsung/debug/qcom/rst_exinfo/Kconfig"
 source "drivers/samsung/debug/qcom/rdx_bootdev/Kconfig"
+<<<<<<< HEAD
+=======
+source "drivers/samsung/debug/qcom/poweroff/Kconfig"
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1

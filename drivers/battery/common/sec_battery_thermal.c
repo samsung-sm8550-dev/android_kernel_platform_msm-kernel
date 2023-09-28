@@ -217,7 +217,11 @@ void sec_bat_check_mix_temp(struct sec_battery_info *battery, int ct, int siop_l
 	chg_temp = battery->chg_temp;
 #endif
 
+<<<<<<< HEAD
 	if (siop_level >= 100 && !battery->lcd_status && is_not_wireless_type(ct)) {
+=======
+	if (siop_level >= 100 && !battery->lcd_status && !is_wireless_fake_type(ct)) {
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		if ((!battery->mix_limit && (temperature >= battery->pdata->mix_high_temp) &&
 					(chg_temp >= battery->pdata->mix_high_chg_temp)) ||
 			(battery->mix_limit && (temperature > battery->pdata->mix_high_temp_recovery))) {
@@ -1488,6 +1492,22 @@ int sec_bat_abnormal_wpc_check(struct sec_battery_info *battery, int pre_thermal
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+void sec_bat_thermal_charging_status(struct sec_battery_info *battery)
+{
+#if defined(CONFIG_ENABLE_FULL_BY_SOC)
+	if ((battery->capacity >= 100) || (battery->status == POWER_SUPPLY_STATUS_FULL))
+		sec_bat_set_charging_status(battery, POWER_SUPPLY_STATUS_FULL);
+	else
+		sec_bat_set_charging_status(battery, POWER_SUPPLY_STATUS_CHARGING);
+#else
+	if (battery->status != POWER_SUPPLY_STATUS_FULL)
+		sec_bat_set_charging_status(battery, POWER_SUPPLY_STATUS_CHARGING);
+#endif
+}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 void sec_bat_thermal_check(struct sec_battery_info *battery)
 {
 	int bat_thm = battery->temperature;
@@ -1669,6 +1689,10 @@ void sec_bat_thermal_check(struct sec_battery_info *battery)
 			battery->usb_thm_status = USB_THM_NORMAL;
 			sec_bat_set_current_event(battery, SEC_BAT_CURRENT_EVENT_HIGH_TEMP_SWELLING,
 				SEC_BAT_CURRENT_EVENT_SWELLING_MODE);
+<<<<<<< HEAD
+=======
+			sec_bat_thermal_charging_status(battery);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			if (battery->voltage_now > battery->pdata->high_temp_float) {
 				if ((battery->wc_tx_enable || battery->uno_en) &&
 					(is_hv_wire_type(battery->cable_type) ||
@@ -1714,6 +1738,10 @@ void sec_bat_thermal_check(struct sec_battery_info *battery)
 			battery->usb_thm_status = USB_THM_NORMAL;
 			sec_bat_set_current_event(battery, SEC_BAT_CURRENT_EVENT_LOW_TEMP_SWELLING_COOL1,
 				SEC_BAT_CURRENT_EVENT_SWELLING_MODE);
+<<<<<<< HEAD
+=======
+			sec_bat_thermal_charging_status(battery);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			if (is_wireless_fake_type(battery->cable_type)) {
 				sec_vote(battery->fcc_vote, VOTER_SWELLING, true, battery->pdata->wireless_cool1_current);
 			} else {
@@ -1735,6 +1763,10 @@ void sec_bat_thermal_check(struct sec_battery_info *battery)
 			battery->usb_thm_status = USB_THM_NORMAL;
 			sec_bat_set_current_event(battery, SEC_BAT_CURRENT_EVENT_LOW_TEMP_SWELLING_COOL2,
 				SEC_BAT_CURRENT_EVENT_SWELLING_MODE);
+<<<<<<< HEAD
+=======
+			sec_bat_thermal_charging_status(battery);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			if (is_wireless_fake_type(battery->cable_type)) {
 				sec_vote(battery->fcc_vote, VOTER_SWELLING, true, battery->pdata->wireless_cool2_current);
 			} else {
@@ -1756,6 +1788,10 @@ void sec_bat_thermal_check(struct sec_battery_info *battery)
 			battery->usb_thm_status = USB_THM_NORMAL;
 			sec_bat_set_current_event(battery, SEC_BAT_CURRENT_EVENT_LOW_TEMP_SWELLING_COOL3,
 				SEC_BAT_CURRENT_EVENT_SWELLING_MODE);
+<<<<<<< HEAD
+=======
+			sec_bat_thermal_charging_status(battery);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			if (is_wireless_fake_type(battery->cable_type)) {
 				sec_vote(battery->fcc_vote, VOTER_SWELLING, true, battery->pdata->wireless_cool3_current);
 			} else {
@@ -1794,6 +1830,10 @@ void sec_bat_thermal_check(struct sec_battery_info *battery)
 		case BAT_THERMAL_NORMAL:
 		default:
 			battery->usb_thm_status = USB_THM_NORMAL;
+<<<<<<< HEAD
+=======
+			sec_bat_thermal_charging_status(battery);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			sec_vote(battery->fcc_vote, VOTER_SWELLING, false, 0);
 			sec_vote(battery->fv_vote, VOTER_SWELLING, false, 0);
 			if (battery->dchg_dc_in_swelling)
@@ -1808,6 +1848,7 @@ void sec_bat_thermal_check(struct sec_battery_info *battery)
 				bat_thm, sb_get_ct_str(battery->cable_type));
 			break;
 		}
+<<<<<<< HEAD
 		if ((battery->thermal_zone >= BAT_THERMAL_COOL3) && (battery->thermal_zone <= BAT_THERMAL_WARM)) {
 #if defined(CONFIG_ENABLE_FULL_BY_SOC)
 			if ((battery->capacity >= 100) || (battery->status == POWER_SUPPLY_STATUS_FULL))
@@ -1819,6 +1860,8 @@ void sec_bat_thermal_check(struct sec_battery_info *battery)
 				sec_bat_set_charging_status(battery, POWER_SUPPLY_STATUS_CHARGING);
 #endif
 		}
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	} else { /* pre_thermal_zone == battery->thermal_zone */
 		battery->health_change = false;
 

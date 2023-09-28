@@ -71,6 +71,11 @@ MODULE_DESCRIPTION("TZDEV driver");
 MODULE_LICENSE("GPL");
 #ifdef CONFIG_SAMSUNG_GKI_KERNEL
 MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+<<<<<<< HEAD
+=======
+MODULE_SOFTDEP("pre: gh_mem_notifier");
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif /* CONFIG_SAMSUNG_GKI_KERNEL */
 
 enum tzdev_swd_state {

@@ -42,6 +42,12 @@
 #include <linux/sec_ext.h>
 #endif
 #endif
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_IF_CB_MANAGER)
+#include <linux/usb/typec/manager/if_cb_manager.h>
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 static ssize_t muic_sysfs_uart_en_show(struct device *dev,
 	struct device_attribute *attr, char *buf)
@@ -584,6 +590,12 @@ static ssize_t hiccup_store(struct device *dev,
 
 	pr_info("%s+\n", __func__);
 	if (!strncasecmp(buf, "DISABLE", 7)) {
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_IF_CB_MANAGER) && IS_ENABLED(CONFIG_HICCUP_CC_DISABLE)
+		usbpd_cc_control_command(pdata->man, 0);
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		MUIC_PDATA_FUNC_MULTI_PARAM(pdata->sysfs_cb.set_hiccup,
 					pdata->drv_data, MUIC_DISABLE, &ret);
 	} else {

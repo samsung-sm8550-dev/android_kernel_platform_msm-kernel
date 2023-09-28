@@ -87,6 +87,10 @@ struct cirrus_amp_config {
 	unsigned int cal_vsc_lb;
 	unsigned int cal_isc_ub;
 	unsigned int cal_isc_lb;
+<<<<<<< HEAD
+=======
+	unsigned int irq;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	bool perform_vimon_cal;
 	bool calibration_disable;
 	bool pwr_enable;
@@ -152,6 +156,10 @@ struct cirrus_amp {
 	unsigned int cal_vsc_lb;
 	unsigned int cal_isc_ub;
 	unsigned int cal_isc_lb;
+<<<<<<< HEAD
+=======
+	unsigned int irq;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	int index;
 	bool perform_vimon_cal;
 	bool calibration_disable;

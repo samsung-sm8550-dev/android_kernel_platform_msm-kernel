@@ -213,6 +213,14 @@ static ESE_STATUS iso7816_t1_send_iframe(iso7816_t1_t *protocol)
 		return ESESTATUS_INVALID_SEND_LENGTH;
 	}
 
+<<<<<<< HEAD
+=======
+	if (protocol->next_tx.iframe.data == NULL) {
+		LOG_E("Iframe Buffer is NULL, INVALID");
+		return ESESTATUS_NOT_ENOUGH_MEMORY;
+	}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	protocol->last_frame = FRAME_IFRAME;
 	frame_size = (protocol->next_tx.iframe.send_size + PROTOCOL_HEADER_SIZE + PROTOCOL_LRC_SIZE);
 

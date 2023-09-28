@@ -507,6 +507,10 @@ static int parse_detect_conn_dt(struct device *dev)
 	set_pinctrl_by_pinctrl_name(dev, "det_exp_connect");
 	parse_exp_dt(pdata, np);
 	set_pinctrl_by_pinctrl_name(dev, "det_pm_connect");
+<<<<<<< HEAD
+=======
+	set_pinctrl_by_pinctrl_name(dev, "det_pm_2_connect");
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	parse_pmic_dt(pdata, np);
 #endif
 	return 0;

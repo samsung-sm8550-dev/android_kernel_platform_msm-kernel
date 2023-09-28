@@ -11,10 +11,17 @@
 #include <linux/notifier.h>
 #include <linux/panic_notifier.h>
 
+<<<<<<< HEAD
 #include <linux/samsung/builder_pattern.h>
 #include <linux/samsung/debug/sec_debug.h>
 #include <linux/samsung/debug/sec_reboot_cmd.h>
 #include <linux/samsung/debug/qcom/sec_qc_rbcmd.h>
+=======
+#include <linux/samsung/debug/sec_debug.h>
+#include <linux/samsung/debug/sec_reboot_cmd.h>
+#include <linux/samsung/debug/qcom/sec_qc_rbcmd.h>
+#include <linux/samsung/sec_kunit.h>
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 #include "sec_qc_rbcmd.h"
 
@@ -37,10 +44,29 @@ struct qc_rbcmd_suite {
 	.sec_rr = __sec_rr, \
 }
 
+<<<<<<< HEAD
 enum {
 	QC_RBCMD_DFLT_ON_NORMAL = 0,
 	QC_RBCMD_DFLT_ON_PANIC,
 };
+=======
+#define SEC_QC_RBCMD_HANDLER(__cmd) \
+static int sec_qc_rbcmd_##__cmd(const struct sec_reboot_cmd *rc, \
+		struct sec_reboot_param *param, bool one_of_multi) \
+{ \
+	struct qc_rbcmd_reset_reason rr; \
+	int ret; \
+\
+	if (!__rbcmd_is_probed()) \
+		return SEC_RBCMD_HANDLE_DONE; \
+\
+	ret = __rbcmd_##__cmd(&rr, rc, param, one_of_multi); \
+	if (ret != SEC_RBCMD_HANDLE_BAD) \
+		__qc_rbcmd_set_restart_reason(rr.pon_rr, rr.sec_rr, param); \
+\
+	return ret; \
+}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 static unsigned int default_on = QC_RBCMD_DFLT_ON_NORMAL;
 
@@ -57,6 +83,7 @@ static struct notifier_block sec_qc_rbcmd_panic_handle = {
 	.priority = 0x7FFFFFFF,		/* most high priority */
 };
 
+<<<<<<< HEAD
 static int sec_qc_rbcmd_default_reason(const struct sec_reboot_cmd *rc,
 		struct sec_reboot_param *param, bool one_of_multi)
 {
@@ -68,10 +95,24 @@ static int sec_qc_rbcmd_default_reason(const struct sec_reboot_cmd *rc,
 		pr_emerg("sec_debug_hw_reset on panic");
 		sec_rr = PON_RESTART_REASON_NOT_HANDLE;
 		pon_rr = RESTART_REASON_SEC_DEBUG_MODE;
+=======
+__ss_static int __rbcmd_default_reason(struct qc_rbcmd_reset_reason  *rr,
+		struct sec_reboot_param *param, bool one_of_multi,
+		unsigned int on_panic)
+{
+	const char *cmd = param->cmd;
+
+	switch (on_panic) {
+	case QC_RBCMD_DFLT_ON_PANIC:
+		pr_emerg("sec_debug_hw_reset on panic");
+		rr->sec_rr = PON_RESTART_REASON_NOT_HANDLE;
+		rr->pon_rr = RESTART_REASON_SEC_DEBUG_MODE;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		break;
 	case QC_RBCMD_DFLT_ON_NORMAL:
 	default:
 		if (!cmd || !strlen(cmd) || !strncmp(cmd, "adb", 3)) {
+<<<<<<< HEAD
 			sec_rr = RESTART_REASON_NORMAL;
 			pon_rr = PON_RESTART_REASON_NORMALBOOT;
 		} else {
@@ -86,18 +127,53 @@ static int sec_qc_rbcmd_default_reason(const struct sec_reboot_cmd *rc,
 }
 
 static int sec_qc_rbcmd_debug(const struct sec_reboot_cmd *rc,
+=======
+			rr->sec_rr = RESTART_REASON_NORMAL;
+			rr->pon_rr = PON_RESTART_REASON_NORMALBOOT;
+		} else {
+			rr->sec_rr = RESTART_REASON_REBOOT;
+			rr->pon_rr = PON_RESTART_REASON_NORMALBOOT;
+		}
+	}
+
+	return SEC_RBCMD_HANDLE_OK;
+}
+
+static int sec_qc_rbcmd_default_reason(const struct sec_reboot_cmd *rc,
+		struct sec_reboot_param *param, bool one_of_multi)
+{
+	struct qc_rbcmd_reset_reason rr;
+	int ret;
+
+	if (!__rbcmd_is_probed())
+		return SEC_RBCMD_HANDLE_DONE;
+
+	ret = __rbcmd_default_reason(&rr, param, one_of_multi, default_on);
+	if (ret != SEC_RBCMD_HANDLE_BAD)
+		__qc_rbcmd_set_restart_reason(rr.pon_rr, rr.sec_rr, param);
+
+	return ret;
+}
+
+__ss_static int __rbcmd_debug(struct qc_rbcmd_reset_reason *rr,
+		const struct sec_reboot_cmd *rc,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		struct sec_reboot_param *param, bool one_of_multi)
 {
 	const char *cmd = param->cmd;
 	size_t len = strlen(rc->cmd);
 	unsigned int debug_level;
 	int err;
+<<<<<<< HEAD
 	unsigned int sec_rr, pon_rr;
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	err = kstrtouint(&cmd[len], 0, &debug_level);
 	if (err)
 		return SEC_RBCMD_HANDLE_BAD;
 
+<<<<<<< HEAD
 	sec_rr = RESTART_REASON_NORMAL;
 
 	switch (debug_level) {
@@ -117,45 +193,96 @@ static int sec_qc_rbcmd_debug(const struct sec_reboot_cmd *rc,
 
 	sec_qc_rbcmd_set_restart_reason(pon_rr, sec_rr, param);
 
+=======
+	rr->sec_rr = RESTART_REASON_NORMAL;
+
+	switch (debug_level) {
+	case SEC_DEBUG_LEVEL_LOW:
+		rr->pon_rr = PON_RESTART_REASON_DBG_LOW;
+		break;
+	case SEC_DEBUG_LEVEL_MID:
+		rr->pon_rr = PON_RESTART_REASON_DBG_MID;
+		break;
+	case SEC_DEBUG_LEVEL_HIGH:
+		rr->pon_rr = PON_RESTART_REASON_DBG_HIGH;
+		break;
+	default:
+		rr->pon_rr = PON_RESTART_REASON_UNKNOWN;
+		break;
+	}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	return SEC_RBCMD_HANDLE_OK |
 			(one_of_multi ? SEC_RBCMD_HANDLE_ONESHOT_MASK : 0);
 }
 
+<<<<<<< HEAD
 static int sec_qc_rbcmd_sud(const struct sec_reboot_cmd *rc,
+=======
+SEC_QC_RBCMD_HANDLER(debug);
+
+__ss_static int __rbcmd_sud(struct qc_rbcmd_reset_reason *rr,
+		const struct sec_reboot_cmd *rc,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		struct sec_reboot_param *param, bool one_of_multi)
 {
 	const char *cmd = param->cmd;
 	size_t len = strlen(rc->cmd);
 	unsigned int rory;
+<<<<<<< HEAD
 	int err;
 	unsigned int sec_rr, pon_rr;
+=======
+	unsigned int pon_rr;
+	int err;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	err = kstrtouint(&cmd[len], 0, &rory);
 	if (err)
 		return SEC_RBCMD_HANDLE_BAD;
 
+<<<<<<< HEAD
 	sec_rr = RESTART_REASON_NORMAL;
 	pon_rr = PON_RESTART_REASON_RORY_START | rory;
 
 	sec_qc_rbcmd_set_restart_reason(pon_rr, sec_rr, param);
+=======
+	pon_rr = PON_RESTART_REASON_RORY_START | rory;
+	if (pon_rr > PON_RESTART_REASON_RORY_END)
+		return SEC_RBCMD_HANDLE_BAD;
+
+	rr->sec_rr = RESTART_REASON_NORMAL;
+	rr->pon_rr = pon_rr;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	return SEC_RBCMD_HANDLE_OK |
 			(one_of_multi ? SEC_RBCMD_HANDLE_ONESHOT_MASK : 0);
 }
 
+<<<<<<< HEAD
 static int sec_qc_rbcmd_cpdebug(const struct sec_reboot_cmd *rc,
+=======
+SEC_QC_RBCMD_HANDLER(sud);
+
+__ss_static int __rbcmd_cpdebug(struct qc_rbcmd_reset_reason *rr,
+		const struct sec_reboot_cmd *rc,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		struct sec_reboot_param *param, bool one_of_multi)
 {
 	const char *cmd = param->cmd;
 	size_t len = strlen(rc->cmd);
 	unsigned int cp_debug_level;
 	int err;
+<<<<<<< HEAD
 	unsigned int sec_rr, pon_rr;
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	err = kstrtouint(&cmd[len], 0, &cp_debug_level);
 	if (err)
 		return SEC_RBCMD_HANDLE_BAD;
 
+<<<<<<< HEAD
 	sec_rr = RESTART_REASON_NORMAL;
 
 	switch (cp_debug_level) {
@@ -172,23 +299,50 @@ static int sec_qc_rbcmd_cpdebug(const struct sec_reboot_cmd *rc,
 
 	sec_qc_rbcmd_set_restart_reason(pon_rr, sec_rr, param);
 
+=======
+	rr->sec_rr = RESTART_REASON_NORMAL;
+
+	switch (cp_debug_level) {
+	case SEC_DEBUG_CP_DEBUG_ON:
+		rr->pon_rr = PON_RESTART_REASON_CP_DBG_ON;
+		break;
+	case SEC_DEBUG_CP_DEBUG_OFF:
+		rr->pon_rr = PON_RESTART_REASON_CP_DBG_OFF;
+		break;
+	default:
+		rr->pon_rr = PON_RESTART_REASON_UNKNOWN;
+		break;
+	}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	return SEC_RBCMD_HANDLE_OK |
 			(one_of_multi ? SEC_RBCMD_HANDLE_ONESHOT_MASK : 0);
 }
 
+<<<<<<< HEAD
 static int sec_qc_rbcmd_forceupload(const struct sec_reboot_cmd *rc,
+=======
+SEC_QC_RBCMD_HANDLER(cpdebug);
+
+__ss_static int __rbcmd_forceupload(struct qc_rbcmd_reset_reason *rr,
+		const struct sec_reboot_cmd *rc,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		struct sec_reboot_param *param, bool one_of_multi)
 {
 	const char *cmd = param->cmd;
 	size_t len = strlen(rc->cmd);
 	unsigned int use_force_upload;
 	int err;
+<<<<<<< HEAD
 	unsigned int sec_rr, pon_rr;
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	err = kstrtouint(&cmd[len], 0, &use_force_upload);
 	if (err)
 		return SEC_RBCMD_HANDLE_BAD;
 
+<<<<<<< HEAD
 	sec_rr = RESTART_REASON_NORMAL;
 	pon_rr = !!use_force_upload ?
 			PON_RESTART_REASON_FORCE_UPLOAD_ON :
@@ -196,11 +350,26 @@ static int sec_qc_rbcmd_forceupload(const struct sec_reboot_cmd *rc,
 
 	sec_qc_rbcmd_set_restart_reason(pon_rr, sec_rr, param);
 
+=======
+	rr->sec_rr = RESTART_REASON_NORMAL;
+	rr->pon_rr = !!use_force_upload ?
+			PON_RESTART_REASON_FORCE_UPLOAD_ON :
+			PON_RESTART_REASON_FORCE_UPLOAD_OFF;
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	return SEC_RBCMD_HANDLE_OK |
 			(one_of_multi ? SEC_RBCMD_HANDLE_ONESHOT_MASK : 0);
 }
 
+<<<<<<< HEAD
 static int sec_qc_rbcmd_swel(const struct sec_reboot_cmd *rc,
+=======
+SEC_QC_RBCMD_HANDLER(forceupload);
+
+/* FIXME: maybe deprecated. */
+static int __rbcmd_swsel(struct qc_rbcmd_reset_reason *rr,
+		const struct sec_reboot_cmd *rc,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		struct sec_reboot_param *param, bool one_of_multi)
 {
 	const char *cmd = param->cmd;
@@ -208,7 +377,10 @@ static int sec_qc_rbcmd_swel(const struct sec_reboot_cmd *rc,
 	unsigned int option;
 	unsigned int value;
 	int err;
+<<<<<<< HEAD
 	unsigned int sec_rr, pon_rr;
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	err = kstrtouint(&cmd[len], 0, &option);
 	if (err)
@@ -216,15 +388,21 @@ static int sec_qc_rbcmd_swel(const struct sec_reboot_cmd *rc,
 
 	value = (((option & 0x8) >> 1) | option) & 0x7;
 
+<<<<<<< HEAD
 	sec_rr = RESTART_REASON_NORMAL;
 	pon_rr = PON_RESTART_REASON_SWITCHSEL | value;
 
 	sec_qc_rbcmd_set_restart_reason(pon_rr, sec_rr, param);
+=======
+	rr->sec_rr = RESTART_REASON_NORMAL;
+	rr->pon_rr = PON_RESTART_REASON_SWITCHSEL | value;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	return SEC_RBCMD_HANDLE_OK |
 			(one_of_multi ? SEC_RBCMD_HANDLE_ONESHOT_MASK : 0);
 }
 
+<<<<<<< HEAD
 static int sec_qc_rbcmd_multicmd(const struct sec_reboot_cmd *rc,
 		struct sec_reboot_param *param, bool one_of_multi)
 {
@@ -234,27 +412,48 @@ static int sec_qc_rbcmd_multicmd(const struct sec_reboot_cmd *rc,
 	pon_rr = PON_RESTART_REASON_MULTICMD;
 
 	sec_qc_rbcmd_set_restart_reason(pon_rr, sec_rr, param);
+=======
+SEC_QC_RBCMD_HANDLER(swsel);
+
+__ss_static int __rbcmd_multicmd(struct qc_rbcmd_reset_reason *rr,
+		const struct sec_reboot_cmd *rc,
+		struct sec_reboot_param *param, bool one_of_multi)
+{
+	rr->sec_rr = RESTART_REASON_NORMAL;
+	rr->pon_rr = PON_RESTART_REASON_MULTICMD;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	return SEC_RBCMD_HANDLE_OK | SEC_RBCMD_HANDLE_ONESHOT_MASK;
 }
 
+<<<<<<< HEAD
 #define DUMP_SINK_TO_SDCARD	0x73646364
 #define DUMP_SINK_TO_BOOTDEV	0x42544456
 #define DUMP_SINK_TO_USB	0x0
 
 static int sec_qc_rbcmd_dump_sink(const struct sec_reboot_cmd *rc,
+=======
+SEC_QC_RBCMD_HANDLER(multicmd);
+
+__ss_static int __rbcmd_dump_sink(struct qc_rbcmd_reset_reason *rr,
+		const struct sec_reboot_cmd *rc,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		struct sec_reboot_param *param, bool one_of_multi)
 {
 	const char *cmd = param->cmd;
 	size_t len = strlen(rc->cmd);
 	unsigned int dump_sink;
 	int err;
+<<<<<<< HEAD
 	unsigned int sec_rr, pon_rr;
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	err = kstrtouint(&cmd[len], 0, &dump_sink);
 	if (err)
 		return SEC_RBCMD_HANDLE_BAD;
 
+<<<<<<< HEAD
 	sec_rr = RESTART_REASON_NORMAL;
 
 	switch (dump_sink) {
@@ -271,26 +470,53 @@ static int sec_qc_rbcmd_dump_sink(const struct sec_reboot_cmd *rc,
 
 	sec_qc_rbcmd_set_restart_reason(pon_rr, sec_rr, param);
 
+=======
+	rr->sec_rr = RESTART_REASON_NORMAL;
+
+	switch (dump_sink) {
+	case DUMP_SINK_TO_BOOTDEV:
+		rr->pon_rr = PON_RESTART_REASON_DUMP_SINK_BOOTDEV;
+		break;
+	case DUMP_SINK_TO_SDCARD:
+		rr->pon_rr = PON_RESTART_REASON_DUMP_SINK_SDCARD;
+		break;
+	default:
+		rr->pon_rr = PON_RESTART_REASON_DUMP_SINK_USB;
+		break;
+	}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	return SEC_RBCMD_HANDLE_OK |
 			(one_of_multi ? SEC_RBCMD_HANDLE_ONESHOT_MASK : 0);
 }
 
+<<<<<<< HEAD
 #define CDSP_SIGNOFF_BLOCK 0x2377
 #define CDSP_SIGNOFF_ON 0x7277
 
 static int sec_qc_rbcmd_cdsp_signoff(const struct sec_reboot_cmd *rc,
+=======
+SEC_QC_RBCMD_HANDLER(dump_sink);
+
+__ss_static int __rbcmd_cdsp_signoff(struct qc_rbcmd_reset_reason *rr,
+		const struct sec_reboot_cmd *rc,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		struct sec_reboot_param *param, bool one_of_multi)
 {
 	const char *cmd = param->cmd;
 	size_t len = strlen(rc->cmd);
 	unsigned int cdsp_signoff;
 	int err;
+<<<<<<< HEAD
 	unsigned int sec_rr, pon_rr;
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	err = kstrtouint(&cmd[len], 0, &cdsp_signoff);
 	if (err)
 		return SEC_RBCMD_HANDLE_BAD;
 
+<<<<<<< HEAD
 	sec_rr = RESTART_REASON_NORMAL;
 
 	switch (cdsp_signoff) {
@@ -307,10 +533,30 @@ static int sec_qc_rbcmd_cdsp_signoff(const struct sec_reboot_cmd *rc,
 
 	sec_qc_rbcmd_set_restart_reason(pon_rr, sec_rr, param);
 
+=======
+	rr->sec_rr = RESTART_REASON_NORMAL;
+
+	switch (cdsp_signoff) {
+	case CDSP_SIGNOFF_ON:
+		rr->pon_rr = PON_RESTART_REASON_CDSP_ON;
+		break;
+	case CDSP_SIGNOFF_BLOCK:
+		rr->pon_rr = PON_RESTART_REASON_CDSP_BLOCK;
+		break;
+	default:
+		rr->pon_rr = PON_RESTART_REASON_UNKNOWN;
+		break;
+	}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	return SEC_RBCMD_HANDLE_OK |
 			(one_of_multi ? SEC_RBCMD_HANDLE_ONESHOT_MASK : 0);
 }
 
+<<<<<<< HEAD
+=======
+SEC_QC_RBCMD_HANDLER(cdsp_signoff);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 static int sec_qc_rbcmd_simple(const struct sec_reboot_cmd *rc,
 		struct sec_reboot_param *param, bool one_of_multi)
@@ -322,7 +568,11 @@ static int sec_qc_rbcmd_simple(const struct sec_reboot_cmd *rc,
 	sec_rr = qrc->sec_rr;
 	pon_rr = qrc->pon_rr;
 
+<<<<<<< HEAD
 	sec_qc_rbcmd_set_restart_reason(pon_rr, sec_rr, param);
+=======
+	__qc_rbcmd_set_restart_reason(pon_rr, sec_rr, param);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	return SEC_RBCMD_HANDLE_OK |
 			(one_of_multi ? SEC_RBCMD_HANDLE_ONESHOT_MASK : 0);
@@ -377,7 +627,11 @@ static const struct qc_rbcmd_cmd qc_rbcmd_template[] = {
 	SEC_QC_RBCMD("sud", 0, 0, sec_qc_rbcmd_sud),
 	SEC_QC_RBCMD("cpdebug", 0, 0, sec_qc_rbcmd_cpdebug),
 	SEC_QC_RBCMD("forceupload", 0, 0, sec_qc_rbcmd_forceupload),
+<<<<<<< HEAD
 	SEC_QC_RBCMD("swel", 0, 0, sec_qc_rbcmd_swel),
+=======
+	SEC_QC_RBCMD("swsel", 0, 0, sec_qc_rbcmd_swsel),
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	SEC_QC_RBCMD("multicmd", 0, 0, sec_qc_rbcmd_multicmd),
 	SEC_QC_RBCMD("dump_sink", 0, 0, sec_qc_rbcmd_dump_sink),
 	SEC_QC_RBCMD("signoff", 0, 0, sec_qc_rbcmd_cdsp_signoff),
@@ -448,6 +702,30 @@ static const struct qc_rbcmd_cmd qc_rbcmd_template[] = {
 	SEC_QC_RBCMD_SIMPLE_STRICT("erase_param_quest",
 				   PON_RESTART_REASON_QUEST_ERASE_PARAM,
 				   RESTART_REASON_NORMAL),
+<<<<<<< HEAD
+=======
+	SEC_QC_RBCMD_SIMPLE_STRICT("user_quefi_plus_quest",
+				   PON_RESTART_REASON_QUEST_QUEFI_PLUS_USER_START,
+				   RESTART_REASON_NORMAL),
+	SEC_QC_RBCMD_SIMPLE_STRICT("user_suefi_plus_quest",
+				   PON_RESTART_REASON_QUEST_SUEFI_PLUS_USER_START,
+				   RESTART_REASON_NORMAL),
+	SEC_QC_RBCMD_SIMPLE_STRICT("user_dram_test_plus",
+				   PON_RESTART_REASON_USER_DRAM_TEST_PLUS,
+				   RESTART_REASON_NORMAL),
+	SEC_QC_RBCMD_SIMPLE_STRICT("user_flex_clk",
+				   PON_RESTART_REASON_USER_FLEX_CLK_START,
+				   RESTART_REASON_NORMAL),
+	SEC_QC_RBCMD_SIMPLE_STRICT("user_svs_clk",
+				   PON_RESTART_REASON_USER_SVS_CLK_START,
+				   RESTART_REASON_NORMAL),
+	SEC_QC_RBCMD_SIMPLE_STRICT("user_nominal_clk",
+				   PON_RESTART_REASON_USER_NOMINAL_CLK_START,
+				   RESTART_REASON_NORMAL),
+	SEC_QC_RBCMD_SIMPLE_STRICT("user_turbo_clk",
+				   PON_RESTART_REASON_USER_TURBO_CLK_START,
+				   RESTART_REASON_NORMAL),
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	SEC_QC_RBCMD_SIMPLE_STRICT("recovery-update",
 				   PON_RESTART_REASON_RECOVERY_UPDATE,

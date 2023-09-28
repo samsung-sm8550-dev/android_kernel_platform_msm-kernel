@@ -32,13 +32,21 @@ struct ipc_msg_type_to_fw_event g_msg_to_event[] = {
 	{IPC_MSG_ID_FINGER_OFF_SENSOR, FW_EVENT_FINGER_UP},
 };
 
+<<<<<<< HEAD
 static ssize_t qbt2000_vendor_show(struct device *dev,
+=======
+static ssize_t vendor_show(struct device *dev,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	struct device_attribute *attr, char *buf)
 {
 	return snprintf(buf, PAGE_SIZE, "%s\n", VENDOR);
 }
 
+<<<<<<< HEAD
 static ssize_t qbt2000_name_show(struct device *dev,
+=======
+static ssize_t name_show(struct device *dev,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 				struct device_attribute *attr, char *buf)
 {
 	struct qbt2000_drvdata *drvdata = dev_get_drvdata(dev);
@@ -46,13 +54,21 @@ static ssize_t qbt2000_name_show(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%s\n", drvdata->chipid);
 }
 
+<<<<<<< HEAD
 static ssize_t qbt2000_adm_show(struct device *dev,
+=======
+static ssize_t adm_show(struct device *dev,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 				struct device_attribute *attr, char *buf)
 {
 	return snprintf(buf, PAGE_SIZE, "%d\n", DETECT_ADM);
 }
 
+<<<<<<< HEAD
 static ssize_t qbt2000_bfs_values_show(struct device *dev,
+=======
+static ssize_t bfs_values_show(struct device *dev,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 				struct device_attribute *attr, char *buf)
 {
 	struct qbt2000_drvdata *drvdata = dev_get_drvdata(dev);
@@ -61,16 +77,28 @@ static ssize_t qbt2000_bfs_values_show(struct device *dev,
 			drvdata->clk_setting->spi_speed);
 }
 
+<<<<<<< HEAD
 static ssize_t qbt2000_type_check_show(struct device *dev,
+=======
+static ssize_t type_check_show(struct device *dev,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 				struct device_attribute *attr, char *buf)
 {
 	struct qbt2000_drvdata *drvdata = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	pr_info("%s\n", sensor_status[drvdata->sensortype + 2]);
 	return snprintf(buf, PAGE_SIZE, "%d\n", drvdata->sensortype);
 }
 
 static ssize_t qbt2000_position_show(struct device *dev,
+=======
+	pr_info("%s\n", drvdata->sensortype > 0 ? drvdata->chipid : sensor_status[drvdata->sensortype + 2]);
+	return snprintf(buf, PAGE_SIZE, "%d\n", drvdata->sensortype);
+}
+
+static ssize_t position_show(struct device *dev,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 				struct device_attribute *attr, char *buf)
 {
 	struct qbt2000_drvdata *drvdata = dev_get_drvdata(dev);
@@ -78,7 +106,11 @@ static ssize_t qbt2000_position_show(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%s\n", drvdata->sensor_position);
 }
 
+<<<<<<< HEAD
 static ssize_t qbt2000_cbgecnt_show(struct device *dev,
+=======
+static ssize_t cbgecnt_show(struct device *dev,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 				struct device_attribute *attr, char *buf)
 {
 	struct qbt2000_drvdata *drvdata = dev_get_drvdata(dev);
@@ -86,7 +118,11 @@ static ssize_t qbt2000_cbgecnt_show(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%d\n", drvdata->cbge_count);
 }
 
+<<<<<<< HEAD
 static ssize_t qbt2000_cbgecnt_store(struct device *dev,
+=======
+static ssize_t cbgecnt_store(struct device *dev,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 				struct device_attribute *attr, const char *buf,
 				size_t size)
 {
@@ -95,6 +131,7 @@ static ssize_t qbt2000_cbgecnt_store(struct device *dev,
 	if (sysfs_streq(buf, "c")) {
 		drvdata->cbge_count = 0;
 		pr_info("initialization is done\n");
+<<<<<<< HEAD
 	} else if (sysfs_streq(buf, "wuhb")) {
 	/* For User HwModuleTest IntTest */
 		drvdata->wuhb_test_flag = 1;
@@ -118,11 +155,17 @@ static ssize_t qbt2000_cbgecnt_store(struct device *dev,
 			drvdata->wuhb_test_result = -1;
 			pr_err("fd_gpio does not supports this hw rev.\n");
 		}
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	}
 	return size;
 }
 
+<<<<<<< HEAD
 static ssize_t qbt2000_intcnt_show(struct device *dev,
+=======
+static ssize_t intcnt_show(struct device *dev,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			       struct device_attribute *attr, char *buf)
 {
 	struct qbt2000_drvdata *drvdata = dev_get_drvdata(dev);
@@ -130,7 +173,11 @@ static ssize_t qbt2000_intcnt_show(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%d\n", drvdata->wuhb_count);
 }
 
+<<<<<<< HEAD
 static ssize_t qbt2000_intcnt_store(struct device *dev,
+=======
+static ssize_t intcnt_store(struct device *dev,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 				struct device_attribute *attr, const char *buf,
 				size_t size)
 {
@@ -143,7 +190,11 @@ static ssize_t qbt2000_intcnt_store(struct device *dev,
 	return size;
 }
 
+<<<<<<< HEAD
 static ssize_t qbt2000_resetcnt_show(struct device *dev,
+=======
+static ssize_t resetcnt_show(struct device *dev,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			       struct device_attribute *attr, char *buf)
 {
 	struct qbt2000_drvdata *drvdata = dev_get_drvdata(dev);
@@ -151,7 +202,11 @@ static ssize_t qbt2000_resetcnt_show(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%d\n", drvdata->reset_count);
 }
 
+<<<<<<< HEAD
 static ssize_t qbt2000_resetcnt_store(struct device *dev,
+=======
+static ssize_t resetcnt_store(struct device *dev,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 				struct device_attribute *attr, const char *buf,
 				size_t size)
 {
@@ -164,6 +219,7 @@ static ssize_t qbt2000_resetcnt_store(struct device *dev,
 	return size;
 }
 
+<<<<<<< HEAD
 static ssize_t qbt2000_wuhbtest_show(struct device *dev,
 			       struct device_attribute *attr, char *buf)
 {
@@ -193,6 +249,37 @@ static DEVICE_ATTR(cbgecnt, 0664, qbt2000_cbgecnt_show, qbt2000_cbgecnt_store);
 static DEVICE_ATTR(intcnt, 0664, qbt2000_intcnt_show, qbt2000_intcnt_store);
 static DEVICE_ATTR(resetcnt, 0664, qbt2000_resetcnt_show, qbt2000_resetcnt_store);
 static DEVICE_ATTR(wuhbtest, 0444, qbt2000_wuhbtest_show, NULL);
+=======
+static ssize_t wuhbtest_show(struct device *dev,
+			       struct device_attribute *attr, char *buf)
+{
+	struct qbt2000_drvdata *drvdata = dev_get_drvdata(dev);
+	int rc = 0;
+	int gpio_value = 0;
+
+	gpio_value = gpio_get_value(drvdata->fd_gpio.gpio);
+	if (gpio_value == 0) { /* Finger Leave */
+		pr_info("wuhbtest Finger Leave Ok\n");
+		rc = 1;
+	} else { /* Finger Down */
+		pr_err("wuhbtest Finger Leave NG\n");
+		rc = 0;
+	}
+
+	return snprintf(buf, PAGE_SIZE, "%d\n", rc);
+}
+
+static DEVICE_ATTR_RO(bfs_values);
+static DEVICE_ATTR_RO(type_check);
+static DEVICE_ATTR_RO(vendor);
+static DEVICE_ATTR_RO(name);
+static DEVICE_ATTR_RO(adm);
+static DEVICE_ATTR_RO(position);
+static DEVICE_ATTR_RW(cbgecnt);
+static DEVICE_ATTR_RW(intcnt);
+static DEVICE_ATTR_RW(resetcnt);
+static DEVICE_ATTR_RO(wuhbtest);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 static struct device_attribute *fp_attrs[] = {
 	&dev_attr_bfs_values,
@@ -461,7 +548,11 @@ static int qbt2000_release(struct inode *inode, struct file *file)
 	int rc = 0;
 
 	if (!file || !file->private_data) {
+<<<<<<< HEAD
 		pr_err("qbt2000_release: NULL pointer passed\n");
+=======
+		pr_err("%s: NULL pointer passed\n", __func__);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		return -EINVAL;
 	}
 	drvdata = file->private_data;
@@ -499,7 +590,11 @@ static long qbt2000_ioctl(
 	struct qbt2000_drvdata *drvdata;
 
 	if (!file || !file->private_data) {
+<<<<<<< HEAD
 		pr_err("qbt2000_ioctl: NULL pointer passed\n");
+=======
+		pr_err("%s: NULL pointer passed\n", __func__);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		return -EINVAL;
 	}
 
@@ -544,13 +639,19 @@ static long qbt2000_ioctl(
 		break;
 	case QBT2000_ENABLE_WUHB:
 		pr_info("ENABLE_WUHB\n");
+<<<<<<< HEAD
 		drvdata->wuhb_test_flag = 0;
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		rc = qbt2000_enable_wuhb(drvdata);
 		break;
 	case QBT2000_DISABLE_WUHB:
 		pr_info("DISABLE_WUHB\n");
+<<<<<<< HEAD
 		/* initialize IntTest flag */
 		drvdata->wuhb_test_flag = 0;
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		rc = qbt2000_disable_wuhb(drvdata);
 		break;
 	case QBT2000_CPU_SPEEDUP:
@@ -559,13 +660,19 @@ static long qbt2000_ioctl(
 			rc = -EFAULT;
 			goto ioctl_failed;
 		}
+<<<<<<< HEAD
 		pr_info("CPU_SPEEDUP %d\n", data);
 		/*
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		if (data)
 			rc = cpu_speedup_enable(drvdata->boosting);
 		else
 			rc = cpu_speedup_disable(drvdata->boosting);
+<<<<<<< HEAD
 		*/
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		break;
 	case QBT2000_SET_SENSOR_TYPE:
 		if (copy_from_user(&data, (void *)arg, sizeof(int)) != 0) {
@@ -588,11 +695,18 @@ static long qbt2000_ioctl(
 			goto ioctl_failed;
 		}
 #ifndef ENABLE_SENSORS_FPRINT_SECURE  //only for factory
+<<<<<<< HEAD
 		if (data == QBT2000_SENSORTEST_DONE) {
 			pr_info("SENSORTEST Finished\n");
 		} else {
 			pr_info("SENSORTEST Start : 0x%x\n", data);
 		}
+=======
+		if (data == QBT2000_SENSORTEST_DONE)
+			pr_info("SENSORTEST Finished\n");
+		else
+			pr_info("SENSORTEST Start : 0x%x\n", data);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 		break;
 	case QBT2000_NOISE_REQUEST_STOP:
@@ -717,6 +831,7 @@ static unsigned int qbt2000_poll(struct file *filp,
 
 	if (minor_no == MINOR_NUM_FD) {
 		poll_wait(filp, &drvdata->read_wait_queue_fd, wait);
+<<<<<<< HEAD
 		if (kfifo_len(&drvdata->fd_events) > 0) {
 			mask |= (POLLIN | POLLRDNORM);
 		}
@@ -725,6 +840,14 @@ static unsigned int qbt2000_poll(struct file *filp,
 		if (kfifo_len(&drvdata->ipc_events) > 0) {
 			mask |= (POLLIN | POLLRDNORM);
 		}
+=======
+		if (kfifo_len(&drvdata->fd_events) > 0)
+			mask |= (POLLIN | POLLRDNORM);
+	} else if (minor_no == MINOR_NUM_IPC) {
+		poll_wait(filp, &drvdata->read_wait_queue_ipc, wait);
+		if (kfifo_len(&drvdata->ipc_events) > 0)
+			mask |= (POLLIN | POLLRDNORM);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	} else {
 		pr_err("Invalid minor number\n");
 		return -EINVAL;
@@ -860,6 +983,7 @@ static irqreturn_t qbt2000_wuhb_irq_handler(int irq, void *dev_id)
 		return IRQ_HANDLED;
 	}
 
+<<<<<<< HEAD
 	if (drvdata->wuhb_test_flag == 1) {
 		pr_info("IntTest. interrupt occured.flag:%d,result:%d,en:%d\n",
 					drvdata->wuhb_test_flag,
@@ -869,6 +993,8 @@ static irqreturn_t qbt2000_wuhb_irq_handler(int irq, void *dev_id)
 		return IRQ_HANDLED;
 	}
 
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	drvdata->wuhb_count++;
 	__pm_wakeup_event(drvdata->fp_signal_lock,
 			msecs_to_jiffies(QBT2000_WAKELOCK_HOLD_TIME));
@@ -1106,7 +1232,11 @@ static void qbt2000_work_func_debug(struct work_struct *work)
 	pr_info("ldo:%d,ipc:%d,wuhb:%d,tz:%d,type:%s,int:%d,%d,rst:%d\n",
 		drvdata->enabled_ldo, drvdata->enabled_ipc,
 		drvdata->enabled_wuhb, drvdata->tz_mode,
+<<<<<<< HEAD
 		sensor_status[drvdata->sensortype + 2],
+=======
+		drvdata->sensortype > 0 ? drvdata->chipid : sensor_status[drvdata->sensortype + 2],
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		drvdata->cbge_count, drvdata->wuhb_count,
 		drvdata->reset_count);
 }
@@ -1199,18 +1329,29 @@ static int qbt2000_probe(struct platform_device *pdev)
 
 	rc = fingerprint_register(drvdata->fp_device,
 		drvdata, fp_attrs, "fingerprint");
+<<<<<<< HEAD
 	if (rc ) {
+=======
+	if (rc) {
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		pr_err("sysfs register failed\n");
 		goto probe_failed_sysfs_register;
 	}
 
 	drvdata->clk_setting->spi_speed = SPI_CLOCK_MAX;
+<<<<<<< HEAD
 	drvdata->sensortype = SENSOR_QBT2000;
 	drvdata->cbge_count = 0;
 	drvdata->wuhb_count = 0;
 	drvdata->reset_count = 0;
 	drvdata->wuhb_test_flag = 0;
 	drvdata->wuhb_test_result = 0;
+=======
+	drvdata->sensortype = 7;
+	drvdata->cbge_count = 0;
+	drvdata->wuhb_count = 0;
+	drvdata->reset_count = 0;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #ifdef ENABLE_SENSORS_FPRINT_SECURE
 	drvdata->clk_setting->enabled_clk = false;
 	drvdata->tz_mode = true;
@@ -1310,10 +1451,16 @@ static int qbt2000_suspend(struct platform_device *pdev, pm_message_t state)
 	 */
 	if (!mutex_trylock(&drvdata->mutex))
 		return -EBUSY;
+<<<<<<< HEAD
 	else {
 		disable_fp_debug_timer(drvdata->logger);
 		pr_info("ret = %d\n", rc);
 	}
+=======
+
+	disable_fp_debug_timer(drvdata->logger);
+	pr_info("ret = %d\n", rc);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	mutex_unlock(&drvdata->mutex);
 
 	return 0;

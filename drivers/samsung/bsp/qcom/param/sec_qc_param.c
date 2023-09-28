@@ -6,7 +6,10 @@
 #define pr_fmt(fmt)     KBUILD_MODNAME ":%s() " fmt, __func__
 
 #include <linux/blkdev.h>
+<<<<<<< HEAD
 #include <linux/debugfs.h>
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #include <linux/fs.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -16,14 +19,20 @@
 #include <linux/platform_device.h>
 #include <linux/uio.h>
 
+<<<<<<< HEAD
 #include <linux/samsung/builder_pattern.h>
 #include <linux/samsung/bsp/sec_class.h>
 #include <linux/samsung/bsp/sec_param.h>
+=======
+#include <linux/samsung/sec_kunit.h>
+#include <linux/samsung/bsp/sec_class.h>
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #include <linux/samsung/debug/sec_debug.h>
 
 #include <block/blk.h>
 #include "sec_qc_param.h"
 
+<<<<<<< HEAD
 struct qc_param_drvdata {
 	struct builder bd;
 	struct device *param_dev;
@@ -37,6 +46,8 @@ struct qc_param_drvdata {
 #endif
 };
 
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static struct qc_param_drvdata *qc_param;
 
 static __always_inline bool __qc_param_is_probed(void)
@@ -44,6 +55,7 @@ static __always_inline bool __qc_param_is_probed(void)
 	return !!qc_param;
 }
 
+<<<<<<< HEAD
 #define QC_PARAM_OFFSET(__member) \
 	(offsetof(struct sec_qc_param_data, __member))
 
@@ -71,6 +83,9 @@ struct qc_param_info {
 };
 
 static bool __qc_param_verify_debuglevel(const struct qc_param_info *info,
+=======
+__ss_static bool __qc_param_verify_debuglevel(const struct qc_param_info *info,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		const void *value)
 {
 	const unsigned int debuglevel = *(const unsigned int *)value;
@@ -90,7 +105,11 @@ static bool __qc_param_verify_debuglevel(const struct qc_param_info *info,
 	return ret;
 }
 
+<<<<<<< HEAD
 static bool __qc_param_verify_sapa(const struct qc_param_info *info,
+=======
+__ss_static bool __qc_param_verify_sapa(const struct qc_param_info *info,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		const void *value)
 {
 	const unsigned int sapa = *(const unsigned int *)value;
@@ -101,7 +120,11 @@ static bool __qc_param_verify_sapa(const struct qc_param_info *info,
 	return false;
 }
 
+<<<<<<< HEAD
 static bool __qc_param_verify_afc_disable(const struct qc_param_info *info,
+=======
+__ss_static bool __qc_param_verify_afc_disable(const struct qc_param_info *info,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		const void *value)
 {
 	const char mode = *(const char *)value;
@@ -112,7 +135,11 @@ static bool __qc_param_verify_afc_disable(const struct qc_param_info *info,
 	return false;
 }
 
+<<<<<<< HEAD
 static bool __qc_param_verify_pd_disable(const struct qc_param_info *info,
+=======
+__ss_static bool __qc_param_verify_pd_disable(const struct qc_param_info *info,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		const void *value)
 {
 	const char mode = *(const char *)value;
@@ -123,7 +150,11 @@ static bool __qc_param_verify_pd_disable(const struct qc_param_info *info,
 	return false;
 }
 
+<<<<<<< HEAD
 static bool __qc_param_verify_cp_reserved_mem(const struct qc_param_info *info,
+=======
+__ss_static bool __qc_param_verify_cp_reserved_mem(const struct qc_param_info *info,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		const void *value)
 {
 	const unsigned int cp_reserved_mem = *(const unsigned int *)value;
@@ -143,7 +174,11 @@ static bool __qc_param_verify_cp_reserved_mem(const struct qc_param_info *info,
 	return ret;
 }
 
+<<<<<<< HEAD
 static bool __qc_param_verify_FMM_lock(const struct qc_param_info *info,
+=======
+__ss_static bool __qc_param_verify_FMM_lock(const struct qc_param_info *info,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		const void *value)
 {
 	const unsigned int fmm_lock_magic = *(const unsigned int *)value;
@@ -154,7 +189,11 @@ static bool __qc_param_verify_FMM_lock(const struct qc_param_info *info,
 	return false;
 }
 
+<<<<<<< HEAD
 static bool __qc_param_verify_fiemap_update(const struct qc_param_info *info,
+=======
+__ss_static bool __qc_param_verify_fiemap_update(const struct qc_param_info *info,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		const void *value)
 {
 	const unsigned int edtbo_fiemap_magic = *(const unsigned int *)value;
@@ -237,7 +276,11 @@ ssize_t sec_qc_param_read_raw(void *buf, size_t len, loff_t pos)
 }
 EXPORT_SYMBOL(sec_qc_param_read_raw);
 
+<<<<<<< HEAD
 static bool __qc_param_is_valid_index(size_t index)
+=======
+__ss_static bool __qc_param_is_valid_index(size_t index)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 {
 	size_t size;
 
@@ -419,7 +462,11 @@ static bool sec_qc_param_write(size_t index, const void *value)
 	return __qc_param_write(qc_param, index, value);
 }
 
+<<<<<<< HEAD
 static int __qc_param_parse_dt_bdev_path(struct builder *bd,
+=======
+__ss_static int __qc_param_parse_dt_bdev_path(struct builder *bd,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		struct device_node *np)
 {
 	struct qc_param_drvdata *drvdata =
@@ -429,7 +476,11 @@ static int __qc_param_parse_dt_bdev_path(struct builder *bd,
 			&drvdata->bdev_path);
 }
 
+<<<<<<< HEAD
 static int __qc_param_parse_dt_negative_offset(struct builder *bd,
+=======
+__ss_static int __qc_param_parse_dt_negative_offset(struct builder *bd,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		struct device_node *np)
 {
 	struct qc_param_drvdata *drvdata =

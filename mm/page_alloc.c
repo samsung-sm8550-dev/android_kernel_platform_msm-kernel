@@ -1368,6 +1368,10 @@ static __always_inline bool free_pages_prepare(struct page *page,
 	current->free_sum += (1 << order);
 #endif
 
+#ifdef CONFIG_TASK_HAS_ALLOC_FREE_STAT
+	current->free_sum += (1 << order);
+#endif
+
 	if (!PageHighMem(page)) {
 		debug_check_no_locks_freed(page_address(page),
 					   PAGE_SIZE << order);
@@ -6996,6 +7000,8 @@ static void __init memmap_init(void)
 		init_unavailable_range(hole_pfn, end_pfn, zone_id, nid);
 }
 
+phys_addr_t memmapsize;
+
 void __init *memmap_alloc(phys_addr_t size, phys_addr_t align,
 			  phys_addr_t min_addr, int nid, bool exact_nid)
 {
@@ -7010,8 +7016,10 @@ void __init *memmap_alloc(phys_addr_t size, phys_addr_t align,
 						 MEMBLOCK_ALLOC_ACCESSIBLE,
 						 nid);
 
-	if (ptr && size > 0)
+	if (ptr && size > 0) {
+		memmapsize += size;
 		page_init_poison(ptr, size);
+	}
 
 	return ptr;
 }

@@ -27,6 +27,7 @@ static int log_buf_logger_kprobe_probe(struct log_buf_drvdata *drvdata)
 	if (err)
 		goto err_failed_to_register;
 
+<<<<<<< HEAD
 	err = enable_kprobe(kp);
 	if (err)
 		goto err_failed_to_enable;
@@ -35,6 +36,10 @@ static int log_buf_logger_kprobe_probe(struct log_buf_drvdata *drvdata)
 
 err_failed_to_enable:
 	unregister_kprobe(kp);
+=======
+	return 0;
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 err_failed_to_register:
 	return err;
 }
@@ -43,7 +48,10 @@ static void log_buf_logger_kprobe_remove(struct log_buf_drvdata *drvdata)
 {
 	struct kprobe *kp = &drvdata->probe;
 
+<<<<<<< HEAD
 	disable_kprobe(kp);
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	unregister_kprobe(kp);
 }
 

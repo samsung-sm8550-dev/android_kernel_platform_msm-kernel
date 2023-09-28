@@ -23,10 +23,23 @@
 #include <linux/soc/qcom/smem.h>
 #include <soc/qcom/soc_sleep_stats.h>
 #include <clocksource/arm_arch_timer.h>
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SEC_PM_LOG)
 #include <linux/sec_pm_log.h>
 #endif
 
+=======
+#include <soc/qcom/boot_stats.h>
+#if IS_ENABLED(CONFIG_SEC_PM_LOG)
+#include <linux/sec_pm_log.h>
+#endif
+#ifdef CONFIG_SEC_FACTORY
+#include <linux/time.h>
+#include <linux/ktime.h>
+#include <linux/time64.h>
+#include "../../adsp_factory/adsp.h"
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #if IS_ENABLED(CONFIG_SEC_PM)
 #include <trace/events/power.h>
 
@@ -135,6 +148,43 @@ static int subsys_names[MAX_SUBSYS_LEN];
 static bool ddr_freq_update;
 
 #define DSP_SLEEP_DEBUG_ON
+<<<<<<< HEAD
+=======
+
+#if defined(DSP_SLEEP_DEBUG_ON)
+#include <linux/samsung/debug/sec_debug.h>
+#include <linux/workqueue.h>
+#include <linux/soc/qcom/cdsp-loader.h>
+
+#define MAX_COUNT 7
+
+#ifdef CONFIG_SEC_FACTORY
+#define MAX_DSP_ENTRY 2
+#else
+#define MAX_DSP_ENTRY 1
+#endif
+
+struct _dsp_entry {
+	char name[4];
+	uint64_t entry_sec;
+	uint64_t entry_msec;
+	uint64_t prev_exit_sec;
+	uint64_t prev_exit_msec;
+	uint64_t error_count;
+#ifdef CONFIG_SEC_FACTORY
+	u32 prev_count;
+	struct timespec64 sleep_enter_kts;
+#endif
+	int (*ssr)(void);
+} DSP_ENTRY[MAX_DSP_ENTRY];	// 0 : CDSP, 1 : ADSP - adsp is disabled for the time being.
+
+static DECLARE_WORK(dsp_ssr, cdsp_restart);
+#endif
+
+#ifdef CONFIG_MSM_BOOT_TIME_MARKER
+static struct stats_prv_data *gdata;
+static u64 deep_sleep_last_exited_time;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 #if defined(DSP_SLEEP_DEBUG_ON)
 #include <linux/samsung/debug/sec_debug.h>
@@ -680,6 +730,39 @@ static void sec_sleep_stats_show(const char *annotation)
 				dsp_entry->prev_exit_msec = duration_msec;
 			}
 		}
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SEC_FACTORY
+		dsp_entry = (!strcmp(subsystem->name, "adsp")) ? &DSP_ENTRY[1] : NULL;
+		if (dsp_entry != NULL && !sns_check_ignore_crash()) {
+			if (!is_exit) {
+				// entry
+				dsp_entry->sleep_enter_kts =
+					ktime_to_timespec64(ktime_get_boottime());
+				dsp_entry->prev_count = stat->count;
+			} else {
+				//exit
+				struct timespec64 curr_kts =
+					ktime_to_timespec64(ktime_get_boottime());
+				time64_t diff_kts =
+					curr_kts.tv_sec - dsp_entry->sleep_enter_kts.tv_sec;
+				if (diff_kts > 10) {  // sleep more than 10s
+					u32 diff_count = stat->count - dsp_entry->prev_count;
+					int64_t wakeup_rate = 0;
+					// more than about 200 wakeups in a sec.
+					wakeup_rate = diff_count / diff_kts;
+					if (wakeup_rate > 200) {
+						dsp_entry->error_count = MAX_COUNT + 1;
+						pr_err("%s frequent wakeup, %u, %u\n",
+							dsp_entry->name,
+							(u32)diff_kts,
+							(u32)wakeup_rate);
+					}
+				}
+			}
+		}
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 		buf_ptr += sprintf(buf_ptr, "%s(%d, %u.%u), ",
 						   subsystem->name,
@@ -704,7 +787,11 @@ static void sec_sleep_stats_show(const char *annotation)
 	pr_info("%s", buf);
 
 #if defined(DSP_SLEEP_DEBUG_ON)
+<<<<<<< HEAD
 	// 0 : CDSP, 1 : SLPI
+=======
+	// 0 : CDSP, 1 : ADSP
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	for (i = 0; i < sizeof(DSP_ENTRY) / sizeof(struct _dsp_entry); i++) {
 		dsp_entry = &DSP_ENTRY[i];
 		if(dsp_entry->error_count > MAX_COUNT) {
@@ -886,6 +973,19 @@ skip_ddr_stats:
 
 #if defined(DSP_SLEEP_DEBUG_ON)
 	strncpy(DSP_ENTRY[0].name, "cdsp", 4);
+#endif
+
+#if IS_ENABLED(CONFIG_SEC_PM)
+	global_reg_base = reg_base;
+	global_prv_data = prv_data;
+	global_node = pdev->dev.of_node;
+#endif
+
+#if defined(DSP_SLEEP_DEBUG_ON)
+	strncpy(DSP_ENTRY[0].name, "cdsp", 4);
+#if 0
+	strncpy(DSP_ENTRY[1].name, "adsp", 4);
+#endif
 #endif
 
 	return 0;

@@ -735,7 +735,11 @@ int cfg80211_mlme_mgmt_tx(struct cfg80211_registered_device *rdev,
 			return err;
 	}
 
+<<<<<<< HEAD
 	if (!ether_addr_equal(mgmt->sa, wdev_address(wdev))) {
+=======
+	if (!cfg80211_allowed_address(wdev, mgmt->sa)) {
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		/* Allow random TA to be used with authentication frames if the
 		 * driver has indicated support for this. Otherwise, only allow
 		 * the local address to be used.
@@ -765,7 +769,11 @@ int cfg80211_mlme_mgmt_tx(struct cfg80211_registered_device *rdev,
 			return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* Transmit the Action frame as requested by user space */
+=======
+	/* Transmit the management frame as requested by user space */
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 out_tx:
 	return rdev_mgmt_tx(rdev, wdev, params, cookie);
 }

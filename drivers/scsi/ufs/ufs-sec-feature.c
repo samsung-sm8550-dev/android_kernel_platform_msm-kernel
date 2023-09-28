@@ -8,12 +8,19 @@
  * 	Storage Driver <storage.sec@samsung.com>
  */
 
+<<<<<<< HEAD
+=======
+#include "ufs-sec-feature.h"
+#include "ufs-sec-sysfs.h"
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #include <linux/time.h>
 #include <linux/of.h>
 #include <asm/unaligned.h>
 #include <trace/hooks/ufshcd.h>
 #include <linux/panic_notifier.h>
 #include <linux/sec_debug.h>
+<<<<<<< HEAD
 
 #include "ufs-sec-feature.h"
 #include "ufs-sec-sysfs.h"
@@ -44,6 +51,45 @@ static bool ufs_sec_check_ext_feature_sup(u32 mask)
 	return false;
 }
 
+=======
+#include <linux/reboot.h>
+
+/**
+ * UFS Error Information
+ *
+ * Format : U0I0H0L0X0Q0R0W0F0SM0SH0
+ * U : UTP cmd error count
+ * I : UIC error count
+ * H : HWRESET count
+ * L : Link startup failure count
+ * X : Link Lost Error count
+ * Q : UTMR QUERY_TASK error count
+ * R : READ error count
+ * W : WRITE error count
+ * F : Device Fatal Error count
+ * SM : Sense Medium error count
+ * SH : Sense Hardware error count
+ **/
+#define SEC_UFS_ERR_SUM(buf) \
+	sprintf(buf, "U%uI%uH%uL%uX%uQ%uR%uW%uF%uSM%uSH%u", \
+			get_min_errinfo(u32, 9, UTP_cnt, UTP_err), \
+			get_min_errinfo(u32, 9, UIC_err_cnt, UIC_err), \
+			get_min_errinfo(u32, 9, op_cnt, HW_RESET_cnt), \
+			get_min_errinfo(u32, 9, op_cnt, link_startup_cnt), \
+			get_min_errinfo(u8, 9, Fatal_err_cnt, LLE), \
+			get_min_errinfo(u8, 9, UTP_cnt, UTMR_query_task_cnt), \
+			get_min_errinfo(u8, 9, UTP_cnt, UTR_read_err), \
+			get_min_errinfo(u8, 9, UTP_cnt, UTR_write_err), \
+			get_min_errinfo(u8, 9, Fatal_err_cnt, DFE), \
+			get_min_errinfo(u32, 9, sense_cnt, scsi_medium_err), \
+			get_min_errinfo(u32, 9, sense_cnt, scsi_hw_err))
+
+#define ERR_SUM_SIZE 25
+#define NOTI_WORK_DELAY_MS 500
+
+struct ufs_sec_feature_info ufs_sec_features;
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static inline int ufs_sec_read_unit_desc_param(struct ufs_hba *hba,
 					      int lun,
 					      enum unit_desc_param param_offset,
@@ -139,6 +185,7 @@ out:
 		kfree(desc_buf);
 }
 
+<<<<<<< HEAD
 /* SEC WB : begin */
 inline bool ufs_sec_is_wb_allowed(void)
 {
@@ -258,6 +305,111 @@ static int ufs_sec_wb_ctrl(struct ufs_hba *hba, bool enable)
 				__func__, enable ? "enabled" : "disabled");
 		return 0;
 	}
+=======
+/* SEC next WB : begin */
+#define UFS_WB_DISABLE_THRESHOLD_LT 9
+static bool ufs_sec_is_wb_available(void)
+{
+	struct ufs_sec_wb_info *ufs_wb = ufs_sec_features.ufs_wb;
+	struct ufs_vendor_dev_info *ufs_vdi = ufs_sec_features.vdi;
+
+	if (!ufs_wb)
+		return false;
+
+	if (ufs_vdi->lt >= UFS_WB_DISABLE_THRESHOLD_LT)
+		ufs_wb->support = false;
+
+	return ufs_wb->support;
+}
+
+static inline bool is_valid_wb_lun(int lun)
+{
+	return (lun >= 0 && lun < UFS_UPIU_MAX_WB_LUN_ID) ? true : false;
+}
+
+bool ufs_sec_is_wb_supported(struct scsi_device *sdev)
+{
+	struct ufs_hba *hba = ufs_sec_features.vdi->hba;
+	unsigned int lun = sdev->lun;
+
+	if (!ufs_sec_is_wb_available())
+		return false;
+
+	if (!is_valid_wb_lun(lun))
+		return false;
+
+	if (hba->dev_info.wb_buffer_type == WB_BUF_MODE_SHARED)
+		return true;
+	else
+		return hba->dev_info.wb_dedicated_lu == lun ? true : false;
+}
+EXPORT_SYMBOL(ufs_sec_is_wb_supported);
+
+/*
+ * get dExtendedUFSFeaturesSupport from device descriptor
+ *
+ * checking device desc size : instead of checking wspecversion
+ *                             for UFS v2.1 + TW , v2.2 , v3.1
+ */
+static bool ufs_sec_wb_check_ext_feature(struct ufs_hba *hba,
+		u8 *desc_buf)
+{
+	if (hba->desc_size[QUERY_DESC_IDN_DEVICE] <
+			DEVICE_DESC_PARAM_EXT_UFS_FEATURE_SUP + 4) {
+		ufs_sec_features.ext_ufs_feature_sup = 0x0;
+		return false;
+	}
+
+	ufs_sec_features.ext_ufs_feature_sup = get_unaligned_be32(desc_buf +
+				DEVICE_DESC_PARAM_EXT_UFS_FEATURE_SUP);
+
+	if (ufs_sec_features.ext_ufs_feature_sup & UFS_DEV_WRITE_BOOSTER_SUP)
+		return true;
+	else
+		return false;
+}
+
+static u32 ufs_sec_wb_buf_alloc(struct ufs_hba *hba,
+		struct ufs_dev_info *dev_info, u8 *desc_buf)
+{
+	u32 wb_buf_alloc = 0;
+	u8 lun;
+
+	dev_info->wb_buffer_type = desc_buf[DEVICE_DESC_PARAM_WB_TYPE];
+
+	if (dev_info->wb_buffer_type == WB_BUF_MODE_SHARED &&
+			(hba->dev_info.wspecversion >= 0x310 ||
+			 hba->dev_info.wspecversion == 0x220)) {
+		wb_buf_alloc = get_unaligned_be32(desc_buf +
+				DEVICE_DESC_PARAM_WB_SHARED_ALLOC_UNITS);
+	} else {
+		for (lun = 0; lun < UFS_UPIU_MAX_WB_LUN_ID; lun++) {
+			wb_buf_alloc = 0;
+			ufs_sec_read_unit_desc_param(hba,
+					lun,
+					UNIT_DESC_PARAM_WB_BUF_ALLOC_UNITS,
+					(u8 *)&wb_buf_alloc,
+					sizeof(wb_buf_alloc));
+			if (wb_buf_alloc) {
+				dev_info->wb_dedicated_lu = lun;
+				break;
+			}
+		}
+	}
+
+	return wb_buf_alloc;
+}
+
+static int __ufs_sec_wb_ctrl(bool enable)
+{
+	struct ufs_hba *hba = ufs_sec_features.vdi->hba;
+	enum query_opcode opcode;
+	int ret = 0;
+	u8 index;
+
+	if (!ufs_sec_is_wb_available())
+		return -EOPNOTSUPP;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	if (enable)
 		opcode = UPIU_QUERY_OPCODE_SET_FLAG;
@@ -265,6 +417,7 @@ static int ufs_sec_wb_ctrl(struct ufs_hba *hba, bool enable)
 		opcode = UPIU_QUERY_OPCODE_CLEAR_FLAG;
 
 	index = ufshcd_wb_get_query_index(hba);
+<<<<<<< HEAD
 
 	pm_runtime_get_sync(&hba->sdev_ufs_device->sdev_gendev);
 
@@ -279,15 +432,30 @@ static int ufs_sec_wb_ctrl(struct ufs_hba *hba, bool enable)
 				__func__, enable ? "enable" : "disable",
 				ufs_sec_features.ufs_wb->state);
 	}
+=======
+	ret = ufshcd_query_flag_retry(hba, opcode,
+			QUERY_FLAG_IDN_WB_EN, index, NULL);
+	if (!ret)
+		hba->dev_info.wb_enabled = enable;
+
+	pr_info("%s(%s) is %s, ret=%d.\n", __func__,
+			enable ? "enable" : "disable",
+			ret ? "failed" : "done", ret);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static void ufs_sec_wb_on_work_func(struct work_struct *work)
+=======
+int ufs_sec_wb_ctrl(bool enable, struct scsi_device *sdev)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 {
 	struct ufs_hba *hba = ufs_sec_features.vdi->hba;
 	struct ufs_sec_wb_info *ufs_wb = ufs_sec_features.ufs_wb;
 	int ret = 0;
+<<<<<<< HEAD
 
 	ret = ufs_sec_wb_ctrl(hba, true);
 
@@ -446,10 +614,66 @@ static bool ufs_sec_parse_wb_info(struct ufs_hba *hba)
 	ufs_wb->lp_off_delay = msecs_to_jiffies(0);
 
 	return true;
+=======
+	unsigned long flags;
+	unsigned int lun = sdev->lun;
+
+	if (!is_valid_wb_lun(lun))
+		return -EOPNOTSUPP;
+
+	if (enable) {
+		set_bit(lun, &ufs_wb->wb_lu_state);
+	} else {
+		if (!test_and_clear_bit(lun, &ufs_wb->wb_lu_state)) {
+			pr_err("%s: lun%d turned off wb\n", __func__, lun);
+			WARN_ON(1);
+		}
+		if (ufs_wb->wb_lu_state)
+			return 0;
+	}
+
+	spin_lock_irqsave(hba->host->host_lock, flags);
+	if (hba->pm_op_in_progress || hba->is_sys_suspended) {
+		pr_err("%s: ufs is suspended.\n", __func__);
+		ret = -EBUSY;
+		goto out;
+	}
+
+	if (hba->ufshcd_state != UFSHCD_STATE_OPERATIONAL) {
+		pr_err("%s: UFS Host state=%d.\n", __func__, hba->ufshcd_state);
+		ret = -EBUSY;
+		goto out;
+	}
+
+	if (!(enable ^ hba->dev_info.wb_enabled)) {
+		//pr_info("%s: write booster is already %s\n",
+		//		__func__, enable ? "enabled" : "disabled");
+		ret = 0;
+		goto out;
+	}
+	spin_unlock_irqrestore(hba->host->host_lock, flags);
+
+	ufshcd_rpm_get_sync(hba);
+	ret = __ufs_sec_wb_ctrl(enable);
+	ufshcd_rpm_put(hba);
+
+	return ret;
+out:
+	spin_unlock_irqrestore(hba->host->host_lock, flags);
+	return ret;
+}
+EXPORT_SYMBOL(ufs_sec_wb_ctrl);
+
+void ufs_sec_wb_force_off(struct ufs_hba *hba)
+{
+	if (hba->dev_info.wb_enabled)
+		__ufs_sec_wb_ctrl(false);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 static void ufs_sec_wb_toggle_flush_during_h8(struct ufs_hba *hba, bool set)
 {
+<<<<<<< HEAD
 	struct ufs_sec_wb_info *ufs_wb = ufs_sec_features.ufs_wb;
 	int val;
 	u8 index;
@@ -469,12 +693,31 @@ static void ufs_sec_wb_toggle_flush_during_h8(struct ufs_hba *hba, bool set)
 	ret = ufshcd_query_flag_retry(hba, val,
 				QUERY_FLAG_IDN_WB_BUFF_FLUSH_DURING_HIBERN8,
 				index, NULL);
+=======
+	enum query_opcode opcode;
+	u8 index;
+	int ret = 0;
+
+	if (!ufs_sec_is_wb_available())
+		return;
+
+	if (set)
+		opcode = UPIU_QUERY_OPCODE_SET_FLAG;
+	else
+		opcode = UPIU_QUERY_OPCODE_CLEAR_FLAG;
+
+	index = ufshcd_wb_get_query_index(hba);
+	ret = ufshcd_query_flag_retry(hba, opcode,
+			QUERY_FLAG_IDN_WB_BUFF_FLUSH_DURING_HIBERN8,
+			index, NULL);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	dev_info(hba->dev, "%s: %s WB flush during H8 is %s.\n", __func__,
 			set ? "set" : "clear",
 			ret ? "failed" : "done");
 }
 
+<<<<<<< HEAD
 static void ufs_sec_wb_config(struct ufs_hba *hba, bool set)
 {
 	struct ufs_vendor_dev_info *ufs_vdi = ufs_sec_features.vdi;
@@ -500,10 +743,13 @@ wb_disabled:
 	ufs_wb->support = false;
 }
 
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static void ufs_sec_wb_probe(struct ufs_hba *hba, u8 *desc_buf)
 {
 	struct ufs_dev_info *dev_info = &hba->dev_info;
 	struct ufs_sec_wb_info *ufs_wb = NULL;
+<<<<<<< HEAD
 	u8 lun;
 	u32 wb_buf_alloc = 0;
 	char wq_name[sizeof("SEC_WB_wq")];
@@ -573,6 +819,52 @@ wb_disabled:
 	ufs_wb->support = false;
 }
 /* SEC WB : end */
+=======
+	u32 wb_buf_alloc = 0;
+
+	if (!ufs_sec_wb_check_ext_feature(hba, desc_buf)) {
+		dev_err(hba->dev, "%s: Failed check_ext_feature", __func__);
+		goto wb_disabled;
+	}
+
+	dev_info->b_presrv_uspc_en =
+		desc_buf[DEVICE_DESC_PARAM_WB_PRESRV_USRSPC_EN];
+	if (!dev_info->b_presrv_uspc_en) {
+		dev_err(hba->dev, "%s: Failed preserved user space en value",
+				__func__);
+		goto wb_disabled;
+	}
+
+	wb_buf_alloc = ufs_sec_wb_buf_alloc(hba, dev_info, desc_buf);
+	if (!wb_buf_alloc) {
+		dev_err(hba->dev, "%s: Failed wb_buf_alloc", __func__);
+		goto wb_disabled;
+	}
+
+	ufs_wb = devm_kzalloc(hba->dev, sizeof(struct ufs_sec_wb_info),
+			GFP_KERNEL);
+	if (!ufs_wb) {
+		dev_err(hba->dev, "%s: Failed allocating ufs_wb(%lu)",
+				__func__, sizeof(struct ufs_sec_wb_info));
+		goto wb_disabled;
+	}
+
+	ufs_wb->support = true;
+	ufs_sec_features.ufs_wb = ufs_wb;
+
+	hba->dev_info.wb_enabled = WB_OFF;
+
+	dev_info(hba->dev, "%s: SEC WB is supported. type=%s%d, size=%u.\n",
+			__func__,
+			(dev_info->wb_buffer_type == WB_BUF_MODE_LU_DEDICATED) ?
+			" dedicated LU" : " shared",
+			(dev_info->wb_buffer_type == WB_BUF_MODE_LU_DEDICATED) ?
+			dev_info->wb_dedicated_lu : 0, wb_buf_alloc);
+wb_disabled:
+	return;
+}
+/* SEC next WB : end */
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 /* SEC error info : begin */
 inline bool ufs_sec_is_err_cnt_allowed(void)
@@ -779,19 +1071,87 @@ static void ufs_sec_inc_tm_error(u8 tm_cmd)
 	SEC_UFS_ERR_CNT_INC(utp_err->UTP_err, UINT_MAX);
 }
 
+<<<<<<< HEAD
 #if !IS_ENABLED(CONFIG_SAMSUNG_PRODUCT_SHIP)
+=======
+#if IS_ENABLED(CONFIG_SCSI_UFS_TEST_MODE)
+#if IS_ENABLED(CONFIG_SEC_UFS_CMD_LOGGING)
+#define UFS_SEC_TESTMODE_CMD_LOG_MAX 10
+static void ufs_sec_print_cmdlog(struct ufs_hba *hba)
+{
+	struct ufs_sec_cmd_log_info *ufs_cmd_log =
+		ufs_sec_features.ufs_cmd_log;
+	struct ufs_sec_cmd_log_entry *entry = NULL;
+	int i = (ufs_cmd_log->pos + UFS_SEC_CMD_LOGGING_MAX
+			- UFS_SEC_TESTMODE_CMD_LOG_MAX);
+	int idx = 0;
+
+	dev_err(hba->dev, "UFS CMD hist\n");
+	dev_err(hba->dev, "%02s: %10s: %2s %3s %4s %9s %6s %16s\n",
+			"No", "log string", "lu", "tag",
+			"c_id", "lba", "length", "time");
+
+	for (idx = 0; idx < UFS_SEC_TESTMODE_CMD_LOG_MAX; idx++, i++) {
+		i %= UFS_SEC_CMD_LOGGING_MAX;
+		entry = &ufs_cmd_log->entries[i];
+		dev_err(hba->dev, "%2d: %10s: %2d %3d 0x%02x %9u %6d %16llu\n",
+				idx,
+				entry->str, entry->lun, entry->tag,
+				entry->cmd_id, entry->lba,
+				entry->transfer_len, entry->tstamp);
+	}
+}
+#endif	// CONFIG_SEC_UFS_CMD_LOGGING
+
+static void ufs_sec_print_evt_hist(struct ufs_hba *hba);
+
+static void ufs_sec_trigger_bug(struct ufs_hba *hba)
+{
+	// print all event due to the last event would never be printed
+	ufs_sec_print_evt_hist(hba);
+#if IS_ENABLED(CONFIG_SEC_UFS_CMD_LOGGING)
+	// print cmd log
+	ufs_sec_print_cmdlog(hba);
+#endif
+	BUG();
+}
+#endif	// CONFIG_SCSI_UFS_TEST_MODE
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 void ufs_sec_check_device_stuck(void)
 {
 	struct ufs_vendor_dev_info *ufs_vdi = ufs_sec_features.vdi;
 
+<<<<<<< HEAD
+=======
+	if (!ufs_vdi)
+		return;
+
+#if !IS_ENABLED(CONFIG_SAMSUNG_PRODUCT_SHIP)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	if (ufs_vdi && ufs_vdi->device_stuck) {
 		/* waiting for cache flush and make a panic */
 		ssleep(2);
 		panic("UFS TM ERROR\n");
 	}
+<<<<<<< HEAD
 }
 #endif
 
+=======
+#endif
+
+#if IS_ENABLED(CONFIG_SCSI_UFS_TEST_MODE)
+	/*
+	 * do not recover system if test mode is enabled
+	 * reset recovery is in progress from ufshcd_err_handler
+	 */
+	if (ufs_vdi && ufs_vdi->hba && ufs_vdi->hba->eh_flags)
+		ufs_sec_trigger_bug(ufs_vdi->hba);
+#endif
+}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static void ufs_sec_inc_utp_error(struct ufs_hba *hba, int tag)
 {
 	struct SEC_UFS_UTP_cnt *utp_err = &get_err_member(UTP_cnt);
@@ -929,6 +1289,19 @@ void ufs_sec_inc_op_err(struct ufs_hba *hba, enum ufs_event_type evt,
 	default:
 		break;
 	}
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_SCSI_UFS_TEST_MODE)
+#define UFS_TEST_COUNT 3
+	if (evt == UFS_EVT_PA_ERR || evt == UFS_EVT_DL_ERR ||
+			evt == UFS_EVT_LINK_STARTUP_FAIL) {
+		struct ufs_event_hist *e = &hba->ufs_stats.event[evt];
+
+		if (e->cnt > UFS_TEST_COUNT)
+			ufs_sec_trigger_bug(hba);
+	}
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 static void ufs_sec_update_medium_err_region(struct ufs_sec_cmd_info *ufs_cmd)
@@ -1160,11 +1533,19 @@ static void ufs_sec_init_cmd_logging(struct device *dev)
 
 /* panic notifier : begin */
 static void ufs_sec_print_evt(struct ufs_hba *hba, u32 id,
+<<<<<<< HEAD
 			     char *err_name)
 {
 	struct ufs_event_hist *e;
 	int i;
 	int p;
+=======
+		char *err_name)
+{
+	int i;
+	bool found = false;
+	struct ufs_event_hist *e;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	if (id >= UFS_EVT_CNT)
 		return;
@@ -1172,7 +1553,11 @@ static void ufs_sec_print_evt(struct ufs_hba *hba, u32 id,
 	e = &hba->ufs_stats.event[id];
 
 	for (i = 0; i < UFS_EVENT_HIST_LENGTH; i++) {
+<<<<<<< HEAD
 		p = (i + e->pos) % UFS_EVENT_HIST_LENGTH;
+=======
+		int p = (i + e->pos) % UFS_EVENT_HIST_LENGTH;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 		// do not print if dev_reset[0]'s tstamp is in 2 sec.
 		// because that happened on booting seq.
@@ -1184,17 +1569,33 @@ static void ufs_sec_print_evt(struct ufs_hba *hba, u32 id,
 			continue;
 		dev_err(hba->dev, "%s[%d] = 0x%x at %lld us\n", err_name, p,
 			e->val[p], ktime_to_us(e->tstamp[p]));
+<<<<<<< HEAD
 	}
+=======
+		found = true;
+	}
+
+	if (!found)
+		dev_err(hba->dev, "No record of %s\n", err_name);
+	else
+		dev_err(hba->dev, "%s: total cnt=%llu\n", err_name, e->cnt);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 static void ufs_sec_print_evt_hist(struct ufs_hba *hba)
 {
+<<<<<<< HEAD
+=======
+	ufshcd_dump_regs(hba, 0, UFSHCI_REG_SPACE_SIZE, "host_regs: ");
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	ufs_sec_print_evt(hba, UFS_EVT_PA_ERR, "pa_err");
 	ufs_sec_print_evt(hba, UFS_EVT_DL_ERR, "dl_err");
 	ufs_sec_print_evt(hba, UFS_EVT_NL_ERR, "nl_err");
 	ufs_sec_print_evt(hba, UFS_EVT_TL_ERR, "tl_err");
 	ufs_sec_print_evt(hba, UFS_EVT_DME_ERR, "dme_err");
 	ufs_sec_print_evt(hba, UFS_EVT_AUTO_HIBERN8_ERR,
+<<<<<<< HEAD
 			 "auto_hibern8_err");
 	ufs_sec_print_evt(hba, UFS_EVT_FATAL_ERR, "fatal_err");
 	ufs_sec_print_evt(hba, UFS_EVT_LINK_STARTUP_FAIL,
@@ -1202,11 +1603,21 @@ static void ufs_sec_print_evt_hist(struct ufs_hba *hba)
 	ufs_sec_print_evt(hba, UFS_EVT_RESUME_ERR, "resume_fail");
 	ufs_sec_print_evt(hba, UFS_EVT_SUSPEND_ERR,
 			 "suspend_fail");
+=======
+			"auto_hibern8_err");
+	ufs_sec_print_evt(hba, UFS_EVT_FATAL_ERR, "fatal_err");
+	ufs_sec_print_evt(hba, UFS_EVT_LINK_STARTUP_FAIL,
+			"link_startup_fail");
+	ufs_sec_print_evt(hba, UFS_EVT_RESUME_ERR, "resume_fail");
+	ufs_sec_print_evt(hba, UFS_EVT_SUSPEND_ERR,
+			"suspend_fail");
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	ufs_sec_print_evt(hba, UFS_EVT_DEV_RESET, "dev_reset");
 	ufs_sec_print_evt(hba, UFS_EVT_HOST_RESET, "host_reset");
 	ufs_sec_print_evt(hba, UFS_EVT_ABORT, "task_abort");
 }
 
+<<<<<<< HEAD
 /**
  * ufs_sec_panic_callback - Print and Send UFS Error Information to AP
  * Format : U0I0H0L0X0Q0R0W0F0SM0SH0
@@ -1222,10 +1633,13 @@ static void ufs_sec_print_evt_hist(struct ufs_hba *hba)
  * SM : Sense Medium error count
  * SH : Sense Hardware error count
  **/
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static int ufs_sec_panic_callback(struct notifier_block *nfb,
 		unsigned long event, void *panic_msg)
 {
 	struct ufs_vendor_dev_info *ufs_vdi = ufs_sec_features.vdi;
+<<<<<<< HEAD
 	char buf[25];
 	char *str = (char *)panic_msg;
 	bool is_FSpanic = !strncmp(str, "F2FS", 4) || !strncmp(str, "EXT4", 4);
@@ -1265,6 +1679,17 @@ static int ufs_sec_panic_callback(struct notifier_block *nfb,
 	sec_debug_store_additional_dbg(DBG_1_UFS_ERR, 0, "%s", buf);
 #endif
 	if (ufs_vdi)
+=======
+	char buf[ERR_SUM_SIZE];
+	char *str = (char *)panic_msg;
+	bool is_FSpanic = !strncmp(str, "F2FS", 4) || !strncmp(str, "EXT4", 4);
+	const char *no_err = "U0I0H0L0X0Q0R0W0F0SM0SH0";
+
+	SEC_UFS_ERR_SUM(buf);
+	pr_info("%s: UFS Info: %s\n", __func__, buf);
+
+	if (ufs_vdi && is_FSpanic && strncmp(buf, no_err, sizeof(buf)-1))
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		ufs_sec_print_evt_hist(ufs_vdi->hba);
 
 	return NOTIFY_OK;
@@ -1276,9 +1701,94 @@ static struct notifier_block ufs_sec_panic_notifier = {
 };
 /* panic notifier : end */
 
+<<<<<<< HEAD
 void ufs_sec_config_features(struct ufs_hba *hba)
 {
 	ufs_sec_wb_config(hba, true);
+=======
+/* reboot notifier : begin */
+static int ufs_sec_reboot_notify(struct notifier_block *notify_block,
+		unsigned long event, void *unused)
+{
+	char buf[ERR_SUM_SIZE];
+
+	SEC_UFS_ERR_SUM(buf);
+	pr_info("%s: UFS Info: %s\n", __func__, buf);
+
+	return NOTIFY_OK;
+}
+/* reboot notifier : end */
+
+#if IS_ENABLED(CONFIG_MQ_IOSCHED_SSG_WB)
+/* I/O error uevent : begin */
+static void ufs_sec_err_noti_work(struct work_struct *work)
+{
+	int ret;
+	char buf[ERR_SUM_SIZE];
+
+	SEC_UFS_ERR_SUM(buf);
+	pr_info("%s: UFS Info: %s\n", __func__, buf);
+
+	ret = kobject_uevent(&sec_ufs_cmd_dev->kobj, KOBJ_CHANGE);
+	if (ret)
+		pr_err("%s: Failed to send uevent with err %d\n", __func__, ret);
+}
+
+static int ufs_sec_err_uevent(struct device *dev, struct kobj_uevent_env *env)
+{
+	char buf[ERR_SUM_SIZE];
+
+	add_uevent_var(env, "DEVNAME=%s", dev->kobj.name);
+	add_uevent_var(env, "NAME=UFSINFO");
+
+	SEC_UFS_ERR_SUM(buf);
+	return add_uevent_var(env, "DATA=%s", buf);
+}
+
+static struct device_type ufs_type = {
+	.uevent = ufs_sec_err_uevent,
+};
+
+static inline bool ufs_sec_is_uevent_condition(u32 hw_rst_cnt)
+{
+	return ((hw_rst_cnt == 1) || !(hw_rst_cnt % 10));
+}
+
+static void ufs_sec_trigger_err_noti_uevent(struct ufs_hba *hba)
+{
+	const char *no_err = "U0I0H0L0X0Q0R0W0F0SM0SH0";
+	u32 hw_rst_cnt = SEC_UFS_ERR_INFO_GET_VALUE(op_cnt, HW_RESET_cnt);
+	char buf[ERR_SUM_SIZE];
+
+	/* eh_flags is only set during error handling */
+	if (!hba->eh_flags)
+		return;
+
+	SEC_UFS_ERR_SUM(buf);
+
+	if (!strncmp(buf, no_err, sizeof(buf)-1))
+		return;
+
+	if (!ufs_sec_is_uevent_condition(hw_rst_cnt))
+		return;
+
+	if (sec_ufs_cmd_dev)
+		schedule_delayed_work(&ufs_sec_features.noti_work,
+				msecs_to_jiffies(NOTI_WORK_DELAY_MS));
+}
+/* I/O error uevent : end */
+#endif
+
+void ufs_sec_config_features(struct ufs_hba *hba)
+{
+	/* force off in case of error handling */
+	if (hba->eh_flags)
+		ufs_sec_wb_force_off(hba);
+	ufs_sec_wb_toggle_flush_during_h8(hba, true);
+#if IS_ENABLED(CONFIG_MQ_IOSCHED_SSG_WB)
+	ufs_sec_trigger_err_noti_uevent(hba);
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 void ufs_sec_adjust_caps_quirks(struct ufs_hba *hba)
@@ -1334,6 +1844,7 @@ void ufs_sec_set_features(struct ufs_hba *hba)
 	ufs_sec_set_unique_number(hba, desc_buf);
 	ufs_sec_get_health_desc(hba);
 
+<<<<<<< HEAD
 	/*
 	 * get dExtendedUFSFeaturesSupport from device descriptor
 	 *
@@ -1350,12 +1861,24 @@ void ufs_sec_set_features(struct ufs_hba *hba)
 
 		ufs_sec_wb_probe(hba, desc_buf);
 	}
+=======
+	ufs_sec_wb_probe(hba, desc_buf);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	ufs_sec_add_sysfs_nodes(hba);
 
 	atomic_notifier_chain_register(&panic_notifier_list,
 			&ufs_sec_panic_notifier);
+<<<<<<< HEAD
 
+=======
+	ufs_sec_features.reboot_notify.notifier_call = ufs_sec_reboot_notify;
+	register_reboot_notifier(&ufs_sec_features.reboot_notify);
+#if IS_ENABLED(CONFIG_MQ_IOSCHED_SSG_WB)
+	sec_ufs_cmd_dev->type = &ufs_type;
+	INIT_DELAYED_WORK(&ufs_sec_features.noti_work, ufs_sec_err_noti_work);
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 out:
 	if (desc_buf)
 		kfree(desc_buf);
@@ -1364,6 +1887,10 @@ out:
 void ufs_sec_remove_features(struct ufs_hba *hba)
 {
 	ufs_sec_remove_sysfs_nodes(hba);
+<<<<<<< HEAD
+=======
+	unregister_reboot_notifier(&ufs_sec_features.reboot_notify);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 #if !IS_ENABLED(CONFIG_SAMSUNG_PRODUCT_SHIP)
@@ -1440,13 +1967,19 @@ static void ufs_sec_customize_upiu_flags(struct ufshcd_lrb *lrbp)
 static void sec_android_vh_ufs_send_command(void *data,
 		struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
 {
+<<<<<<< HEAD
 	struct ufs_sec_wb_info *ufs_wb = ufs_sec_features.ufs_wb;
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	struct ufs_sec_cmd_info ufs_cmd = { 0, };
 	struct ufs_query_req *request = NULL;
 	enum dev_cmd_type cmd_type;
 	enum query_opcode opcode;
 	bool is_scsi_cmd = false;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	is_scsi_cmd = ufs_sec_get_scsi_cmd_info(lrbp, &ufs_cmd);
 
@@ -1456,6 +1989,7 @@ static void sec_android_vh_ufs_send_command(void *data,
 #if IS_ENABLED(CONFIG_SEC_UFS_CMD_LOGGING)
 		ufs_sec_log_cmd(hba, lrbp, UFS_SEC_CMD_SEND, &ufs_cmd, 0);
 #endif
+<<<<<<< HEAD
 
 		if (ufs_sec_is_wb_allowed() && (ufs_cmd.opcode == WRITE_10)) {
 			spin_lock_irqsave(hba->host->host_lock, flags);
@@ -1467,6 +2001,8 @@ static void sec_android_vh_ufs_send_command(void *data,
 
 			spin_unlock_irqrestore(hba->host->host_lock, flags);
 		}
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	} else {
 #if IS_ENABLED(CONFIG_SEC_UFS_CMD_LOGGING)
 		if (hba->dev_cmd.type == DEV_CMD_TYPE_NOP)
@@ -1493,10 +2029,15 @@ static void sec_android_vh_ufs_send_command(void *data,
 static void sec_android_vh_ufs_compl_command(void *data,
 		struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
 {
+<<<<<<< HEAD
 	struct ufs_sec_wb_info *ufs_wb = ufs_sec_features.ufs_wb;
 	struct ufs_sec_cmd_info ufs_cmd = { 0, };
 	bool is_scsi_cmd = false;
 	unsigned long flags;
+=======
+	struct ufs_sec_cmd_info ufs_cmd = { 0, };
+	bool is_scsi_cmd = false;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	is_scsi_cmd = ufs_sec_get_scsi_cmd_info(lrbp, &ufs_cmd);
 
@@ -1507,6 +2048,7 @@ static void sec_android_vh_ufs_compl_command(void *data,
 
 		ufs_sec_inc_sense_err(lrbp, &ufs_cmd);
 
+<<<<<<< HEAD
 		if (ufs_sec_is_wb_allowed() && (ufs_cmd.opcode == WRITE_10)) {
 			spin_lock_irqsave(hba->host->host_lock, flags);
 
@@ -1523,6 +2065,8 @@ static void sec_android_vh_ufs_compl_command(void *data,
 			spin_unlock_irqrestore(hba->host->host_lock, flags);
 		}
 
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		/*
 		 * check hba->req_abort_count, if the cmd is aborting
 		 * it's the one way to check aborting
@@ -1607,6 +2151,18 @@ static void sec_android_vh_ufs_send_tm_command(void *data,
 
 	if ((str_t == UFS_TM_ERR) && ufs_sec_is_err_cnt_allowed())
 		ufs_sec_inc_tm_error(tm_func);
+<<<<<<< HEAD
+=======
+
+#if IS_ENABLED(CONFIG_SCSI_UFS_TEST_MODE)
+	if (str_t == UFS_TM_COMP && !hba->eh_flags) {
+		dev_err(hba->dev,
+			"%s: ufs tm cmd is succeeded and forced BUG called\n", __func__);
+		ssleep(2);
+		ufs_sec_trigger_bug(hba);
+	}
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 static void sec_android_vh_ufs_update_sdev(void *data, struct scsi_device *sdev)

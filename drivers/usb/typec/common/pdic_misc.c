@@ -478,8 +478,25 @@ static int ums_update_open(struct inode *ip, struct file *fp)
 
 	pr_info("%s +\n", __func__);
 
+<<<<<<< HEAD
 	fw_data = &p_m_core->fw_data;
 
+=======
+	if (!p_m_core) {
+		pr_err("%s - error : p_m_core is NULL\n", __func__);
+		ret = -ENODEV;
+		goto err;
+	}
+
+	fw_data = &p_m_core->fw_data;
+
+	if (_lock(&fw_data->opened)) {
+		pr_err("%s - error : device busy\n", __func__);
+		ret = -EBUSY;
+		goto err;
+	}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	if (fw_data->ic_data->get_prev_fw_size)
 		p_fw_size = fw_data->ic_data->get_prev_fw_size
 								(fw_data->ic_data->data);
@@ -487,7 +504,11 @@ static int ums_update_open(struct inode *ip, struct file *fp)
 	if (p_fw_size <= 0 || p_fw_size > MAX_FW_SIZE) {
 		ret = -EFAULT;
 		pr_err("%s p_fw_size is %lu error\n", __func__, p_fw_size);
+<<<<<<< HEAD
 		goto err;
+=======
+		goto err1;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	}
 
 	/* alloc fw size +20% and align PAGE_SIZE */
@@ -499,13 +520,21 @@ static int ums_update_open(struct inode *ip, struct file *fp)
 	misc_data = kzalloc(sizeof(struct pdic_misc_data), GFP_KERNEL);
 	if (!misc_data) {
 		ret = -ENOMEM;
+<<<<<<< HEAD
 		goto err;
+=======
+		goto err1;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	}
 
 	fw_buf = vzalloc(p_fw_size);
 	if (!fw_buf) {
 		ret = -ENOMEM;
+<<<<<<< HEAD
 		goto err1;
+=======
+		goto err2;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	}
 
 	fw_data->misc_data = misc_data;
@@ -516,8 +545,15 @@ static int ums_update_open(struct inode *ip, struct file *fp)
 	fp->private_data = fw_data;
 	pr_info("%s -\n", __func__);
 	return 0;
+<<<<<<< HEAD
 err1:
 	kfree(misc_data);
+=======
+err2:
+	kfree(misc_data);
+err1:
+	_unlock(&fw_data->opened);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 err:
 	pr_info("%s error -\n", __func__);
 	return ret;
@@ -550,6 +586,11 @@ static int ums_update_close(struct inode *ip, struct file *fp)
 	vfree(fw_data->misc_data->fw_buf);
 	kfree(fw_data->misc_data);
 
+<<<<<<< HEAD
+=======
+	_unlock(&fw_data->opened);
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	pr_info("%s -\n", __func__);
 	return ret;
 }
@@ -648,6 +689,10 @@ int pdic_misc_init(ppdic_data_t ppdic_data)
 	}
 	atomic_set(&p_m_core->c_dev.open_excl, 0);
 	atomic_set(&p_m_core->c_dev.ioctl_excl, 0);
+<<<<<<< HEAD
+=======
+	atomic_set(&p_m_core->fw_data.opened, 0);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	if (ppdic_data) {
 		ppdic_data->misc_dev = &p_m_core->c_dev;

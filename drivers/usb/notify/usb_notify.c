@@ -32,6 +32,12 @@
 #include "host_notify_class.h"
 #include "dock_notify.h"
 #include "usb_notify_sysfs.h"
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_COMBO_REDRIVER_PS5169)
+#include <linux/combo_redriver/ps5169.h>
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 #define DEFAULT_OVC_POLL_SEC 3
 
@@ -116,6 +122,10 @@ struct usb_notify {
 
 struct usb_notify_core {
 	struct otg_notify *o_notify;
+<<<<<<< HEAD
+=======
+	unsigned int lpm_charging_type_done;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 static struct usb_notify_core *u_notify_core;
@@ -1401,8 +1411,17 @@ static void otg_notify_state(struct otg_notify *n,
 			if (n->pre_peri_delay_us)
 				usleep_range(n->pre_peri_delay_us * 1000,
 					n->pre_peri_delay_us * 1000);
+<<<<<<< HEAD
 			if (n->set_peripheral)
 				n->set_peripheral(true);
+=======
+			if (n->set_peripheral) {
+#if IS_ENABLED(CONFIG_COMBO_REDRIVER_PS5169)
+				ps5169_config(USB_ONLY_MODE, 0);
+#endif
+				n->set_peripheral(true);
+			}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		} else {
 			mutex_lock(&u_notify->state_lock);
 			u_notify->ndev.mode = NOTIFY_NONE_MODE;
@@ -2638,6 +2657,44 @@ err:
 }
 EXPORT_SYMBOL(send_usb_notify_uevent);
 
+<<<<<<< HEAD
+=======
+int set_lpm_charging_type_done(struct otg_notify *n, unsigned int state)
+{
+	struct usb_notify *u_notify = NULL;
+	int ret = 0;
+
+	if (!u_notify_core) {
+		pr_err("%s u_notify_core is null\n", __func__);
+		ret = -EFAULT;
+		goto err;
+	}
+
+	pr_info("%s state %u\n", __func__, state);
+
+	u_notify_core->lpm_charging_type_done = state;
+
+	if (!n) {
+		pr_err("%s otg_notify is null\n", __func__);
+		ret = -EFAULT;
+		goto err;
+	}
+
+	u_notify = (struct usb_notify *)(n->u_notify);
+
+	if (!u_notify) {
+		pr_err("%s u_notify is null\n", __func__);
+		ret = -EFAULT;
+		goto err;
+	}
+
+	u_notify->udev.lpm_charging_type_done = state;
+err:
+	return ret;
+}
+EXPORT_SYMBOL(set_lpm_charging_type_done);
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 int check_reverse_bypass_status(struct otg_notify *n)
 {
 	struct usb_notify *u_notify = NULL;
@@ -2961,6 +3018,12 @@ int set_otg_notify(struct otg_notify *n)
 		goto err6;
 	}
 
+<<<<<<< HEAD
+=======
+	u_notify->udev.lpm_charging_type_done
+		= u_notify_core->lpm_charging_type_done;
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	if (gpio_is_valid(n->vbus_detect_gpio) ||
 			gpio_is_valid(n->redriver_en_gpio)) {
 		ret = register_gpios(n);

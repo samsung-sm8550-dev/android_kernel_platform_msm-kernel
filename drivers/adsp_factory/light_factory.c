@@ -17,6 +17,7 @@
 #include <linux/dirent.h>
 #include "adsp.h"
 
+<<<<<<< HEAD
 #define UNKNOWN_INDEX      0
 #define DEVICE_LIST_NUM    10
 #define DEVICE_INFO_LENGTH 10
@@ -26,6 +27,9 @@ struct device_id_t {
 	char device_vendor[DEVICE_INFO_LENGTH];
 	char device_name[DEVICE_INFO_LENGTH];
 };
+=======
+#define DEVICE_LIST_NUM    10
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 static const struct device_id_t device_list[DEVICE_LIST_NUM] = {
 	/* ID, Vendor,      Name */
@@ -70,7 +74,13 @@ enum {
 	OPTION_TYPE_MAX
 };
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER)
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER_V2)
+#include <linux/sec_panel_notifier_v2.h>
+#elif IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #include "../sec_panel_notifier/sec_panel_notifier.h"
 #endif
 
@@ -111,11 +121,19 @@ int get_light_display_sidx(int32_t idx)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void light_get_device_id(struct adsp_data *data)
 {
 	int32_t cmd = OPTION_TYPE_GET_LIGHT_DEVICE_ID, i;
 	int32_t device_index = UNKNOWN_INDEX;
 	uint16_t light_idx = get_light_sidx(data);
+=======
+static void light_get_device_id(struct adsp_data *data, uint16_t light_idx)
+{
+	int32_t cmd = OPTION_TYPE_GET_LIGHT_DEVICE_ID, i;
+	int32_t device_index = UNKNOWN_INDEX;
+	int32_t display_idx = (light_idx == MSG_LIGHT) ? 0 : 1;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	uint8_t cnt = 0, device_id = 0;
 
 	mutex_lock(&data->light_factory_mutex);
@@ -148,39 +166,71 @@ static void light_get_device_id(struct adsp_data *data)
 			device_index = i;
 	}
 
+<<<<<<< HEAD
 	memcpy(data->light_device_vendor,
 		device_list[device_index].device_vendor,
 		sizeof(char) * DEVICE_INFO_LENGTH);
 	memcpy(data->light_device_name,
+=======
+	memcpy(data->light_device_vendor[display_idx],
+		device_list[device_index].device_vendor,
+		sizeof(char) * DEVICE_INFO_LENGTH);
+	memcpy(data->light_device_name[display_idx],
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		device_list[device_index].device_name,
 		sizeof(char) * DEVICE_INFO_LENGTH);
 
 	pr_info("[SSC_FAC] %s: Device ID - %s(%s)\n", __func__,
+<<<<<<< HEAD
 		data->light_device_name, data->light_device_vendor);
+=======
+		data->light_device_name[display_idx],
+		data->light_device_vendor[display_idx]);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 static ssize_t light_vendor_show(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
 	struct adsp_data *data = dev_get_drvdata(dev);
+<<<<<<< HEAD
 
 	if(data->light_device_vendor[0] == 0) {
 		light_get_device_id(data);
 	}
 
 	return snprintf(buf, PAGE_SIZE, "%s\n", data->light_device_vendor);
+=======
+	int32_t display_idx = (get_light_sidx(data) == MSG_LIGHT) ? 0 : 1;
+
+	if (data->light_device_vendor[display_idx][0] == 0)
+		light_get_device_id(data, get_light_sidx(data));
+
+	return snprintf(buf, PAGE_SIZE, "%s\n",
+		data->light_device_vendor[display_idx]);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 static ssize_t light_name_show(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
 	struct adsp_data *data = dev_get_drvdata(dev);
+<<<<<<< HEAD
 
 	if(data->light_device_name[0] == 0) {
 		light_get_device_id(data);
 	}
 
 	return snprintf(buf, PAGE_SIZE, "%s\n", data->light_device_name);
+=======
+	int32_t display_idx = (get_light_sidx(data) == MSG_LIGHT) ? 0 : 1;
+
+	if (data->light_device_name[display_idx][0] == 0)
+		light_get_device_id(data, get_light_sidx(data));
+
+	return snprintf(buf, PAGE_SIZE, "%s\n",
+		data->light_device_name[display_idx]);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 static ssize_t light_raw_data_show(struct device *dev,
@@ -388,7 +438,221 @@ static ssize_t light_hyst_store(struct device *dev,
 	return size;
 }
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER)
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER_V2)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
+void light_brightness_work_func(struct work_struct *work)
+{
+	struct adsp_data *data = container_of((struct work_struct *)work,
+		struct adsp_data, light_br_work);
+	uint16_t light_idx = get_light_display_sidx(data->brightness_info[2]);
+<<<<<<< HEAD
+	int cnt = 0;
+
+=======
+	int32_t display_idx = data->brightness_info[2];
+
+	int cnt = 0;
+
+	if (display_idx >= 0 && display_idx < 2)
+		data->brightness_info[5] = data->pre_panel_state[display_idx];
+
+	if (!data->light_factory_is_ready) {
+		pr_info("[SSC_FAC] %s: Factory daemon is not ready.\n",
+			__func__);
+		return;
+	}
+
+	mutex_lock(&data->light_factory_mutex);
+	adsp_unicast(data->brightness_info, sizeof(data->brightness_info),
+		light_idx, 0, MSG_TYPE_SET_CAL_DATA);
+
+	while (!(data->ready_flag[MSG_TYPE_SET_CAL_DATA] & 1 << light_idx) &&
+		cnt++ < TIMEOUT_CNT)
+		usleep_range(500, 550);
+
+	data->ready_flag[MSG_TYPE_SET_CAL_DATA] &= ~(1 << light_idx);
+
+	if (cnt >= TIMEOUT_CNT)
+		pr_err("[SSC_FAC] %s: Timeout!!! br: %d\n", __func__,
+			data->brightness_info[0]);
+
+	mutex_unlock(&data->light_factory_mutex);
+}
+
+int light_panel_data_notify(struct notifier_block *nb,
+	unsigned long val, void *v)
+{
+	struct adsp_data *data = adsp_get_struct_data();
+	static int32_t pre_ub_con_state[2] = {-1, -1};
+#if IS_ENABLED(CONFIG_SUPPORT_PANEL_STATE_NOTIFY_FOR_LIGHT_SENSOR)
+	static int32_t pre_finger_mask_hbm_on[2] = {-1, -1};
+	static int32_t pre_acl_status[2] = {-1, -1};
+#endif
+	uint16_t light_idx = get_light_sidx(data);
+	struct panel_notifier_event_data *panel_event = v;
+	uint8_t display_idx = panel_event->display_index;
+	enum panel_notifier_event_state_t state = panel_event->state;
+
+	if (val == PANEL_EVENT_BL_STATE_CHANGED) {
+		struct panel_event_bl_data bl = panel_event->d.bl;
+
+		if (display_idx > 1)
+			return 0;
+
+		data->brightness_info[0] = bl.level;
+		data->brightness_info[1] = bl.aor;
+#if IS_ENABLED(CONFIG_SUPPORT_PANEL_STATE_NOTIFY_FOR_LIGHT_SENSOR)
+		data->brightness_info[2] = (int32_t)display_idx;
+		data->brightness_info[3] = bl.finger_mask_hbm_on;
+		data->brightness_info[4] = bl.gradual_acl_val;
+
+		if ((data->brightness_info[0] == data->pre_bl_level[display_idx]) &&
+			(data->brightness_info[2] == data->pre_display_idx) &&
+			(data->brightness_info[3] == pre_finger_mask_hbm_on[display_idx]) &&
+			(data->brightness_info[4] == pre_acl_status[display_idx]))
+			return 0;
+
+		pre_finger_mask_hbm_on[display_idx] = data->brightness_info[3];
+		if (pre_acl_status[display_idx] != data->brightness_info[4]) {
+			pr_info("[SSC_FAC] %s: change acl status : %d -> %d\n",
+				__func__, pre_acl_status[display_idx],
+				data->brightness_info[4]);
+			pre_acl_status[display_idx] = data->brightness_info[4];
+		}
+#else
+		if (data->brightness_info[0] == data->pre_bl_level[display_idx])
+			return 0;
+#endif
+		if (data->brightness_info[0] <= 1 || data->pre_bl_level[display_idx] <= 1)
+			pr_info("[SSC_FAC] %s: br: %d(inx: %d)\n", __func__,
+				data->brightness_info[0],
+				data->brightness_info[2]);
+
+		data->pre_bl_level[display_idx] = data->brightness_info[0];
+		data->pre_display_idx = data->brightness_info[2];
+
+		schedule_work(&data->light_br_work);
+
+	} else if (val == PANEL_EVENT_UB_CON_STATE_CHANGED) {
+		int32_t msg_buf[2];
+
+		if ((display_idx > 1) ||
+			((int32_t)state == pre_ub_con_state[display_idx]))
+			return 0;
+
+		pre_ub_con_state[display_idx] = (int32_t)state;
+		msg_buf[0] = OPTION_TYPE_SET_UB_DISCONNECT;
+		msg_buf[1] = (int32_t)state;
+
+		pr_info("[SSC_FAC] %s: ub disconnected %d\n",
+			__func__, msg_buf[1]);
+
+		if (!data->light_factory_is_ready) {
+			pr_info("[SSC_FAC] %s: Factory daemon is not ready.\n",
+				__func__);
+			return 0;
+		}
+
+		mutex_lock(&data->light_factory_mutex);
+		adsp_unicast(msg_buf, sizeof(msg_buf),
+			light_idx, 0, MSG_TYPE_OPTION_DEFINE);
+		mutex_unlock(&data->light_factory_mutex);
+#if IS_ENABLED(CONFIG_SUPPORT_PANEL_STATE_NOTIFY_FOR_LIGHT_SENSOR)
+	} else if (val == PANEL_EVENT_PANEL_STATE_CHANGED) {
+		int32_t panel_state = (int32_t)state - PANEL_EVENT_PANEL_STATE_OFF;
+		int32_t msg_buf[4];
+
+		if ((display_idx > 1) ||
+			(panel_state >= PANEL_EVENT_PANEL_STATE_LPM) ||
+			((data->pre_panel_state[display_idx] == panel_state) &&
+			(data->pre_panel_idx == (int32_t)display_idx)))
+			return 0;
+
+		data->pre_panel_state[display_idx] = panel_state;
+		data->pre_panel_idx = (int32_t)display_idx;
+
+		msg_buf[0] = OPTION_TYPE_SET_PANEL_STATE;
+		msg_buf[1] = panel_state;
+		msg_buf[2] = (int32_t)display_idx;
+		msg_buf[3] = data->pre_screen_mode[display_idx];
+
+		light_idx = get_light_display_sidx(display_idx);
+
+		pr_info("[SSC_FAC] %s: panel_state %d(inx: %d, mode: %d)\n",
+			__func__, panel_state, display_idx,
+			data->pre_screen_mode[display_idx]);
+
+		if (!data->light_factory_is_ready) {
+			pr_info("[SSC_FAC] %s: Factory daemon is not ready.\n",
+				__func__);
+			return 0;
+		}
+
+		mutex_lock(&data->light_factory_mutex);
+		adsp_unicast(msg_buf, sizeof(msg_buf),
+			light_idx, 0, MSG_TYPE_OPTION_DEFINE);
+		mutex_unlock(&data->light_factory_mutex);
+	} else if (val == PANEL_EVENT_TEST_MODE_STATE_CHANGED) {
+		int32_t test_state = (int32_t)state - PANEL_EVENT_TEST_MODE_STATE_NONE;
+		int32_t msg_buf[3];
+
+		if (display_idx > 1)
+			return 0;
+
+		msg_buf[0] = OPTION_TYPE_SET_PANEL_TEST_STATE;
+		msg_buf[1] = test_state;
+		msg_buf[2] = (int32_t)display_idx;
+
+		light_idx = get_light_display_sidx(display_idx);
+
+		mutex_lock(&data->light_factory_mutex);
+		pr_info("[SSC_FAC] %s: panel test state %d (%d)\n",
+			__func__, test_state, display_idx);
+
+		adsp_unicast(msg_buf, sizeof(msg_buf),
+			light_idx, 0, MSG_TYPE_OPTION_DEFINE);
+		mutex_unlock(&data->light_factory_mutex);
+	} else if (val == PANEL_EVENT_SCREEN_MODE_STATE_CHANGED) {
+		uint8_t screen_mode = panel_event->d.screen_mode;
+		int32_t msg_buf[3];
+
+		if ((display_idx > 1) ||
+			(data->pre_screen_mode[display_idx] == (int32_t)screen_mode))
+			return 0;
+
+		data->pre_screen_mode[display_idx] = (int32_t)screen_mode;
+		msg_buf[0] = OPTION_TYPE_SET_PANEL_SCREEN_MODE;
+		msg_buf[1] = (int32_t)screen_mode;
+		msg_buf[2] = (int32_t)display_idx;
+
+		light_idx = get_light_display_sidx(display_idx);
+		pr_info("[SSC_FAC] %s: panel screen mode %d (%d)\n",
+			__func__, screen_mode, display_idx);
+
+		if (!data->light_factory_is_ready) {
+			pr_info("[SSC_FAC] %s: Factory daemon is not ready.\n",
+				__func__);
+			return 0;
+		}
+
+		mutex_lock(&data->light_factory_mutex);
+		adsp_unicast(msg_buf, sizeof(msg_buf),
+			light_idx, 0, MSG_TYPE_OPTION_DEFINE);
+		mutex_unlock(&data->light_factory_mutex);
+#endif /* CONFIG_SUPPORT_PANEL_STATE_NOTIFY_FOR_LIGHT_SENSOR */
+	}
+
+	return 0;
+}
+
+static struct notifier_block light_panel_data_notifier = {
+	.notifier_call = light_panel_data_notify,
+	.priority = 1,
+};
+#elif IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER)
 void light_brightness_work_func(struct work_struct *work)
 {
 	struct adsp_data *data = container_of((struct work_struct *)work,
@@ -396,6 +660,13 @@ void light_brightness_work_func(struct work_struct *work)
 	uint16_t light_idx = get_light_display_sidx(data->brightness_info[2]);
 	int cnt = 0;
 
+	if (!data->light_factory_is_ready) {
+		pr_info("[SSC_FAC] %s: Factory daemon is not ready.\n",
+			__func__);
+		return;
+	}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	mutex_lock(&data->light_factory_mutex);
 	adsp_unicast(data->brightness_info, sizeof(data->brightness_info),
 		light_idx, 0, MSG_TYPE_SET_CAL_DATA);
@@ -438,7 +709,11 @@ int light_panel_data_notify(struct notifier_block *nb,
 		data->brightness_info[3] = panel_data->finger_mask_hbm_on;
 		data->brightness_info[4] = panel_data->gradual_acl_val;
 
+<<<<<<< HEAD
 		if ((data->brightness_info[0] == data->pre_bl_level) &&
+=======
+		if ((data->brightness_info[0] == data->pre_bl_level[0]) &&
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			(data->brightness_info[2] == data->pre_display_idx) &&
 			(data->brightness_info[3] == pre_finger_mask_hbm_on) &&
 			(data->brightness_info[4] == pre_acl_status))
@@ -452,15 +727,26 @@ int light_panel_data_notify(struct notifier_block *nb,
 			pre_acl_status = data->brightness_info[4];
 		}
 #else
+<<<<<<< HEAD
 		if (data->brightness_info[0] == data->pre_bl_level)
 			return 0;
 #endif
 		if (data->brightness_info[0] <= 1 || data->pre_bl_level <= 1)
+=======
+		if (data->brightness_info[0] == data->pre_bl_level[0])
+			return 0;
+#endif
+		if (data->brightness_info[0] <= 1 || data->pre_bl_level[0] <= 1)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			pr_info("[SSC_FAC] %s: br: %d(inx: %d)\n", __func__,
 				data->brightness_info[0],
 				data->brightness_info[2]);
 
+<<<<<<< HEAD
 		data->pre_bl_level = data->brightness_info[0];
+=======
+		data->pre_bl_level[0] = data->brightness_info[0];
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		data->pre_display_idx = data->brightness_info[2];
 
 		schedule_work(&data->light_br_work);
@@ -475,9 +761,22 @@ int light_panel_data_notify(struct notifier_block *nb,
 		msg_buf[0] = OPTION_TYPE_SET_UB_DISCONNECT;
 		msg_buf[1] = (int32_t)panel_data->state;
 
+<<<<<<< HEAD
 		mutex_lock(&data->light_factory_mutex);
 		pr_info("[SSC_FAC] %s: ub disconnected %d\n",
 			__func__, msg_buf[1]);
+=======
+		pr_info("[SSC_FAC] %s: ub disconnected %d\n",
+			__func__, msg_buf[1]);
+
+		if (!data->light_factory_is_ready) {
+			pr_info("[SSC_FAC] %s: Factory daemon is not ready.\n",
+				__func__);
+			return 0;
+		}
+
+		mutex_lock(&data->light_factory_mutex);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		adsp_unicast(msg_buf, sizeof(msg_buf),
 			light_idx, 0, MSG_TYPE_OPTION_DEFINE);
 		mutex_unlock(&data->light_factory_mutex);
@@ -489,11 +788,19 @@ int light_panel_data_notify(struct notifier_block *nb,
 
 		if ((evdata->display_idx > 1) ||
 			(panel_state >= MAX_PANEL_STATE) ||
+<<<<<<< HEAD
 			((data->pre_panel_state == panel_state) &&
 			(data->pre_panel_idx == evdata->display_idx)))
 			return 0;
 
 		data->pre_panel_state = panel_state;
+=======
+			((data->pre_panel_state[0] == panel_state) &&
+			(data->pre_panel_idx == evdata->display_idx)))
+			return 0;
+
+		data->pre_panel_state[0] = panel_state;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		data->pre_panel_idx = evdata->display_idx;
 #if !IS_ENABLED(CONFIG_SUPPORT_DUAL_OPTIC)
 		if (evdata->display_idx == 0)
@@ -503,6 +810,7 @@ int light_panel_data_notify(struct notifier_block *nb,
 		msg_buf[0] = OPTION_TYPE_SET_PANEL_STATE;
 		msg_buf[1] = panel_state;
 		msg_buf[2] = evdata->display_idx;
+<<<<<<< HEAD
 		msg_buf[3] = data->pre_screen_mode;
 
 		light_idx = get_light_display_sidx(evdata->display_idx);
@@ -511,6 +819,23 @@ int light_panel_data_notify(struct notifier_block *nb,
 		pr_info("[SSC_FAC] %s: panel_state %d(inx: %d, mode: %d)\n",
 			__func__, (int)evdata->state, evdata->display_idx,
 			data->pre_screen_mode);
+=======
+		msg_buf[3] = data->pre_screen_mode[0];
+
+		light_idx = get_light_display_sidx(evdata->display_idx);
+
+		pr_info("[SSC_FAC] %s: panel_state %d(inx: %d, mode: %d)\n",
+			__func__, (int)evdata->state, evdata->display_idx,
+			data->pre_screen_mode[0]);
+
+		if (!data->light_factory_is_ready) {
+			pr_info("[SSC_FAC] %s: Factory daemon is not ready.\n",
+				__func__);
+			return 0;
+		}
+
+		mutex_lock(&data->light_factory_mutex);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		adsp_unicast(msg_buf, sizeof(msg_buf),
 			light_idx, 0, MSG_TYPE_OPTION_DEFINE);
 		mutex_unlock(&data->light_factory_mutex);
@@ -540,20 +865,40 @@ int light_panel_data_notify(struct notifier_block *nb,
 		struct panel_screen_mode_data *screen_data = v;
 		int32_t msg_buf[3];
 
+<<<<<<< HEAD
 		if (data->pre_screen_mode == (int32_t)screen_data->mode)
 			return 0;
 
 		data->pre_screen_mode = (int32_t)screen_data->mode;
+=======
+		if (data->pre_screen_mode[0] == (int32_t)screen_data->mode)
+			return 0;
+
+		data->pre_screen_mode[0] = (int32_t)screen_data->mode;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		msg_buf[0] = OPTION_TYPE_SET_PANEL_SCREEN_MODE;
 		msg_buf[1] = (int32_t)screen_data->mode;
 		msg_buf[2] = (int32_t)screen_data->display_idx;
 
 		light_idx = get_light_display_sidx(screen_data->display_idx);
 
+<<<<<<< HEAD
 		mutex_lock(&data->light_factory_mutex);
 		pr_info("[SSC_FAC] %s: panel screen mode %d (%d)\n",
 			__func__, screen_data->mode, screen_data->display_idx);
 
+=======
+		pr_info("[SSC_FAC] %s: panel screen mode %d (%d)\n",
+			__func__, screen_data->mode, screen_data->display_idx);
+
+		if (!data->light_factory_is_ready) {
+			pr_info("[SSC_FAC] %s: Factory daemon is not ready.\n",
+				__func__);
+			return 0;
+		}
+
+		mutex_lock(&data->light_factory_mutex);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		adsp_unicast(msg_buf, sizeof(msg_buf),
 			light_idx, 0, MSG_TYPE_OPTION_DEFINE);
 		mutex_unlock(&data->light_factory_mutex);
@@ -605,6 +950,11 @@ static ssize_t light_lcd_onoff_store(struct device *dev,
 {
 	struct adsp_data *data = dev_get_drvdata(dev);
 	uint16_t light_idx = get_light_sidx(data);
+<<<<<<< HEAD
+=======
+	uint16_t display_idx = (light_idx == MSG_LIGHT) ? 0 : 1;
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	int32_t msg_buf[3];
 	int new_value, cnt = 0;
 
@@ -622,10 +972,23 @@ static ssize_t light_lcd_onoff_store(struct device *dev,
 	pr_info("[SSC_FAC] %s: new_value %d(idx: %d)\n",
 		__func__, new_value, data->pre_panel_idx);
 
+<<<<<<< HEAD
 	data->pre_bl_level = -1;
 	msg_buf[0] = OPTION_TYPE_LCD_ONOFF;
 	msg_buf[1] = new_value;
 	msg_buf[2] = data->brightness_info[5];
+=======
+	data->pre_bl_level[0] = data->pre_bl_level[1] = -1;
+	msg_buf[0] = OPTION_TYPE_LCD_ONOFF;
+	msg_buf[1] = new_value;
+	msg_buf[2] = data->pre_panel_state[display_idx];
+
+	if (!data->light_factory_is_ready) {
+		pr_info("[SSC_FAC] %s: Factory daemon is not ready.\n",
+			__func__);
+		return size;
+	}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	if (new_value == 1) {
 #if IS_ENABLED(CONFIG_SUPPORT_DDI_COPR_FOR_LIGHT_SENSOR)
@@ -686,6 +1049,7 @@ static ssize_t light_circle_show(struct device *dev,
 
 	return snprintf(buf, PAGE_SIZE, "%d.%d %d.%d %d.%d %d.%d %d.%d %d.%d\n",
 		data->msg_buf[light_idx][0] / 10,
+<<<<<<< HEAD
 		data->msg_buf[light_idx][0] % 10,
 		data->msg_buf[light_idx][1] / 10,
 		data->msg_buf[light_idx][1] % 10,
@@ -697,6 +1061,19 @@ static ssize_t light_circle_show(struct device *dev,
 		data->msg_buf[light_idx][3] % 10,
 		data->msg_buf[light_idx][4] / 10,
 		data->msg_buf[light_idx][4] % 10);
+=======
+		abs(data->msg_buf[light_idx][0]) % 10,
+		data->msg_buf[light_idx][1] / 10,
+		abs(data->msg_buf[light_idx][1]) % 10,
+		data->msg_buf[light_idx][4] / 10,
+		abs(data->msg_buf[light_idx][4]) % 10,
+		data->msg_buf[light_idx][2] / 10,
+		abs(data->msg_buf[light_idx][2]) % 10,
+		data->msg_buf[light_idx][3] / 10,
+		abs(data->msg_buf[light_idx][3]) % 10,
+		data->msg_buf[light_idx][4] / 10,
+		abs(data->msg_buf[light_idx][4]) % 10);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #else
 	if (cnt >= TIMEOUT_CNT)
 		return snprintf(buf, PAGE_SIZE, "0 0 0\n");
@@ -906,9 +1283,17 @@ void light_copr_debug_work_func(struct work_struct *work)
 		struct adsp_data, light_copr_debug_work);
 	uint16_t light_idx = get_light_sidx(data);
 	uint8_t cnt = 0;
+<<<<<<< HEAD
 
 #if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER)
 	if (data->brightness_info[5] == 0)
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && \
+	(IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER_V2) || IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER))
+	uint16_t display_idx = (light_idx == MSG_LIGHT) ? 0 : 1;
+
+	if (data->pre_panel_state[display_idx] == 0)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		return;
 #endif
 	mutex_lock(&data->light_factory_mutex);
@@ -1046,17 +1431,62 @@ void light_init_work_func(struct work_struct *work)
 {
 	struct adsp_data *data = container_of((struct delayed_work *)work,
 		struct adsp_data, light_init_work);
+<<<<<<< HEAD
 
 	light_get_device_id(data);
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER_V2)
+	int32_t msg_buf[4], i, light_idx, max_idx = 1;
+
+#if IS_ENABLED(CONFIG_SUPPORT_DUAL_OPTIC)
+	max_idx = 2;
+#endif
+
+	for (i = 0; i < max_idx; i++) {
+		msg_buf[0] = OPTION_TYPE_SET_PANEL_STATE;
+		msg_buf[1] = data->pre_panel_state[i];
+		msg_buf[2] = i;
+		msg_buf[3] = data->pre_screen_mode[i];
+
+		mutex_lock(&data->light_factory_mutex);
+
+		light_idx = get_light_display_sidx(i);
+		pr_info("[SSC_FAC] %s: panel_state %d(inx: %d, mode: %d)\n",
+			__func__, data->pre_panel_state[i], i,
+			data->pre_screen_mode[i]);
+		adsp_unicast(msg_buf, sizeof(msg_buf),
+			light_idx, 0, MSG_TYPE_OPTION_DEFINE);
+		mutex_unlock(&data->light_factory_mutex);
+
+		msleep(50);
+	}
+#endif
+	light_get_device_id(data, MSG_LIGHT);
+#if IS_ENABLED(CONFIG_SUPPORT_DUAL_OPTIC)
+	light_get_device_id(data, MSG_LIGHT_SUB);
+#endif
+
+#if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER_V2)
+	schedule_work(&data->light_br_work);
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 void light_init_work(struct adsp_data *data)
 {
+<<<<<<< HEAD
 	data->pre_bl_level = -1;
 	data->pre_panel_state = -1;
 	data->pre_panel_idx = -1;
 	data->pre_display_idx = -1;
 	data->light_debug_info_cmd = 0;
+=======
+	data->pre_bl_level[0] = data->pre_bl_level[1] = -1;
+	data->pre_panel_idx = -1;
+	data->pre_display_idx = -1;
+	data->light_debug_info_cmd = 0;
+	data->light_factory_is_ready = true;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	schedule_delayed_work(&data->light_init_work, msecs_to_jiffies(1000));
 }
@@ -1093,11 +1523,26 @@ void light_cal_read_work_func(struct work_struct *work)
 			pr_err("[SSC_FAC] %s: UB is not matched!!!(%d %d)\n", __func__,
 				light_idx, data->msg_buf[light_idx][0]);
 #if IS_ENABLED(CONFIG_SUPPORT_PROX_CALIBRATION)
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SUPPORT_DUAL_OPTIC)
 			if (light_idx == MSG_LIGHT_SUB)
 #endif
 				prox_send_cal_data(data, false);
 #endif
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_DUAL_OPTIC_BUT_SUPPORT_SINGLE_PROX)
+			if (light_idx == MSG_LIGHT_SUB)
+				prox_send_cal_data(data, MSG_PROX, false);
+#else
+			if (light_idx == MSG_LIGHT)
+				prox_send_cal_data(data, MSG_PROX, false);
+#if IS_ENABLED(CONFIG_SUPPORT_DUAL_OPTIC)
+			else if (light_idx == MSG_LIGHT_SUB)
+				prox_send_cal_data(data, MSG_PROX_SUB, false);
+#endif
+#endif
+#endif /* CONFIG_SUPPORT_PROX_CALIBRATION */
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #if IS_ENABLED(CONFIG_SUPPORT_DUAL_OPTIC)
 			light_idx = MSG_LIGHT_SUB;
 			msg_buf[0] = msg_buf[1] = msg_buf[2] = msg_buf[3] = msg_buf[4] = 0;
@@ -1122,6 +1567,7 @@ void light_cal_read_work_func(struct work_struct *work)
 		}
 
 #if IS_ENABLED(CONFIG_SUPPORT_PROX_CALIBRATION)
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SUPPORT_DUAL_OPTIC)
 		if (light_idx == MSG_LIGHT_SUB) {
 #endif
@@ -1131,6 +1577,26 @@ void light_cal_read_work_func(struct work_struct *work)
 		}
 #endif
 #endif
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_DUAL_OPTIC_BUT_SUPPORT_SINGLE_PROX)
+		if (light_idx == MSG_LIGHT_SUB) {
+			data->prox_cal = data->msg_buf[light_idx][4];
+			prox_send_cal_data(data, MSG_PROX, true);
+		}
+#else
+		if (light_idx == MSG_LIGHT) {
+			data->prox_cal = data->msg_buf[light_idx][4];
+			prox_send_cal_data(data, MSG_PROX, true);
+		}
+#if IS_ENABLED(CONFIG_SUPPORT_DUAL_OPTIC)
+		else if (light_idx == MSG_LIGHT_SUB) {
+			data->prox_sub_cal = data->msg_buf[light_idx][4];
+			prox_send_cal_data(data, MSG_PROX_SUB, true);
+		}
+#endif
+#endif
+#endif /* CONFIG_SUPPORT_PROX_CALIBRATION */
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 		if (msg_buf[1] == LIGHT_CAL_PASS) {
 			mutex_lock(&data->light_factory_mutex);
@@ -1527,7 +1993,13 @@ static struct device_attribute *light_attrs[] = {
 int light_factory_init(void)
 {
 	adsp_factory_register(MSG_LIGHT, light_attrs);
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER)
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED (CONFIG_SEC_PANEL_NOTIFIER_V2)
+	panel_notifier_register(&light_panel_data_notifier);
+#elif IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	ss_panel_notifier_register(&light_panel_data_notifier);
 #endif
 	pr_info("[SSC_FAC] %s\n", __func__);
@@ -1538,8 +2010,15 @@ int light_factory_init(void)
 void light_factory_exit(void)
 {
 	adsp_factory_unregister(MSG_LIGHT);
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER)
 	ss_panel_notifier_unregister(&light_panel_data_notifier);
+=======
+#if IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED (CONFIG_SEC_PANEL_NOTIFIER_V2)
+	panel_notifier_unregister(&light_panel_data_notifier);
+#elif IS_ENABLED(CONFIG_SUPPORT_BRIGHTNESS_NOTIFY_FOR_LIGHT_SENSOR) && IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER)
+	ss_panel_notifier_register(&light_panel_data_notifier);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 	pr_info("[SSC_FAC] %s\n", __func__);
 }

@@ -237,11 +237,23 @@ static int __init hdm_test_init(void)
 
 	dev = sec_device_create(NULL, "hdm");
 	WARN_ON(!dev);
+<<<<<<< HEAD
 	if (IS_ERR(dev))
 		hdm_err("%s Failed to create devce\n", __func__);
 
 	if (device_create_file(dev, &dev_attr_hdm_policy) < 0)
 		hdm_err("%s Failed to create device file\n", __func__);
+=======
+	if (IS_ERR(dev)) {
+		hdm_err("%s Failed to create devce\n", __func__);
+		return 0;
+	}
+
+	if (device_create_file(dev, &dev_attr_hdm_policy) < 0) {
+		hdm_err("%s Failed to create device file\n", __func__);
+		return 0;
+	}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 #if defined(CONFIG_ARCH_QCOM)
 	err = __hdm_init_of();

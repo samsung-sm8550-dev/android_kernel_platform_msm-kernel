@@ -34,6 +34,10 @@
 #include <linux/wait.h>
 
 #include <sound/samsung/sec_audio_sysfs.h>
+<<<<<<< HEAD
+=======
+#include <sound/samsung/snd_debug_proc.h>
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 #define EARJACK_DEV_ID 0
 #define CODEC_DEV_ID 1
@@ -500,7 +504,14 @@ static struct attribute_group sec_audio_amp_big_data_attr_group[AMP_ID_MAX] = {
 void send_adsp_silent_reset_ev(void)
 {
 	adsp_silent_reset_count++;
+<<<<<<< HEAD
 	pr_info("%s: count %d\n", __func__, (adsp_silent_reset_count + adsp_silent_reset_count_sum));
+=======
+	pr_info("%s: count %d\n", __func__,
+		(adsp_silent_reset_count + adsp_silent_reset_count_sum));
+	sdp_info_print("%s: count %d\n", __func__,
+		(adsp_silent_reset_count + adsp_silent_reset_count_sum));
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 EXPORT_SYMBOL_GPL(send_adsp_silent_reset_ev);
 

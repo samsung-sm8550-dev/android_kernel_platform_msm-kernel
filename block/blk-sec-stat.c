@@ -105,6 +105,20 @@ static inline void clear_internal_disk_info(void)
 	internal_disk.queue = NULL;
 }
 
+<<<<<<< HEAD
+=======
+bool is_internal_disk(struct gendisk *gd)
+{
+	struct gendisk *igd = get_internal_disk();
+
+	if (gd == igd)
+		return true;
+
+	return false;
+}
+EXPORT_SYMBOL(is_internal_disk);
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static inline bool has_valid_disk_info(void)
 {
 	return !!internal_disk.queue;

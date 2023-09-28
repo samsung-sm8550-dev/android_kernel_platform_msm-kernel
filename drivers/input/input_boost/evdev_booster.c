@@ -147,6 +147,12 @@ int get_device_type(int *device_type, unsigned int *keyId,
 			case KEY_VOLUMEUP:
 			case KEY_VOLUMEDOWN:
 			case KEY_POWER:
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_SOC_S5E5515) // watch - lower key(back key) Code : 0x244(580)
+			case KEY_APPSELECT:
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 				dev_type = KEY;
 				break;
 			default:

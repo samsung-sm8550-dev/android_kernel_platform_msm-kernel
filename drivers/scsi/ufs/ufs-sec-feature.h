@@ -11,6 +11,11 @@
 #ifndef __UFS_SEC_FEATURE_H__
 #define __UFS_SEC_FEATURE_H__
 
+<<<<<<< HEAD
+=======
+#include <linux/notifier.h>
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #include "ufshcd.h"
 #include "ufshci.h"
 
@@ -48,6 +53,7 @@ struct ufs_sec_cmd_info {
 
 enum ufs_sec_wb_state {
 	WB_OFF = 0,
+<<<<<<< HEAD
 	WB_ON_READY,
 	WB_OFF_READY,
 	WB_ON,
@@ -95,6 +101,14 @@ struct ufs_sec_wb_info {
 	struct workqueue_struct *wb_workq;
 	struct work_struct on_work;
 	struct work_struct off_work;
+=======
+	WB_ON
+};
+
+struct ufs_sec_wb_info {
+	bool support;
+	unsigned long wb_lu_state;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 enum ufs_sec_log_str_t {
@@ -152,7 +166,14 @@ struct ufs_sec_feature_info {
 #if IS_ENABLED(CONFIG_SEC_UFS_CMD_LOGGING)
 	struct ufs_sec_cmd_log_info *ufs_cmd_log;
 #endif
+<<<<<<< HEAD
 
+=======
+	struct notifier_block reboot_notify;
+#if IS_ENABLED(CONFIG_MQ_IOSCHED_SSG_WB)
+	struct delayed_work noti_work;
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	u32 ext_ufs_feature_sup;
 
 	u32 last_ucmd;
@@ -170,6 +191,7 @@ void ufs_sec_set_features(struct ufs_hba *hba);
 void ufs_sec_remove_features(struct ufs_hba *hba);
 void ufs_sec_register_vendor_hooks(void);
 void ufs_sec_print_err_info(struct ufs_hba *hba);
+<<<<<<< HEAD
 #if !IS_ENABLED(CONFIG_SAMSUNG_PRODUCT_SHIP)
 void ufs_sec_check_device_stuck(void);
 #endif
@@ -177,6 +199,14 @@ void ufs_sec_check_device_stuck(void);
 void ufs_sec_get_health_desc(struct ufs_hba *hba);
 
 inline bool ufs_sec_is_wb_allowed(void);
+=======
+void ufs_sec_check_device_stuck(void);
+
+void ufs_sec_get_health_desc(struct ufs_hba *hba);
+
+bool ufs_sec_is_wb_supported(struct scsi_device *sdev);
+int ufs_sec_wb_ctrl(bool enable, struct scsi_device *sdev);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 void ufs_sec_wb_force_off(struct ufs_hba *hba);
 
 inline bool ufs_sec_is_err_cnt_allowed(void);
@@ -184,4 +214,11 @@ void ufs_sec_inc_hwrst_cnt(void);
 void ufs_sec_inc_op_err(struct ufs_hba *hba, enum ufs_event_type evt, void *data);
 
 inline bool ufs_sec_is_cmd_log_allowed(void);
+<<<<<<< HEAD
+=======
+
+#if IS_ENABLED(CONFIG_MQ_IOSCHED_SSG_WB)
+extern struct device *sec_ufs_cmd_dev;
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif

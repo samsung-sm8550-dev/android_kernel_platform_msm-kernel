@@ -940,14 +940,32 @@ error_allocate_mem:
 	return ret;
 }
 
+<<<<<<< HEAD
 int stm_ts_spi_remove(struct spi_device *client)
+=======
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
+void stm_ts_spi_remove(struct spi_device *client)
+#else
+int stm_ts_spi_remove(struct spi_device *client)
+#endif
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 {
 	struct stm_ts_data *ts = spi_get_drvdata(client);
 	int ret = 0;
 
 	ret = stm_ts_remove(ts);
+<<<<<<< HEAD
 
 	return 0;
+=======
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
+	return;
+#else
+	return ret;
+#endif
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 void stm_ts_spi_shutdown(struct spi_device *client)

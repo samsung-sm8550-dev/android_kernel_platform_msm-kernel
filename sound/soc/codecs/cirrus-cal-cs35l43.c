@@ -55,6 +55,15 @@ static unsigned int cirrus_cal_vpk_to_mv(unsigned int vpk)
 	return (vpk * CIRRUS_CAL_VFS_MV) >> 19;
 }
 
+<<<<<<< HEAD
+=======
+static int32_t cirrus_cal_sign_extend(uint32_t in)
+{
+		uint8_t shift = 8;
+		return (int32_t)(in << shift) >> shift;
+}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static int cirrus_cal_get_power_temp(void)
 {
 	union power_supply_propval value = {0};
@@ -440,9 +449,29 @@ int cirrus_cal_cs35l43_read_temp(struct cirrus_amp *amp)
 	if (amp_group->cal_running)
 		goto err;
 
+<<<<<<< HEAD
 	ret = cirrus_amp_read_ctl(amp, "TEMP_COIL_C", WMFW_ADSP2_XM,
 			CIRRUS_CAL_CS35L43_ALG_ID_PROT, &reg);
 
+=======
+	ret = cirrus_amp_read_ctl(amp, "HALO_HEARTBEAT", WMFW_ADSP2_XM,
+			0x1800d6, &reg);
+
+	if (reg == 0)
+		goto err;
+
+	ret = cirrus_amp_read_ctl(amp, "AUDIO_STATE", WMFW_ADSP2_XM,
+			0x5f212, &reg);
+
+	if (reg == 0)
+		goto err;
+
+	ret = cirrus_amp_read_ctl(amp, "TEMP_COIL_C", WMFW_ADSP2_XM,
+			CIRRUS_CAL_CS35L43_ALG_ID_PROT, &reg);
+
+	reg = cirrus_cal_sign_extend(reg);
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	if (ret == 0) {
 		dev_info(amp_group->cal_dev,
 			"Read temp: %d.%04d degrees C\n",

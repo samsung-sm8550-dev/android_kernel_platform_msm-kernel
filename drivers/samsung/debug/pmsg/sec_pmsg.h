@@ -29,7 +29,14 @@ struct pmsg_logger {
 	uint16_t level;
 	int32_t tv_sec;
 	int32_t tv_nsec;
+<<<<<<< HEAD
 	char msg[0];
+=======
+	union {
+		char msg[0];
+		char __msg;	/* 1 byte reserved area for 'unsigned char' request from user */
+	};
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 struct pmsg_buffer {

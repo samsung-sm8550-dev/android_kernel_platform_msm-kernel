@@ -299,6 +299,10 @@
 #define WIRELESS_VOUT_9V_STEP		15
 #define WIRELESS_VOUT_10V_STEP		16
 #define WIRELESS_VOUT_OTG			17
+<<<<<<< HEAD
+=======
+#define WIRELESS_VOUT_FORCE_9V	18
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 /* enum mfc_send_command */
 #define MFC_END_SIG_STRENGTH		0

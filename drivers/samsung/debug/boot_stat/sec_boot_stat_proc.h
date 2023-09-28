@@ -1,15 +1,28 @@
 #ifndef __INTERNAL__SEC_BOOT_STAT_PROC_H__
 #define __INTERNAL__SEC_BOOT_STAT_PROC_H__
 
+<<<<<<< HEAD
+=======
+#define BOOT_STAT_HASH_BITS		3
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 struct boot_stat_proc {
 	struct proc_dir_entry *proc;
 	struct mutex lock;
 	bool is_completed;
 	unsigned long long ktime_completed;
+<<<<<<< HEAD
 	size_t *event_record;
 	size_t total_event;
 	size_t nr_event;
 	struct list_head systemserver_init_time_head;
+=======
+	struct list_head boot_event_head;
+	size_t total_event;
+	size_t nr_event;
+	struct list_head systemserver_init_time_head;
+	DECLARE_HASHTABLE(event_htbl, BOOT_STAT_HASH_BITS);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 enum {
@@ -27,6 +40,11 @@ struct boot_prefix {
 };
 
 struct boot_event {
+<<<<<<< HEAD
+=======
+	struct hlist_node hlist;
+	struct list_head list;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	size_t prefix_idx;
 	const char *message;
 	size_t message_len;

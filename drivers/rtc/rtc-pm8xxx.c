@@ -726,6 +726,16 @@ static void pm8xxx_rtc_shutdown(struct platform_device *pdev)
 	else
 		pr_err("%s: spmi device not found\n", __func__);
 }
+<<<<<<< HEAD
+=======
+#else
+static void pm8xxx_rtc_shutdown(struct platform_device *pdev)
+{
+	struct pm8xxx_rtc *rtc_dd = platform_get_drvdata(pdev);
+
+	devm_free_irq(rtc_dd->rtc_dev, rtc_dd->rtc_alarm_irq, rtc_dd);
+}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 static int pm8xxx_rtc_restore(struct device *dev)
 {

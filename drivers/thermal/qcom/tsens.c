@@ -1277,6 +1277,30 @@ static int tsens_probe(struct platform_device *pdev)
 		ts_print_count++;
 	}
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_SEC_PM)
+	ret = tsens_register(priv);
+
+	if (!strncmp(pdev->name, "c271000", 7)) {
+		pr_info("%s: ts_priv0\n", __func__);
+		ts_priv0 = priv;
+	} else if (!strncmp(pdev->name, "c272000", 7)) {
+		pr_info("%s: ts_priv1\n", __func__);
+		ts_priv1 = priv;
+	} else if (!strncmp(pdev->name, "c273000", 7)) {
+		pr_info("%s: ts_priv2\n", __func__);
+		ts_priv2 = priv;
+	}
+
+	if (ts_print_count == 0 && ts_priv2 != NULL) {
+		pr_info("%s: set schedule work\n", __func__);
+		INIT_DELAYED_WORK(&ts_print_work, ts_print);
+		schedule_delayed_work(&ts_print_work, 0);
+		ts_print_count++;
+	}
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	return ret;
 #else
 	return tsens_register(priv);

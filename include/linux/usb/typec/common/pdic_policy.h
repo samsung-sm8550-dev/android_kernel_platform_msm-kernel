@@ -54,6 +54,10 @@ enum pdic_message {
 	MSG_U255K,
 	MSG_U523K,
 	MSG_U619K,
+<<<<<<< HEAD
+=======
+	MSG_FAC_ERR,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	MSG_EX_CNT,
 	MSG_KILLER,
 	MSG_DCOVER,
@@ -61,9 +65,22 @@ enum pdic_message {
 	MSG_DP_DISCONN,
 	MSG_DP_LINK_CONF,
 	MSG_DP_HPD,
+<<<<<<< HEAD
 	MSG_SELECT_PDO,
 	MSG_CURRENT_PDO,
 	MSG_PD_POWER_STATUS,
+=======
+	MSG_DEVICE_INFO,
+	MSG_SVID_INFO,
+	MSG_SELECT_PDO,
+	MSG_CURRENT_PDO,
+	MSG_PD_POWER_STATUS,
+	MSG_FAC_MODE_NOTI_TO_MUIC,
+	MSG_GET_ROLESWAP_CHECK,
+	MSG_GET_ACC,
+	MSG_MUIC_SET_BC12,
+	MSG_SHUTDOWN,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	MSG_CCOFF,
 	MSG_MAX,
 };
@@ -104,6 +121,12 @@ struct pdic_ops {
 	int (*get_alt_info)(void *data, struct pdic_alt_info *alt_info);
 	void (*set_alt_mode)(int);
 	void (*dp_info_clear)(void *data);
+<<<<<<< HEAD
+=======
+	int (*usbpd_sbu_test_read)(void *data);
+	void (*cc_control_command)(void *data, int is_off);
+	void (*alt_info_clear)(void *data);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 struct pp_ic_data {

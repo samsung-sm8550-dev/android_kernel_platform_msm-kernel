@@ -34,7 +34,12 @@ enum sec_qc_param_index {
 	param_index_VrrStatus,
 	param_index_pd_hv_disable,
 	param_vib_le_est,
+<<<<<<< HEAD
 	param_index_max_sec_param_data,
+=======
+	/* */
+	param_num_of_param_index,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 #if IS_ENABLED(CONFIG_SEC_QC_PARAM)

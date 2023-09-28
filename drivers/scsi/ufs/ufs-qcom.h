@@ -554,6 +554,15 @@ struct ufs_qcom_host {
 	cpumask_t perf_mask;
 	cpumask_t def_mask;
 	u32 vccq_lpm_uV;
+<<<<<<< HEAD
+=======
+	bool disable_wb_support;
+	struct ufs_qcom_ber_hist ber_hist[UFS_QCOM_BER_MODE_MAX];
+	struct list_head regs_list_head;
+	bool ber_th_exceeded;
+	u32 valid_evt_cnt[UFS_EVT_CNT];
+	bool irq_affinity_support;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	bool skip_flush;
 };

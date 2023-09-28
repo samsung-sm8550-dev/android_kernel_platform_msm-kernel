@@ -23,6 +23,11 @@
 #endif
 #if IS_ENABLED(CONFIG_SND_SOC_SAMSUNG_AUDIO)
 #include <sound/samsung/sec_audio_sysfs.h>
+<<<<<<< HEAD
+=======
+#include <sound/samsung/snd_debug_proc.h>
+#include <soc/qcom/adsp_sleepmon.h>
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 
 #define Q6V5_PANIC_DELAY_MS	200
@@ -135,8 +140,16 @@ static irqreturn_t q6v5_wdog_interrupt(int irq, void *data)
 #if IS_ENABLED(CONFIG_SND_SOC_SAMSUNG_AUDIO)
 	chk_name = strchr(q6v5->rproc->name, '-');
 	if (chk_name != NULL)
+<<<<<<< HEAD
 		if (!strncmp(chk_name, "-adsp", 5))
 			send_adsp_silent_reset_ev();
+=======
+		if (!strncmp(chk_name, "-adsp", 5)) {
+			sdp_info_print("watchdog received: %s, is_aud = %d\n",
+				msg, check_is_audio_active());
+			send_adsp_silent_reset_ev();
+		}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 
 	q6v5->running = false;
@@ -177,8 +190,25 @@ static irqreturn_t q6v5_fatal_interrupt(int irq, void *data)
 		dev_err(q6v5->dev, "fatal error received: %s\n", msg);
 #if IS_ENABLED(CONFIG_SEC_SENSORS_SSC)
 		chk_name = strstr(q6v5->rproc->name, "adsp");
+<<<<<<< HEAD
 		if (chk_name != NULL)
 			ssr_reason_call_back(msg, len);
+=======
+		if (chk_name != NULL) {
+			ssr_reason_call_back(msg, len);
+			if (strstr(msg, "IPLSREVOCER")) {
+				q6v5->rproc->fssr = true;
+				q6v5->rproc->prev_recovery_disabled = 
+					q6v5->rproc->recovery_disabled;
+				q6v5->rproc->recovery_disabled = false;
+			} else {
+				q6v5->rproc->fssr = false;			
+			}
+			dev_info(q6v5->dev, "recovery:%d,%d\n",
+				(int)q6v5->rproc->prev_recovery_disabled,
+				(int)q6v5->rproc->recovery_disabled);			
+		}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 	} else
 		dev_err(q6v5->dev, "fatal error without message\n");
@@ -186,8 +216,16 @@ static irqreturn_t q6v5_fatal_interrupt(int irq, void *data)
 #if IS_ENABLED(CONFIG_SND_SOC_SAMSUNG_AUDIO)
 	chk_name = strchr(q6v5->rproc->name, '-');
 	if (chk_name != NULL)
+<<<<<<< HEAD
 		if (!strncmp(chk_name, "-adsp", 5))
 			send_adsp_silent_reset_ev();
+=======
+		if (!strncmp(chk_name, "-adsp", 5)) {
+			sdp_info_print("fatal error received: %s, is_aud = %d\n",
+				msg, check_is_audio_active());
+			send_adsp_silent_reset_ev();
+		}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 
 	q6v5->running = false;

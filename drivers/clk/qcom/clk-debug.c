@@ -22,6 +22,8 @@
 #include "clk-debug.h"
 #include "gdsc-debug.h"
 
+#include <linux/samsung/debug/sec_debug.h>
+
 static struct clk_hw *measure;
 static bool debug_suspend;
 static bool debug_suspend_atomic;

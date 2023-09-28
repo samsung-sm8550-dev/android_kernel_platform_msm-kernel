@@ -5,8 +5,11 @@
 
 #define pr_fmt(fmt)     KBUILD_MODNAME ":%s() " fmt, __func__
 
+<<<<<<< HEAD
 #include <linux/blkdev.h>
 #include <linux/debugfs.h>
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #include <linux/fs.h>
 #include <linux/kernel.h>
 #include <linux/mm.h>
@@ -17,6 +20,7 @@
 #include <linux/platform_device.h>
 #include <linux/uio.h>
 
+<<<<<<< HEAD
 #include <linux/samsung/builder_pattern.h>
 #include <linux/samsung/debug/qcom/sec_qc_summary.h>
 #include <linux/samsung/debug/qcom/sec_qc_dbg_partition.h>
@@ -35,10 +39,24 @@ struct qc_dbg_part_drvdata {
 static struct qc_dbg_part_drvdata *qc_dbg_part;
 
 static __always_inline bool __qc_dbg_part_is_probed(void)
+=======
+#include <linux/samsung/debug/qcom/sec_qc_summary.h>
+#include <linux/samsung/debug/qcom/sec_qc_dbg_partition.h>
+#include <linux/samsung/sec_kunit.h>
+
+#include <block/blk.h>
+
+#include "sec_qc_dbg_partition.h"
+
+static struct qc_dbg_part_drvdata *qc_dbg_part;
+
+static __always_inline bool __dbg_part_is_probed(void)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 {
 	return !!qc_dbg_part;
 }
 
+<<<<<<< HEAD
 #define QC_DBG_PART_INFO(__index, __offset, __size, __flags) \
 	[__index] = { \
 		.name = #__index, \
@@ -58,6 +76,9 @@ struct qc_dbg_part_info {
 #define DEBUG_PART_SIZE_FROM_DT SEC_DEBUG_PARTITION_SIZE
 
 static struct qc_dbg_part_info qc_dbg_part_info[DEBUG_PART_MAX_TABLE] __ro_after_init = {
+=======
+__ss_static struct qc_dbg_part_info dbg_part_info[DEBUG_PART_MAX_TABLE] __ro_after_init = {
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	QC_DBG_PART_INFO(debug_index_reset_header,
 			DEBUG_PART_OFFSET_FROM_DT,
 			sizeof(struct debug_reset_header),
@@ -116,6 +137,7 @@ static struct qc_dbg_part_info qc_dbg_part_info[DEBUG_PART_MAX_TABLE] __ro_after
 			O_RDONLY),
 };
 
+<<<<<<< HEAD
 static bool __qc_dbg_part_is_valid_index(size_t index)
 {
 	size_t size;
@@ -124,12 +146,24 @@ static bool __qc_dbg_part_is_valid_index(size_t index)
 		return false;
 
 	size = qc_dbg_part_info[index].size;
+=======
+__ss_static bool ____dbg_part_is_valid_index(size_t index,
+		const struct qc_dbg_part_info *info)
+{
+	size_t size;
+
+	if (index >= DEBUG_PART_MAX_TABLE)
+		return false;
+
+	size = info[index].size;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	if (!size || size >= DEBUG_PART_SIZE_FROM_DT)
 		return false;
 
 	return true;
 }
 
+<<<<<<< HEAD
 ssize_t sec_qc_dbg_part_get_size(size_t index)
 {
 	if (!__qc_dbg_part_is_probed())
@@ -144,6 +178,33 @@ EXPORT_SYMBOL(sec_qc_dbg_part_get_size);
 
 /* NOTE: see fs/pstore/blk.c of linux-5.10.y */
 static ssize_t __qc_dbg_part_blk_read(struct qc_dbg_part_drvdata *drvdata,
+=======
+static bool __dbg_part_is_valid_index(size_t index)
+{
+	return ____dbg_part_is_valid_index(index, dbg_part_info);
+}
+
+__ss_static ssize_t __dbg_part_get_size(size_t index,
+		const struct qc_dbg_part_info *info)
+{
+	if (!____dbg_part_is_valid_index(index, info))
+		return -EINVAL;
+
+	return info[index].size;
+}
+
+ssize_t sec_qc_dbg_part_get_size(size_t index)
+{
+	if (!__dbg_part_is_probed())
+		return -EBUSY;
+
+	return __dbg_part_get_size(index, dbg_part_info);
+}
+EXPORT_SYMBOL_GPL(sec_qc_dbg_part_get_size);
+
+/* NOTE: see fs/pstore/blk.c of linux-5.10.y */
+static ssize_t __dbg_part_blk_read(struct qc_dbg_part_drvdata *drvdata,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		void *buf, size_t bytes, loff_t pos)
 {
 	struct block_device *bdev = drvdata->bdev;
@@ -165,21 +226,33 @@ static ssize_t __qc_dbg_part_blk_read(struct qc_dbg_part_drvdata *drvdata,
 	return generic_file_read_iter(&kiocb, &iter);
 }
 
+<<<<<<< HEAD
 static bool __qc_dbg_part_read(struct qc_dbg_part_drvdata *drvdata,
+=======
+static bool __dbg_part_read(struct qc_dbg_part_drvdata *drvdata,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		size_t index, void *value)
 {
 	struct device *dev = drvdata->bd.dev;
 	struct qc_dbg_part_info *info;
 	ssize_t read;
 
+<<<<<<< HEAD
 	info = &qc_dbg_part_info[index];
+=======
+	info = &dbg_part_info[index];
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	if (info->flags != O_RDONLY && info->flags != O_RDWR) {
 		dev_warn(dev, "read operation is not permitted for idx:%zu\n",
 				index);
 		return false;
 	}
 
+<<<<<<< HEAD
 	read = __qc_dbg_part_blk_read(drvdata,
+=======
+	read = __dbg_part_blk_read(drvdata,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			value, info->size, info->offset);
 	if (read < 0) {
 		dev_warn(dev, "read faield (idx:%zu, err:%zd)\n", index, read);
@@ -195,6 +268,7 @@ static bool __qc_dbg_part_read(struct qc_dbg_part_drvdata *drvdata,
 
 bool sec_qc_dbg_part_read(size_t index, void *value)
 {
+<<<<<<< HEAD
 	if (!__qc_dbg_part_is_probed())
 		return false;
 
@@ -204,6 +278,17 @@ bool sec_qc_dbg_part_read(size_t index, void *value)
 	return __qc_dbg_part_read(qc_dbg_part, index, value);
 }
 EXPORT_SYMBOL(sec_qc_dbg_part_read);
+=======
+	if (!__dbg_part_is_probed())
+		return false;
+
+	if (!__dbg_part_is_valid_index(index))
+		return false;
+
+	return __dbg_part_read(qc_dbg_part, index, value);
+}
+EXPORT_SYMBOL_GPL(sec_qc_dbg_part_read);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 /* NOTE: this is a copy of 'blkdev_fsync' of 'block/fops.c' */
 static struct inode *__bdev_file_inode(struct file *file)
@@ -211,7 +296,11 @@ static struct inode *__bdev_file_inode(struct file *file)
 	return file->f_mapping->host;
 }
 
+<<<<<<< HEAD
 static int __qc_dbg_part_blkdev_fsync(struct file *filp, loff_t start, loff_t end,
+=======
+static int __dbg_part_blkdev_fsync(struct file *filp, loff_t start, loff_t end,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		int datasync)
 {
 	struct inode *bd_inode = __bdev_file_inode(filp);
@@ -235,7 +324,11 @@ static int __qc_dbg_part_blkdev_fsync(struct file *filp, loff_t start, loff_t en
 }
 
 /* NOTE: see fs/pstore/blk.c of linux-5.10.y */
+<<<<<<< HEAD
 static ssize_t __qc_dbg_part_blk_write(struct qc_dbg_part_drvdata *drvdata,
+=======
+static ssize_t __dbg_part_blk_write(struct qc_dbg_part_drvdata *drvdata,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		const void *buf, size_t bytes, loff_t pos )
 {
 	struct block_device *bdev = drvdata->bdev;
@@ -266,7 +359,11 @@ static ssize_t __qc_dbg_part_blk_write(struct qc_dbg_part_drvdata *drvdata,
 
 	if (likely(ret > 0)) {
 		const struct file_operations f_op = {
+<<<<<<< HEAD
 			.fsync = __qc_dbg_part_blkdev_fsync,
+=======
+			.fsync = __dbg_part_blkdev_fsync,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		};
 
 		file.f_op = &f_op;
@@ -276,21 +373,33 @@ static ssize_t __qc_dbg_part_blk_write(struct qc_dbg_part_drvdata *drvdata,
 	return ret;
 }
 
+<<<<<<< HEAD
 static bool __qc_dbg_part_write(struct qc_dbg_part_drvdata *drvdata,
+=======
+static bool __dbg_part_write(struct qc_dbg_part_drvdata *drvdata,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		size_t index, const void *value)
 {
 	struct device *dev = drvdata->bd.dev;
 	struct qc_dbg_part_info *info;
 	ssize_t write;
 
+<<<<<<< HEAD
 	info = &qc_dbg_part_info[index];
+=======
+	info = &dbg_part_info[index];
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	if (info->flags != O_WRONLY && info->flags != O_RDWR) {
 		dev_warn(dev, "write operation is not permitted for idx:%zu\n",
 				index);
 		return false;
 	}
 
+<<<<<<< HEAD
 	write = __qc_dbg_part_blk_write(drvdata,
+=======
+	write = __dbg_part_blk_write(drvdata,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			value, info->size, info->offset);
 	if (write < 0) {
 		dev_warn(dev, "write faield (idx:%zu, err:%zd)\n", index, write);
@@ -306,6 +415,7 @@ static bool __qc_dbg_part_write(struct qc_dbg_part_drvdata *drvdata,
 
 bool sec_qc_dbg_part_write(size_t index, const void *value)
 {
+<<<<<<< HEAD
 	if (!__qc_dbg_part_is_probed())
 		return false;
 
@@ -326,16 +436,92 @@ static int __qc_dbg_part_parse_dt_part_table(struct builder *bd,
 
 	of_get_property(np, name, &ret);
 	if (!ret) {
+=======
+	if (!__dbg_part_is_probed())
+		return false;
+
+	if (!__dbg_part_is_valid_index(index))
+		return false;
+
+	return __dbg_part_write(qc_dbg_part, index, value);
+}
+EXPORT_SYMBOL_GPL(sec_qc_dbg_part_write);
+
+static const char *sec_part_table = "sec,part_table";
+
+static int __dbg_part_parse_dt_part_table_entry(struct device *dev,
+		struct device_node *np, u32 idx, u32 *offsetp, u32 *sizep)
+{
+	u32 offset, size;
+	int err;
+
+	err = of_property_read_u32_index(np, sec_part_table, idx * 2, &offset);
+	if (err) {
+		dev_err(dev, "%s %d offset read error - %d\n",
+				sec_part_table, idx, err);
+		return -EINVAL;
+	}
+
+	err = of_property_read_u32_index(np, sec_part_table, idx * 2 + 1, &size);
+	if (err) {
+		dev_err(dev, "%s %d size read error - %d\n",
+				sec_part_table, idx, err);
+		return -EINVAL;
+	}
+
+	if (offset + size > SEC_DEBUG_PARTITION_SIZE) {
+		dev_err(dev, "%s oversize 0x%x\n",
+				sec_part_table, offset + size);
+		return -EINVAL;
+	}
+
+	*offsetp = offset;
+	*sizep = size;
+
+	return 0;
+}
+
+static void __dbg_part_info_set_offset(struct qc_dbg_part_info *info,
+		u32 offset)
+{
+	if (info->offset == DEBUG_PART_OFFSET_FROM_DT)
+		info->offset = offset;
+}
+
+static void __dbg_part_info_set_size(struct qc_dbg_part_info *info,
+		u32 size)
+{
+	if (info->size == DEBUG_PART_SIZE_FROM_DT)
+		info->size = size;
+}
+
+__ss_static int ____dbg_part_parse_dt_part_table(struct builder *bd,
+		struct device_node *np, struct qc_dbg_part_info *info)
+{
+	int len;
+	u32 i, offset, size;
+	struct device *dev = bd->dev;
+	int err;
+
+	of_get_property(np, sec_part_table, &len);
+	if (!len) {
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		dev_err(dev, "part-table node is not in device tree\n");
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	if (ret != DEBUG_PART_MAX_TABLE * 2 * sizeof(u32)) {
 		dev_err(dev, "%s has wrong size\n", name);
+=======
+	if (len != DEBUG_PART_MAX_TABLE * 2 * sizeof(u32)) {
+		dev_err(dev, "%s has wrong size\n", sec_part_table);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		return -EINVAL;
 	}
 
 	for (i = 0; i < DEBUG_PART_MAX_TABLE; i++) {
+<<<<<<< HEAD
 		ret = of_property_read_u32_index(np, name, i * 2, &offset);
 		if (ret) {
 			dev_err(dev, "%s %d offset read error - %d\n", name, i, ret);
@@ -358,12 +544,31 @@ static int __qc_dbg_part_parse_dt_part_table(struct builder *bd,
 
 		if (qc_dbg_part_info[i].size == DEBUG_PART_SIZE_FROM_DT)
 			qc_dbg_part_info[i].size = size;
+=======
+		err = __dbg_part_parse_dt_part_table_entry(dev,
+				np, i, &offset, &size);
+		if (err)
+			return err;
+
+		__dbg_part_info_set_offset(&info[i], offset);
+		__dbg_part_info_set_size(&info[i], size);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __qc_dbg_part_parse_dt_bdev_path(struct builder *bd,
+=======
+static int __dbg_part_parse_dt_part_table(struct builder *bd,
+		struct device_node *np)
+{
+	return ____dbg_part_parse_dt_part_table(bd, np, dbg_part_info);
+}
+
+__ss_static int __dbg_part_parse_dt_bdev_path(struct builder *bd,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		struct device_node *np)
 {
 	struct qc_dbg_part_drvdata *drvdata =
@@ -373,6 +578,7 @@ static int __qc_dbg_part_parse_dt_bdev_path(struct builder *bd,
 			&drvdata->bdev_path);
 }
 
+<<<<<<< HEAD
 static const struct dt_builder __qc_dbg_part_dt_builder[] = {
 	DT_BUILDER(__qc_dbg_part_parse_dt_bdev_path),
 	DT_BUILDER(__qc_dbg_part_parse_dt_part_table),
@@ -385,6 +591,20 @@ static int __qc_dbg_part_parse_dt(struct builder *bd)
 }
 
 static int __qc_dbg_part_probe_prolog(struct builder *bd)
+=======
+static const struct dt_builder __dbg_part_dt_builder[] = {
+	DT_BUILDER(__dbg_part_parse_dt_bdev_path),
+	DT_BUILDER(__dbg_part_parse_dt_part_table),
+};
+
+static int __dbg_part_parse_dt(struct builder *bd)
+{
+	return sec_director_parse_dt(bd, __dbg_part_dt_builder,
+			ARRAY_SIZE(__dbg_part_dt_builder));
+}
+
+static int __dbg_part_probe_prolog(struct builder *bd)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 {
 	struct qc_dbg_part_drvdata *drvdata =
 			container_of(bd, struct qc_dbg_part_drvdata, bd);
@@ -432,7 +652,11 @@ err_blkdev:
 	return err;
 }
 
+<<<<<<< HEAD
 static int __qc_dbg_part_init_reset_header(struct builder *bd)
+=======
+static int __dbg_part_init_reset_header(struct builder *bd)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 {
 	struct qc_dbg_part_drvdata *drvdata =
 			container_of(bd, struct qc_dbg_part_drvdata, bd);
@@ -440,7 +664,11 @@ static int __qc_dbg_part_init_reset_header(struct builder *bd)
 	struct debug_reset_header *reset_header = &__reset_header;
 	bool valid;
 
+<<<<<<< HEAD
 	valid = __qc_dbg_part_read(drvdata,
+=======
+	valid = __dbg_part_read(drvdata,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			debug_index_reset_summary_info, reset_header);
 	if (!valid)
 		return -EINVAL;
@@ -452,7 +680,11 @@ static int __qc_dbg_part_init_reset_header(struct builder *bd)
 	/* NOTE: debug partition is not initialized. */
 	memset(reset_header, 0, sizeof(*reset_header));
 	reset_header->magic = DEBUG_PARTITION_MAGIC;
+<<<<<<< HEAD
 	valid = __qc_dbg_part_write(drvdata,
+=======
+	valid = __dbg_part_write(drvdata,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			debug_index_reset_summary_info, reset_header);
 	if (!valid)
 		return -EINVAL;
@@ -460,7 +692,11 @@ static int __qc_dbg_part_init_reset_header(struct builder *bd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void __qc_dbg_part_remove_epilog(struct builder *bd)
+=======
+static void __dbg_part_remove_epilog(struct builder *bd)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 {
 	struct qc_dbg_part_drvdata *drvdata =
 			container_of(bd, struct qc_dbg_part_drvdata, bd);
@@ -469,7 +705,11 @@ static void __qc_dbg_part_remove_epilog(struct builder *bd)
 	blkdev_put(drvdata->bdev, mode);
 }
 
+<<<<<<< HEAD
 static int __qc_dbg_part_probe_epilog(struct builder *bd)
+=======
+static int __dbg_part_probe_epilog(struct builder *bd)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 {
 	struct qc_dbg_part_drvdata *drvdata =
 			container_of(bd, struct qc_dbg_part_drvdata, bd);
@@ -481,13 +721,21 @@ static int __qc_dbg_part_probe_epilog(struct builder *bd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void __qc_dbg_part_remove_prolog(struct builder *bd)
+=======
+static void __dbg_part_remove_prolog(struct builder *bd)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 {
 	/* FIXME: This is not a graceful exit. */
 	qc_dbg_part = NULL;
 }
 
+<<<<<<< HEAD
 static int __qc_dbg_part_probe(struct platform_device *pdev,
+=======
+static int __dbg_part_probe(struct platform_device *pdev,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		const struct dev_builder *builder, ssize_t n)
 {
 	struct device *dev = &pdev->dev;
@@ -502,7 +750,11 @@ static int __qc_dbg_part_probe(struct platform_device *pdev,
 	return sec_director_probe_dev(&drvdata->bd, builder, n);
 }
 
+<<<<<<< HEAD
 static int __qc_dbg_part_remove(struct platform_device *pdev,
+=======
+static int __dbg_part_remove(struct platform_device *pdev,
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		const struct dev_builder *builder, ssize_t n)
 {
 	struct qc_dbg_part_drvdata *drvdata = platform_get_drvdata(pdev);
@@ -513,7 +765,11 @@ static int __qc_dbg_part_remove(struct platform_device *pdev,
 }
 
 #if IS_ENABLED(CONFIG_DEBUG_FS)
+<<<<<<< HEAD
 static void __qc_dbg_part_dbgfs_show_bdev(struct seq_file *m)
+=======
+static void __dbg_part_dbgfs_show_bdev(struct seq_file *m)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 {
 	struct qc_dbg_part_drvdata *drvdata = m->private;
 	struct block_device *bdev = drvdata->bdev;
@@ -528,9 +784,15 @@ static void __qc_dbg_part_dbgfs_show_bdev(struct seq_file *m)
 	seq_puts(m, "\n");
 }
 
+<<<<<<< HEAD
 static void __qc_dbg_part_dbgfs_show_each(struct seq_file *m, size_t index)
 {
 	struct qc_dbg_part_info *info = &qc_dbg_part_info[index];
+=======
+static void __dbg_part_dbgfs_show_each(struct seq_file *m, size_t index)
+{
+	struct qc_dbg_part_info *info = &dbg_part_info[index];
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	uint8_t *buf;
 
 	if (!info->size)
@@ -558,10 +820,17 @@ static int sec_qc_dbg_part_dbgfs_show_all(struct seq_file *m, void *unsed)
 {
 	size_t i;
 
+<<<<<<< HEAD
 	__qc_dbg_part_dbgfs_show_bdev(m);
 
 	for (i = 0; i < ARRAY_SIZE(qc_dbg_part_info); i++)
 		__qc_dbg_part_dbgfs_show_each(m, i);
+=======
+	__dbg_part_dbgfs_show_bdev(m);
+
+	for (i = 0; i < DEBUG_PART_MAX_TABLE; i++)
+		__dbg_part_dbgfs_show_each(m, i);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	return 0;
 }
@@ -579,7 +848,11 @@ static const struct file_operations sec_qc_dbg_part_dgbfs_fops = {
 	.release = seq_release,
 };
 
+<<<<<<< HEAD
 static int __qc_dbg_part_debugfs_create(struct builder *bd)
+=======
+static int __dbg_part_debugfs_create(struct builder *bd)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 {
 	struct qc_dbg_part_drvdata *drvdata =
 			container_of(bd, struct qc_dbg_part_drvdata, bd);
@@ -590,7 +863,11 @@ static int __qc_dbg_part_debugfs_create(struct builder *bd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void __qc_dbg_part_debugfs_remove(struct builder *bd)
+=======
+static void __dbg_part_debugfs_remove(struct builder *bd)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 {
 	struct qc_dbg_part_drvdata *drvdata =
 			container_of(bd, struct qc_dbg_part_drvdata, bd);
@@ -598,6 +875,7 @@ static void __qc_dbg_part_debugfs_remove(struct builder *bd)
 	debugfs_remove(drvdata->dbgfs);
 }
 #else
+<<<<<<< HEAD
 static int __qc_dbg_part_debugfs_create(struct builder *bd) { return 0; }
 static void __qc_dbg_part_debugfs_remove(struct builder *bd) {}
 #endif
@@ -609,18 +887,41 @@ static const struct dev_builder __qc_dbg_part_dev_builder[] = {
 	DEVICE_BUILDER(__qc_dbg_part_debugfs_create,
 		       __qc_dbg_part_debugfs_remove),
 	DEVICE_BUILDER(__qc_dbg_part_probe_epilog, __qc_dbg_part_remove_prolog),
+=======
+static int __dbg_part_debugfs_create(struct builder *bd) { return 0; }
+static void __dbg_part_debugfs_remove(struct builder *bd) {}
+#endif
+
+static const struct dev_builder __dbg_part_dev_builder[] = {
+	DEVICE_BUILDER(__dbg_part_parse_dt, NULL),
+	DEVICE_BUILDER(__dbg_part_probe_prolog, __dbg_part_remove_epilog),
+	DEVICE_BUILDER(__dbg_part_init_reset_header, NULL),
+	DEVICE_BUILDER(__dbg_part_debugfs_create,
+		       __dbg_part_debugfs_remove),
+	DEVICE_BUILDER(__dbg_part_probe_epilog, __dbg_part_remove_prolog),
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 static int sec_qc_dbg_part_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	return __qc_dbg_part_probe(pdev, __qc_dbg_part_dev_builder,
 			ARRAY_SIZE(__qc_dbg_part_dev_builder));
+=======
+	return __dbg_part_probe(pdev, __dbg_part_dev_builder,
+			ARRAY_SIZE(__dbg_part_dev_builder));
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 static int sec_qc_dbg_part_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	return __qc_dbg_part_remove(pdev, __qc_dbg_part_dev_builder,
 			ARRAY_SIZE(__qc_dbg_part_dev_builder));
+=======
+	return __dbg_part_remove(pdev, __dbg_part_dev_builder,
+			ARRAY_SIZE(__dbg_part_dev_builder));
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 }
 
 static const struct of_device_id sec_qc_dbg_part_match_table[] = {

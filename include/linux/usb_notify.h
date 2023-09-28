@@ -230,6 +230,11 @@ extern void send_usb_audio_uevent(struct usb_device *dev,
 		int cardnum, int attach);
 extern int send_usb_notify_uevent
 		(struct otg_notify *n, char *envp_ext[]);
+<<<<<<< HEAD
+=======
+extern int set_lpm_charging_type_done(struct otg_notify *n,
+		unsigned int state);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 extern int check_reverse_bypass_status(struct otg_notify *n);
 #if defined(CONFIG_USB_HW_PARAM)
 extern unsigned long long *get_hw_param(struct otg_notify *n,
@@ -248,7 +253,10 @@ extern void enable_usb_notify(void);
 extern int set_otg_notify(struct otg_notify *n);
 extern void put_otg_notify(struct otg_notify *n);
 extern void enable_usb_notify(void);
+<<<<<<< HEAD
 extern int dwc3_usb_maximum_speed_control(int speed);
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #else
 static inline const char *event_string(enum otg_notify_events event)
 			{return NULL; }
@@ -291,6 +299,11 @@ static inline void send_usb_audio_uevent(struct usb_device *dev,
 		int cardnum, int attach) {}
 static inline int send_usb_notify_uevent
 			(struct otg_notify *n, char *envp_ext[]) {return 0; }
+<<<<<<< HEAD
+=======
+static inline int set_lpm_charging_type_done(struct otg_notify *n,
+		unsigned int state) {return 0; }
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static inline int check_reverse_bypass_status(struct otg_notify *n)
 			{return 0; }
 #if defined(CONFIG_USB_HW_PARAM)
@@ -309,7 +322,10 @@ static inline struct otg_notify *get_otg_notify(void) {return NULL; }
 static inline void enable_usb_notify(void) {}
 static inline int set_otg_notify(struct otg_notify *n) {return 0; }
 static inline void put_otg_notify(struct otg_notify *n) {}
+<<<<<<< HEAD
 static inline int dwc3_usb_maximum_speed_control
 		(int speed) {return 0; }
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 #endif /* __LINUX_USB_NOTIFY_H__ */

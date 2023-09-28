@@ -78,6 +78,7 @@ pmu_vendor.ko
 pmu_scmi.ko
 qcom-spmi-pmic.ko
 spmi-pmic-arb.ko
+pinctrl-spmi-gpio.ko
 qcom-reboot-reason.ko
 qcom_rpmh.ko
 qcom-scm.ko
@@ -96,6 +97,16 @@ sec_param.ko
 sec_pmsg.ko
 sec_qc_upload_cause.ko
 sec_upload_cause.ko
+<<<<<<< HEAD
+=======
+i2c-gpio.ko
+gpio-pca953x.ko
+pmic_class.ko
+s2dos05-regulator.ko
+mfd_s2mpb02.ko
+s2mpb02-regulator.ko
+s2mpb03.ko
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 secure_buffer.ko
 smem.ko
 socinfo.ko
@@ -112,6 +123,11 @@ qcom_rimps.ko
 c1dcvs_vendor.ko
 c1dcvs_scmi.ko
 bcl_pmic5.ko
+<<<<<<< HEAD
+=======
+nvme-core.ko
+nvme.ko
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 sec_qc_debug.ko
 sec_qc_summary.ko
 sec_qc_dbg_partition.ko

@@ -59,9 +59,15 @@
 #define CS35L41_MPU_UNLOCK_CODE_1		0xaaaa
 
 #ifdef CONFIG_SND_SOC_CIRRUS_REINIT_SYSFS
+<<<<<<< HEAD
 #define CIRRUS_CAL_NUM_ATTRS_BASE	4
 #else
 #define CIRRUS_CAL_NUM_ATTRS_BASE	3
+=======
+#define CIRRUS_CAL_NUM_ATTRS_BASE	5
+#else
+#define CIRRUS_CAL_NUM_ATTRS_BASE	4
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 
 #define CIRRUS_CAL_NUM_ATTRS_AMP	7

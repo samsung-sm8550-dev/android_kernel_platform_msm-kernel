@@ -474,7 +474,15 @@ static int max77705_vdm_process_discover_svids(void *data, char *vdm_data, int l
 					(usbpd_data->host_turn_on_wait_time)*HZ);
 
 			timeleft = wait_event_interruptible_timeout(usbpd_data->host_turn_on_wait_q,
+<<<<<<< HEAD
 					usbpd_data->host_turn_on_event && !usbpd_data->detach_done_wait, (usbpd_data->host_turn_on_wait_time)*HZ);
+=======
+					usbpd_data->host_turn_on_event && !usbpd_data->detach_done_wait
+#if IS_ENABLED(CONFIG_IF_CB_MANAGER)
+					&& !usbpd_data->wait_entermode
+#endif
+					, (usbpd_data->host_turn_on_wait_time)*HZ);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			msg_maxim("%s host turn on wait = %d\n", __func__, timeleft);
 		}
 		max77705_ccic_event_work(usbpd_data,
@@ -734,6 +742,7 @@ static int max77705_vdm_dp_configure(void *data, char *vdm_data, int len)
 {
 	struct max77705_usbc_platform_data *usbpd_data = data;
 	UND_DATA_MSG_VDM_HEADER_Type *DATA_MSG_VDM = (UND_DATA_MSG_VDM_HEADER_Type *)&vdm_data[4];
+<<<<<<< HEAD
 #if !IS_ENABLED(CONFIG_ARCH_QCOM) || !defined(CONFIG_SEC_FACTORY)
 	int timeleft = 0;
 #endif
@@ -748,6 +757,12 @@ static int max77705_vdm_dp_configure(void *data, char *vdm_data, int len)
 		max77705_ccic_event_work(usbpd_data, PDIC_NOTIFY_DEV_DP,
 			PDIC_NOTIFY_ID_DP_LINK_CONF, usbpd_data->dp_selected_pin, 0, 0);
 	}
+=======
+
+	msg_maxim("vendor_id = 0x%04x , svid_1 = 0x%04x", DATA_MSG_VDM->BITS.Standard_Vendor_ID, usbpd_data->SVID_1);
+	if (usbpd_data->SVID_DP == TypeC_DP_SUPPORT)
+		schedule_work(&usbpd_data->dp_configure_work);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	if (DATA_MSG_VDM->BITS.Standard_Vendor_ID == TypeC_DP_SUPPORT && usbpd_data->SVID_1 == TypeC_Dex_SUPPORT) {
 		/* Samsung Discover Modes packet */
 		usbpd_data->send_enter_mode_req = 0;

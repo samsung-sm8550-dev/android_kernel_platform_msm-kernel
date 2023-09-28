@@ -33,7 +33,11 @@
 #if IS_ENABLED(CONFIG_COMBO_REDRIVER_PS5169)
 #include <linux/combo_redriver/ps5169.h>
 #endif
+<<<<<<< HEAD
 #if defined(CONFIG_USB_AUDIO_POWER_SAVING_REVERSE_BYPASS)
+=======
+#if defined(CONFIG_USB_AUDIO_POWER_SAVING)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #include <linux/usb.h>
 #include <trace/hooks/usb.h>
 #endif
@@ -60,8 +64,14 @@ struct usb_notifier_platform_data {
 	int	gpio_redriver_en;
 	int disable_control_en;
 	int	unsupport_host_en;
+<<<<<<< HEAD
 #if defined(CONFIG_USB_AUDIO_POWER_SAVING_REVERSE_BYPASS)
 	struct work_struct reverse_bypass_on_work;
+=======
+#if defined(CONFIG_USB_AUDIO_POWER_SAVING)
+	struct work_struct reverse_bypass_on_work;
+	int	support_reverse_bypass_en;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif
 };
 
@@ -95,6 +105,19 @@ static void of_get_unsupport_host_dt(struct device_node *np,
 	pr_info("unsupport_host_en : %d\n", pdata->unsupport_host_en);
 }
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_USB_AUDIO_POWER_SAVING)
+static void of_get_support_reverse_bypass_dt(struct device_node *np,
+		struct usb_notifier_platform_data *pdata)
+{
+	of_property_read_u32(np, "qcom,support_reverse_bypass_en", &pdata->support_reverse_bypass_en);
+
+	pr_info("support_reverse_bypass_en : %d\n", pdata->support_reverse_bypass_en);
+}
+#endif
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static int of_usb_notifier_dt(struct device *dev,
 		struct usb_notifier_platform_data *pdata)
 {
@@ -106,6 +129,12 @@ static int of_usb_notifier_dt(struct device *dev,
 	of_get_usb_redriver_dt(np, pdata);
 	of_get_disable_control_en_dt(np, pdata);
 	of_get_unsupport_host_dt(np, pdata);
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_USB_AUDIO_POWER_SAVING)
+	of_get_support_reverse_bypass_dt(np, pdata);
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	return 0;
 }
 #endif
@@ -136,9 +165,12 @@ static int ccic_usb_handle_notification(struct notifier_block *nb,
 		break;
 	case USB_STATUS_NOTIFY_ATTACH_UFP:
 		pr_info("%s: Turn On Device(UFP)\n", __func__);
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_COMBO_REDRIVER_PS5169)
 		ps5169_config(USB_ONLY_MODE, 0);
 #endif
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 		dwc3_max_speed_setting(usb_status.sub3);
 		send_otg_notify(o_notify, NOTIFY_EVENT_VBUS, 1);
 		if (is_blocked(o_notify, NOTIFY_BLOCK_TYPE_CLIENT))
@@ -479,7 +511,11 @@ static int is_skip_list(int index)
 }
 #endif
 
+<<<<<<< HEAD
 #if defined(CONFIG_USB_AUDIO_POWER_SAVING_REVERSE_BYPASS)
+=======
+#if defined(CONFIG_USB_AUDIO_POWER_SAVING)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 static int reverse_bypass_power(int mode)
 {
 	union power_supply_propval val;
@@ -546,7 +582,11 @@ static void new_device_added(void *unused, struct usb_device *udev, int *err)
 	struct usb_device *dev;
 	int port = 0;
 
+<<<<<<< HEAD
 	pr_info("%s\n", __func__);
+=======
+	pr_info("%s: support_reverse_bypass_en : %d\n", __func__, pdata->support_reverse_bypass_en);
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	if (!o_notify) {
 		pr_err("%s otg_notify is null\n", __func__);
 		return;
@@ -561,7 +601,11 @@ static void new_device_added(void *unused, struct usb_device *udev, int *err)
 		return;
 
 	usb_hub_for_each_child(hdev, port, dev) {
+<<<<<<< HEAD
 		if (check_reverse_bypass_device(dev)) {
+=======
+		if (pdata->support_reverse_bypass_en && check_reverse_bypass_device(dev)) {
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			switch (check_reverse_bypass_status(o_notify)) {
 			case NOTIFY_EVENT_REVERSE_BYPASS_OFF:
 				*err = -1;
@@ -581,6 +625,7 @@ static void new_device_added(void *unused, struct usb_device *udev, int *err)
 }
 #endif
 
+<<<<<<< HEAD
 static int usb_maximum_speed_control(int speed)
 {
 	return dwc3_usb_maximum_speed_control(speed);
@@ -589,6 +634,11 @@ static int usb_maximum_speed_control(int speed)
 static struct otg_notify sec_otg_notify = {
 	.vbus_drive	= otg_accessory_power,
 #if defined(CONFIG_USB_AUDIO_POWER_SAVING_REVERSE_BYPASS)
+=======
+static struct otg_notify sec_otg_notify = {
+	.vbus_drive	= otg_accessory_power,
+#if defined(CONFIG_USB_AUDIO_POWER_SAVING)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	.reverse_bypass_drive = reverse_bypass_power,
 #endif
 	.set_host = qcom_set_host,
@@ -598,8 +648,17 @@ static struct otg_notify sec_otg_notify = {
 	.vbus_detect_gpio = -1,
 	.is_host_wakelock = 0,
 	.is_wakelock = 1,
+<<<<<<< HEAD
 	.unsupport_host = 0,	
 	.booting_delay_sec = 10,
+=======
+	.unsupport_host = 0,
+#if IS_ENABLED(CONFIG_COMBO_REDRIVER_PS5169)
+	.booting_delay_sec = 16,
+#else
+	.booting_delay_sec = 10,
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #if !IS_ENABLED(CONFIG_PDIC_NOTIFIER)
 	.auto_drive_vbus = NOTIFY_OP_PRE,
 #endif
@@ -611,7 +670,10 @@ static struct otg_notify sec_otg_notify = {
 	.is_skip_list = is_skip_list,
 #endif
 	.pre_peri_delay_us = 6,
+<<<<<<< HEAD
 	.usb_maximum_speed = usb_maximum_speed_control,
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 static int usb_notifier_probe(struct platform_device *pdev)
@@ -665,7 +727,11 @@ static int usb_notifier_probe(struct platform_device *pdev)
 	vbus_notifier_register(&pdata->vbus_nb, vbus_handle_notification,
 			       VBUS_NOTIFY_DEV_USB);
 #endif
+<<<<<<< HEAD
 #if defined(CONFIG_USB_AUDIO_POWER_SAVING_REVERSE_BYPASS)
+=======
+#if defined(CONFIG_USB_AUDIO_POWER_SAVING)
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	ret = register_trace_android_vh_usb_new_device_added(new_device_added, NULL);
 	if (ret)
 		dev_err(&pdev->dev, "failed to register new device added ret = %d\n", ret);

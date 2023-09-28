@@ -17,6 +17,9 @@
 #include <linux/usb/ch11.h>
 #include <linux/usb/hcd.h>
 #include <linux/usb/phy.h>
+#if IS_ENABLED(CONFIG_IF_CB_MANAGER)
+#include <linux/usb/typec/manager/if_cb_manager.h>
+#endif
 
 struct lvs_rh {
 	/* root hub interface */
@@ -37,6 +40,13 @@ struct lvs_rh {
 	struct usb_port_status port_status;
 	int test_mode;
 	int test_stat;
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_IF_CB_MANAGER)
+	struct lvs_dev lvs_d;
+	struct if_cb_manager *man;
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 };
 
 enum lvs_status {
@@ -400,8 +410,17 @@ static ssize_t get_dev_desc_store(struct device *dev,
 		dev_err(dev, "can't read device descriptor %d\n", ret);
 		if (lvs->test_mode)
 			lvs->test_stat = STAT_CON;
+<<<<<<< HEAD
 	} else
 		dev_info(dev, "send device descriptor success\n");
+=======
+	} else {
+#if IS_ENABLED(CONFIG_IF_CB_MANAGER)
+		usbpd_wait_entermode(lvs->man, 0);
+#endif
+		dev_info(dev, "send device descriptor success\n");
+	}
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 	destroy_lvs_device(udev);
 
@@ -615,6 +634,12 @@ static int lvs_rh_probe(struct usb_interface *intf,
 		dev_err(&intf->dev, "couldn't submit lvs urb %d\n", ret);
 		goto free_urb;
 	}
+#if IS_ENABLED(CONFIG_IF_CB_MANAGER)
+	lvs->lvs_d.ops = NULL;
+	lvs->lvs_d.data = (void *)lvs;
+	lvs->man = register_lvs(&lvs->lvs_d);
+	usbpd_wait_entermode(lvs->man, 1);
+#endif
 
 	return ret;
 
@@ -628,6 +653,13 @@ static void lvs_rh_disconnect(struct usb_interface *intf)
 	struct lvs_rh *lvs = usb_get_intfdata(intf);
 
 	pr_info("%s\n", __func__);
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_IF_CB_MANAGER)
+	usbpd_wait_entermode(lvs->man, 0);
+	register_lvs(NULL);
+#endif
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	usb_poison_urb(lvs->urb); /* used in scheduled work */
 	flush_work(&lvs->rh_work);
 	usb_free_urb(lvs->urb);

@@ -1241,7 +1241,11 @@ dt_binding_check: scripts_dtc
 
 ifeq ($(KBUILD_EXTMOD),)
 -include $(srctree)/extmod.mk
+<<<<<<< HEAD
 core-y		+= kernel/ certs/ mm/ fs/ ipc/ security/ crypto/ block/
+=======
+core-y		+= kernel/ certs/ mm/ fs/ ipc/ security/ crypto/ block/ io_uring/
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 
 vmlinux-dirs	:= $(patsubst %/,%,$(filter %/, \
 		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \

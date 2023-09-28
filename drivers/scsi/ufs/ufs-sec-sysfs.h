@@ -166,6 +166,7 @@ static DEVICE_ATTR(name, 0664, name##_show, name##_store)
 	min_t(type, min_val, SEC_UFS_ERR_INFO_GET_VALUE(err_cnt, member))
 /* SEC error info : end */
 
+<<<<<<< HEAD
 /* UFS SEC WB : begin */
 #define SEC_UFS_WB_DATA_ATTR(name, fmt, member)				\
 static ssize_t ufs_sec_##name##_show(struct device *dev,		\
@@ -222,4 +223,6 @@ static ssize_t ufs_sec_##name##_show(struct device *dev,		\
 static DEVICE_ATTR(name, 0444, ufs_sec_##name##_show, NULL)
 /* UFS SEC WB : end */
 
+=======
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 #endif

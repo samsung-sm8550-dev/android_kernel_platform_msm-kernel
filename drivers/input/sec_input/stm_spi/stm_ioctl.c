@@ -53,7 +53,11 @@ static long tsp_ioctl_handler(struct file *file, unsigned int cmd, void __user *
 			}
 		} else if (t.num < 0) {
 			mutex_lock(&g_ts->raw_lock);
+<<<<<<< HEAD
 			t.num = 3 - g_ts->raw_read_index + g_ts->raw_write_index;
+=======
+			t.num = RAW_VEC_NUM - g_ts->raw_read_index + g_ts->raw_write_index;
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 			mutex_unlock(&g_ts->raw_lock);
 		}
 
@@ -108,6 +112,15 @@ static int tsp_open(struct inode *inode, struct file *file)
 static int tsp_close(struct inode *inode, struct file *file)
 {
 	input_info(true, &g_ts->client->dev, "%s\n", __func__);
+<<<<<<< HEAD
+=======
+
+	g_ts->raw_write_index++;
+	if (g_ts->raw_write_index >= RAW_VEC_NUM)
+		g_ts->raw_write_index = 0;
+	sysfs_notify(&g_ts->sec.fac_dev->kobj, NULL, "raw_irq");
+
+>>>>>>> 3db2e88ab384... Import changes from  S9110ZCU2AWH1
 	return 0;
 }
 
