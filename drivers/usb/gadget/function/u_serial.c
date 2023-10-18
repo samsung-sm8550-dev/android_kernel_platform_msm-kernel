@@ -1371,8 +1371,12 @@ void gserial_disconnect(struct gserial *gser)
 	struct gs_port	*port = gser->ioport;
 	unsigned long	flags;
 
-	if (!port)
+	pr_info("%s start", __func__);
+
+	if (!port) {
+		pr_info("%s: port is NULL", __func__);
 		return;
+	}
 
 	/* tell the TTY glue not to do I/O here any more */
 	spin_lock_irqsave(&port->port_lock, flags);

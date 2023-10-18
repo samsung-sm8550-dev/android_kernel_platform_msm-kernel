@@ -56,3 +56,6 @@ obj-$(CONFIG_PINCTRL_SDXBAAGHA) += pinctrl-sdxbaagha.o
 obj-$(CONFIG_PINCTRL_LEMANS) += pinctrl-lemans.o
 obj-$(CONFIG_PINCTRL_DIREWOLF) += pinctrl-direwolf.o
 obj-$(CONFIG_PINCTRL_MONACO_AUTO) += pinctrl-monaco_auto.o
+
+# Debug and verify gpio configurations.
+obj-$(CONFIG_SEC_GPIO_DVS)	+= secgpio_dvs.o
