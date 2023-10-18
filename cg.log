@@ -1,0 +1,620 @@
+On branch wip
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	deleted:    .gitattributes
+	modified:   Makefile
+	modified:   arch/Kconfig
+	modified:   arch/arm64/Kconfig
+	modified:   arch/arm64/Kconfig.debug
+	modified:   arch/arm64/boot/dts/Makefile
+	modified:   arch/arm64/configs/consolidate.fragment
+	modified:   arch/arm64/configs/defconfig
+	modified:   arch/arm64/configs/gki_defconfig
+	modified:   arch/arm64/configs/vendor/kalama_GKI.config
+	modified:   arch/arm64/configs/vendor/kalama_consolidate.config
+	modified:   arch/arm64/include/asm/pgtable-prot.h
+	modified:   arch/arm64/include/asm/pgtable.h
+	modified:   arch/arm64/include/uapi/asm/setup.h
+	modified:   arch/arm64/kernel/Makefile
+	modified:   arch/arm64/kernel/head.S
+	modified:   arch/arm64/kernel/probes/kprobes.c
+	modified:   arch/arm64/kernel/setup.c
+	modified:   arch/arm64/kernel/vmlinux.lds.S
+	modified:   arch/arm64/mm/mmu.c
+	modified:   arch/arm64/mm/pgd.c
+	modified:   arch/arm64/net/bpf_jit_comp.c
+	modified:   arch/um/Kconfig
+	modified:   arch/um/include/asm/common.lds.S
+	modified:   arch/um/include/asm/io.h
+	modified:   arch/um/kernel/Makefile
+	modified:   block/Kconfig
+	modified:   block/Kconfig.iosched
+	modified:   block/Makefile
+	modified:   block/blk-mq.c
+	modified:   build.config.common
+	modified:   build.config.msm.common
+	modified:   build.config.msm.kalama
+	modified:   build.targets
+	modified:   drivers/Kconfig
+	modified:   drivers/Makefile
+	modified:   drivers/android/binder.c
+	modified:   drivers/android/binder_alloc.c
+	modified:   drivers/android/vendor_hooks.c
+	modified:   drivers/base/Kconfig
+	modified:   drivers/base/Makefile
+	modified:   drivers/base/arch_topology.c
+	modified:   drivers/block/loop.c
+	modified:   drivers/block/zram/Kconfig
+	modified:   drivers/block/zram/zcomp.c
+	modified:   drivers/block/zram/zcomp.h
+	modified:   drivers/block/zram/zram_drv.c
+	modified:   drivers/block/zram/zram_drv.h
+	modified:   drivers/char/adsprpc.c
+	modified:   drivers/char/adsprpc_shared.h
+	modified:   drivers/clk/clk.c
+	modified:   drivers/clk/qcom/clk-debug.c
+	modified:   drivers/clk/qcom/gcc-kalama.c
+	modified:   drivers/connector/Kconfig
+	modified:   drivers/connector/cn_proc.c
+	modified:   drivers/cpufreq/Kconfig
+	modified:   drivers/cpufreq/Makefile
+	modified:   drivers/cpufreq/qcom-cpufreq-hw.c
+	modified:   drivers/cpuidle/governors/Makefile
+	modified:   drivers/dma-buf/dma-heap.c
+	modified:   drivers/dma-buf/heaps/Kconfig
+	modified:   drivers/dma-buf/heaps/Makefile
+	modified:   drivers/dma-buf/heaps/qcom_dma_heap.c
+	modified:   drivers/dma-buf/heaps/qcom_dt_parser.c
+	modified:   drivers/dma-buf/heaps/qcom_dynamic_page_pool.c
+	modified:   drivers/dma-buf/heaps/qcom_secure_system_heap.c
+	modified:   drivers/dma-buf/heaps/qcom_system_heap.c
+	modified:   drivers/dma-buf/heaps/qcom_system_heap.h
+	modified:   drivers/edac/kryo_arm64_edac.c
+	modified:   drivers/firmware/qcom_scm.c
+	modified:   drivers/gpu/drm/drm_atomic.c
+	modified:   drivers/gpu/drm/drm_atomic_uapi.c
+	modified:   drivers/hid/usbhid/hid-core.c
+	modified:   drivers/hid/usbhid/usbhid.h
+	modified:   drivers/hwtracing/coresight/coresight-core.c
+	modified:   drivers/hwtracing/coresight/coresight-stm.c
+	modified:   drivers/i2c/busses/i2c-msm-geni.c
+	modified:   drivers/input/misc/pm8941-pwrkey.c
+	modified:   drivers/interconnect/qcom/icc-debug.c
+	modified:   drivers/interconnect/qcom/kalama.c
+	modified:   drivers/iommu/arm/arm-smmu/arm-smmu-qcom-pm.c
+	modified:   drivers/iommu/arm/arm-smmu/arm-smmu.c
+	modified:   drivers/iommu/arm/arm-smmu/arm-smmu.h
+	modified:   drivers/iommu/iommu.c
+	modified:   drivers/leds/Kconfig
+	modified:   drivers/leds/Makefile
+	modified:   drivers/leds/leds-qti-flash.c
+	modified:   drivers/md/Makefile
+	modified:   drivers/md/dm-verity-target.c
+	modified:   drivers/media/platform/msm/synx/synx.c
+	modified:   drivers/media/platform/msm/synx/synx_util.c
+	modified:   drivers/mfd/Kconfig
+	modified:   drivers/mfd/Makefile
+	modified:   drivers/misc/Kconfig
+	modified:   drivers/misc/Makefile
+	modified:   drivers/mmc/Kconfig
+	modified:   drivers/mmc/core/block.c
+	modified:   drivers/mmc/core/bus.c
+	modified:   drivers/mmc/core/core.c
+	modified:   drivers/mmc/core/core.h
+	modified:   drivers/mmc/core/queue.c
+	modified:   drivers/mmc/core/sd.c
+	modified:   drivers/mmc/host/Kconfig
+	modified:   drivers/mmc/host/Makefile
+	modified:   drivers/mmc/host/sdhci-msm.c
+	modified:   drivers/net/ethernet/broadcom/Makefile
+	deleted:    drivers/net/ethernet/broadcom/tg3.c
+	deleted:    drivers/net/ethernet/broadcom/tg3.h
+	modified:   drivers/nfc/Kconfig
+	modified:   drivers/nfc/Makefile
+	modified:   drivers/of/fdt.c
+	modified:   drivers/of/of_reserved_mem.c
+	modified:   drivers/pci/Kconfig
+	modified:   drivers/pci/controller/pci-msm.c
+	modified:   drivers/phy/phy-core.c
+	modified:   drivers/pinctrl/qcom/Kconfig
+	modified:   drivers/pinctrl/qcom/Makefile
+	modified:   drivers/pinctrl/qcom/pinctrl-msm.c
+	modified:   drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
+	modified:   drivers/power/reset/qcom-dload-mode.c
+	modified:   drivers/power/reset/reboot-mode.c
+	modified:   drivers/regulator/Kconfig
+	modified:   drivers/remoteproc/Kconfig
+	modified:   drivers/remoteproc/Makefile
+	modified:   drivers/remoteproc/qcom_q6v5.c
+	modified:   drivers/remoteproc/qcom_q6v5.h
+	modified:   drivers/remoteproc/qcom_q6v5_pas.c
+	modified:   drivers/rpmsg/qcom_glink_native.c
+	modified:   drivers/rtc/Kconfig
+	modified:   drivers/rtc/Makefile
+	modified:   drivers/rtc/rtc-pm8xxx.c
+	modified:   drivers/scsi/ufs/Kconfig
+	modified:   drivers/scsi/ufs/Makefile
+	modified:   drivers/scsi/ufs/ufs-qcom.c
+	modified:   drivers/scsi/ufs/ufs-qcom.h
+	modified:   drivers/scsi/ufs/ufs.h
+	modified:   drivers/scsi/ufs/ufs_bsg.c
+	modified:   drivers/scsi/ufs/ufshcd.c
+	modified:   drivers/soc/qcom/Kconfig
+	modified:   drivers/soc/qcom/adsp_sleepmon.c
+	modified:   drivers/soc/qcom/dcc_v2.c
+	modified:   drivers/soc/qcom/dcvs/cpufreq_stats_scmi.c
+	modified:   drivers/soc/qcom/glink_pkt.c
+	modified:   drivers/soc/qcom/llcc_perfmon.c
+	modified:   drivers/soc/qcom/memory_dump_v2.c
+	modified:   drivers/soc/qcom/minidump_memory.c
+	modified:   drivers/soc/qcom/qcom_ramdump.c
+	modified:   drivers/soc/qcom/qcom_wdt_core.c
+	modified:   drivers/soc/qcom/qdsp6v2/cdsp-loader.c
+	modified:   drivers/soc/qcom/soc_sleep_stats.c
+	modified:   drivers/soc/qcom/socinfo.c
+	modified:   drivers/soc/qcom/spcom.c
+	modified:   drivers/soc/qcom/subsystem_sleep_stats.c
+	modified:   drivers/soc/qcom/sys_pm_vx.c
+	modified:   drivers/spi/spi-msm-geni.c
+	deleted:    drivers/staging/greybus/tools/Android.mk
+	modified:   drivers/thermal/qcom/bcl_pmic5.c
+	modified:   drivers/thermal/qcom/cpu_hotplug.c
+	modified:   drivers/thermal/qcom/cpu_voltage_cooling.c
+	modified:   drivers/thermal/qcom/qmi_cooling.c
+	modified:   drivers/thermal/qcom/thermal_pause.c
+	modified:   drivers/thermal/qcom/tsens.c
+	modified:   drivers/thermal/thermal_core.c
+	modified:   drivers/tty/serial/msm_geni_serial.c
+	modified:   drivers/tty/sysrq.c
+	modified:   drivers/usb/Kconfig
+	modified:   drivers/usb/Makefile
+	modified:   drivers/usb/core/devio.c
+	modified:   drivers/usb/core/driver.c
+	modified:   drivers/usb/core/hub.c
+	modified:   drivers/usb/core/quirks.c
+	modified:   drivers/usb/core/usb.h
+	modified:   drivers/usb/dwc3/dwc3-msm-core.c
+	modified:   drivers/usb/dwc3/dwc3-msm-ops.c
+	modified:   drivers/usb/dwc3/gadget.c
+	modified:   drivers/usb/gadget/Kconfig
+	modified:   drivers/usb/gadget/composite.c
+	modified:   drivers/usb/gadget/function/Makefile
+	modified:   drivers/usb/gadget/function/f_acm.c
+	modified:   drivers/usb/gadget/function/f_fs.c
+	modified:   drivers/usb/gadget/function/f_mass_storage.c
+	modified:   drivers/usb/gadget/function/u_serial.c
+	modified:   drivers/usb/host/xhci-plat.c
+	modified:   drivers/usb/misc/lvstest.c
+	modified:   drivers/usb/phy/Kconfig
+	modified:   drivers/usb/phy/phy-msm-snps-eusb2.c
+	modified:   drivers/usb/phy/phy-msm-snps-hs.c
+	modified:   drivers/usb/phy/phy-msm-ssusb-qmp.c
+	modified:   drivers/usb/repeater/repeater-i2c-eusb2.c
+	modified:   drivers/usb/storage/debug.h
+	modified:   drivers/usb/storage/scsiglue.c
+	modified:   drivers/usb/storage/transport.c
+	modified:   drivers/usb/storage/uas.c
+	modified:   drivers/usb/storage/usb.c
+	modified:   drivers/virt/gunyah/gh_dbl.c
+	modified:   drivers/virt/gunyah/gh_proxy_sched.c
+	modified:   drivers/virt/gunyah/gh_rm_core.c
+	modified:   drivers/watchdog/softdog.c
+	modified:   fs/d_path.c
+	modified:   fs/erofs/super.c
+	modified:   fs/exec.c
+	modified:   fs/f2fs/super.c
+	modified:   fs/mount.h
+	modified:   fs/namei.c
+	modified:   fs/namespace.c
+	modified:   fs/overlayfs/super.c
+	modified:   fs/pnode.c
+	modified:   fs/pnode.h
+	modified:   fs/proc/Kconfig
+	modified:   fs/proc/Makefile
+	modified:   fs/proc/base.c
+	modified:   fs/proc/internal.h
+	modified:   fs/proc/meminfo.c
+	modified:   fs/proc/task_mmu.c
+	modified:   include/asm-generic/vmlinux.lds.h
+	modified:   include/kunit/test.h
+	modified:   include/linux/cleancache.h
+	modified:   include/linux/cred.h
+	modified:   include/linux/delayacct.h
+	modified:   include/linux/export.h
+	modified:   include/linux/gfp.h
+	modified:   include/linux/highmem.h
+	modified:   include/linux/ieee80211.h
+	modified:   include/linux/iommu.h
+	modified:   include/linux/ipc_logging.h
+	modified:   include/linux/khugepaged.h
+	modified:   include/linux/leds-qti-flash.h
+	modified:   include/linux/memblock.h
+	modified:   include/linux/mm.h
+	modified:   include/linux/mount.h
+	modified:   include/linux/msm_pcie.h
+	modified:   include/linux/netfilter.h
+	modified:   include/linux/notifier.h
+	modified:   include/linux/qcom_dma_heap_dt_constants.h
+	modified:   include/linux/remoteproc.h
+	modified:   include/linux/rmap.h
+	modified:   include/linux/sched.h
+	modified:   include/linux/security.h
+	modified:   include/linux/swap.h
+	modified:   include/linux/usb/repeater.h
+	modified:   include/linux/vmstat.h
+	modified:   include/net/cfg80211.h
+	modified:   include/net/xfrm.h
+	modified:   include/soc/qcom/watchdog.h
+	modified:   include/trace/events/mmflags.h
+	modified:   include/trace/hooks/usb.h
+	modified:   include/uapi/asm-generic/mman-common.h
+	modified:   include/uapi/linux/android/binder.h
+	modified:   include/uapi/linux/magic.h
+	modified:   include/uapi/linux/nl80211.h
+	modified:   include/uapi/linux/qseecom.h
+	modified:   init/Kconfig
+	modified:   init/init_task.c
+	modified:   init/main.c
+	modified:   kernel/audit.c
+	modified:   kernel/auditsc.c
+	modified:   kernel/bpf/core.c
+	modified:   kernel/cfi.c
+	modified:   kernel/cred.c
+	modified:   kernel/delayacct.c
+	modified:   kernel/dma/contiguous.c
+	modified:   kernel/fork.c
+	modified:   kernel/irq/irqdomain.c
+	modified:   kernel/kprobes.c
+	modified:   kernel/locking/rwsem.c
+	modified:   kernel/module.c
+	modified:   kernel/power/Kconfig
+	modified:   kernel/printk/printk.c
+	modified:   kernel/rcu/rcu.h
+	modified:   kernel/rcu/srcutiny.c
+	modified:   kernel/rcu/srcutree.c
+	modified:   kernel/rcu/tasks.h
+	modified:   kernel/rcu/tiny.c
+	modified:   kernel/rcu/tree.c
+	modified:   kernel/sched/psi.c
+	modified:   kernel/sched/walt/Kconfig
+	modified:   kernel/sched/walt/Makefile
+	modified:   kernel/sched/walt/boost.c
+	modified:   kernel/sched/walt/cpufreq_walt.c
+	modified:   kernel/sched/walt/sched_avg.c
+	modified:   kernel/sched/walt/trace.h
+	modified:   kernel/sched/walt/walt.c
+	modified:   kernel/sched/walt/walt.h
+	modified:   kernel/sched/walt/walt_cfs.c
+	modified:   kernel/signal.c
+	modified:   kernel/sysctl.c
+	modified:   kernel/time/sched_clock.c
+	modified:   kernel/trace/Makefile
+	modified:   kernel/trace/ipc_logging.c
+	modified:   kernel/trace/ipc_logging_private.h
+	modified:   kernel/trace/msm_rtb.c
+	modified:   kernel/trace/trace.c
+	modified:   kernel/trace/trace_output.c
+	modified:   lib/Kconfig.debug
+	modified:   lib/kunit/Kconfig
+	modified:   lib/kunit/Makefile
+	modified:   lib/kunit/executor.c
+	modified:   lib/kunit/kunit-example-test.c
+	modified:   lib/kunit/string-stream-test.c
+	modified:   lib/kunit/string-stream.c
+	modified:   lib/kunit/test.c
+	modified:   lib/show_mem.c
+	modified:   mm/Kconfig
+	modified:   mm/Makefile
+	modified:   mm/cleancache.c
+	modified:   mm/cma.c
+	modified:   mm/compaction.c
+	modified:   mm/filemap.c
+	modified:   mm/huge_memory.c
+	modified:   mm/internal.h
+	modified:   mm/madvise.c
+	modified:   mm/memblock.c
+	modified:   mm/memcontrol.c
+	modified:   mm/memory.c
+	modified:   mm/migrate.c
+	modified:   mm/mmap.c
+	modified:   mm/page_alloc.c
+	modified:   mm/page_io.c
+	modified:   mm/rmap.c
+	modified:   mm/shmem.c
+	modified:   mm/slab.h
+	modified:   mm/slub.c
+	modified:   mm/swapfile.c
+	modified:   mm/vmalloc.c
+	modified:   mm/vmscan.c
+	modified:   mm/vmstat.c
+	modified:   mm/zsmalloc.c
+	modified:   mm/zswap.c
+	modified:   modules.list.msm.kalama
+	modified:   net/core/dev.c
+	modified:   net/core/filter.c
+	modified:   net/core/gro_cells.c
+	modified:   net/core/skbuff.c
+	modified:   net/ipv4/ip_gre.c
+	modified:   net/ipv4/ip_input.c
+	modified:   net/ipv4/netfilter/ip_tables.c
+	modified:   net/ipv4/udp.c
+	modified:   net/ipv6/ip6_input.c
+	modified:   net/ipv6/netfilter/ip6_tables.c
+	modified:   net/ipv6/udp.c
+	modified:   net/mac80211/mlme.c
+	modified:   net/mac80211/scan.c
+	modified:   net/mac80211/tdls.c
+	modified:   net/mac80211/util.c
+	modified:   net/netfilter/core.c
+	modified:   net/qrtr/Kconfig
+	modified:   net/qrtr/gunyah.c
+	modified:   net/qrtr/ns.c
+	modified:   net/qrtr/qrtr.c
+	modified:   net/wireless/mlme.c
+	modified:   net/wireless/nl80211.c
+	modified:   net/wireless/rdev-ops.h
+	modified:   net/wireless/trace.h
+	modified:   net/xfrm/xfrm_policy.c
+	modified:   net/xfrm/xfrm_state.c
+	modified:   scripts/Makefile.lib
+	modified:   scripts/checkpatch.pl
+	modified:   scripts/mod/modpost.c
+	modified:   scripts/setlocalversion
+	modified:   security/Kconfig
+	modified:   security/security.c
+	modified:   security/selinux/Makefile
+	modified:   security/selinux/avc.c
+	modified:   security/selinux/hooks.c
+	modified:   security/selinux/include/avc.h
+	modified:   security/selinux/include/avc_ss.h
+	modified:   security/selinux/include/objsec.h
+	modified:   security/selinux/include/security.h
+	modified:   security/selinux/netif.c
+	modified:   security/selinux/netnode.c
+	modified:   security/selinux/netport.c
+	modified:   security/selinux/selinuxfs.c
+	modified:   security/selinux/ss/policydb.c
+	modified:   security/selinux/ss/services.c
+	modified:   security/selinux/status.c
+	modified:   sound/core/control.c
+	modified:   sound/core/pcm_lib.c
+	modified:   sound/soc/codecs/Kconfig
+	modified:   sound/soc/codecs/Makefile
+	modified:   sound/soc/codecs/wm_adsp.c
+	modified:   sound/soc/codecs/wm_adsp.h
+	modified:   sound/soc/samsung/Kconfig
+	modified:   sound/soc/samsung/Makefile
+	modified:   sound/soc/soc-core.c
+	modified:   sound/usb/card.c
+	modified:   sound/usb/usb_audio_qmi_svc.c
+	modified:   tools/testing/kunit/configs/default.config
+	modified:   tools/testing/kunit/kunit.py
+	modified:   tools/testing/kunit/kunit_config.py
+	modified:   tools/testing/kunit/kunit_kernel.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.legofile
+	android/samsung_system_dlkm_modules
+	arch/arm64/boot/dts/samsung/
+	arch/arm64/boot/dts/vendor
+	arch/arm64/configs/vendor/kalama-gki_defconfig
+	arch/arm64/configs/vendor/kalama_sec_defconfig
+	arch/arm64/configs/vendor/kalama_sec_eng_defconfig
+	arch/arm64/configs/vendor/kalama_sec_userdebug_defconfig
+	arch/arm64/kernel/uh_entry.S
+	arch/um/include/asm/io-mock-shared.h
+	arch/um/include/asm/io-mock.h
+	arch/um/kernel/io-mock.c
+	block/blk-sec-stat-pio.c
+	block/blk-sec-stat-traffic.c
+	block/blk-sec-stat.c
+	block/blk-sec-stats.h
+	block/ssg-cgroup.c
+	block/ssg-iosched.c
+	block/ssg-stat.c
+	block/ssg-wb.c
+	block/ssg.h
+	build.config.msm.kalama.sec
+	build.config.sec
+	cg.log
+	ch.log
+	drivers/adsp_factory/
+	drivers/base/platform-mock.c
+	drivers/battery/
+	drivers/cpufreq/cpufreq_limit.c
+	drivers/cpuidle/governors/qcom-lpm-sec-extra.c
+	drivers/dma-buf/heaps/rbin_heap.c
+	drivers/dma-buf/heaps/rbincache.c
+	drivers/dma-buf/heaps/rbinregion.c
+	drivers/dma-buf/heaps/rbinregion.h
+	drivers/fingerprint/
+	drivers/firmware/cirrus/
+	drivers/hwmon/sec_thermistor/
+	drivers/input/air/
+	drivers/input/input_boost/
+	drivers/input/misc/hall/
+	drivers/input/sec_input/
+	drivers/kperfmon/
+	drivers/leds/leds-s2mpb02.c
+	drivers/md/alta_bigdata.c
+	drivers/md/dm-verity-debug.c
+	drivers/md/dm-verity-debug.h
+	drivers/mfd/maxim/
+	drivers/mfd/sec_ap_pmic.c
+	drivers/mfd/slsi/
+	drivers/misc/drb/
+	drivers/misc/mz_tee_driver_qc.c
+	drivers/misc/tzdev/
+	drivers/mmc/host/mmc-sec-feature.c
+	drivers/mmc/host/mmc-sec-feature.h
+	drivers/mmc/host/mmc-sec-sysfs.c
+	drivers/mmc/host/mmc-sec-sysfs.h
+	drivers/muic/
+	drivers/net/dropdump/
+	drivers/nfc/common.c
+	drivers/nfc/common.h
+	drivers/nfc/common_ese.c
+	drivers/nfc/common_ese.h
+	drivers/nfc/ese_reset.c
+	drivers/nfc/ese_reset.h
+	drivers/nfc/i2c_drv.c
+	drivers/nfc/i2c_drv.h
+	drivers/nfc/nfc_logger/
+	drivers/nfc/nfc_wakelock.h
+	drivers/nfc/p73.c
+	drivers/nfc/p73.h
+	drivers/nfc/recovery_fw.c
+	drivers/nfc/snvm/
+	drivers/optics/
+	drivers/pinctrl/qcom/secgpio_dvs.c
+	drivers/pinctrl/qcom/secgpio_dvs.h
+	drivers/regulator/pmic_class/
+	drivers/regulator/s2mpb02/
+	drivers/rtc/sec_pon_alarm.c
+	drivers/samsung/
+	drivers/scsi/ufs/ufs-sec-feature.c
+	drivers/scsi/ufs/ufs-sec-feature.h
+	drivers/scsi/ufs/ufs-sec-sysfs.c
+	drivers/scsi/ufs/ufs-sec-sysfs.h
+	drivers/sec_panel_notifier/
+	drivers/secdp/
+	drivers/sensors/
+	drivers/sensors_lego/
+	drivers/sti/
+	drivers/switch/
+	drivers/tty/serial/msm_geni_serial_proc_log.c
+	drivers/tty/serial/msm_geni_serial_proc_log.h
+	drivers/uh/
+	drivers/usb/common/vbus_notifier/
+	drivers/usb/gadget/function/f_conn_gadget.c
+	drivers/usb/gadget/function/f_conn_gadget.ioctl.h
+	drivers/usb/gadget/function/f_ss_acm.c
+	drivers/usb/gadget/function/f_ss_mon_gadget.c
+	drivers/usb/notify/
+	drivers/usb/typec/common/
+	drivers/usb/typec/manager/
+	drivers/usb/typec/maxim/
+	drivers/vibrator/
+	extmod.mk
+	firmware/
+	fs/proc/proc_avc.c
+	include/dt-bindings/battery/
+	include/dt-bindings/msm-camera.h
+	include/dt-bindings/samsung/
+	include/kunit/kunit-stream.h
+	include/kunit/kunit_manager.h
+	include/kunit/mock.h
+	include/kunit/params.h
+	include/kunit/strerror.h
+	include/kunit/string-stream.h
+	include/linux/adsp/
+	include/linux/battery/
+	include/linux/cpufreq_limit.h
+	include/linux/dev_ril_bridge.h
+	include/linux/external_notify.h
+	include/linux/firmware/cirrus/
+	include/linux/hall/
+	include/linux/hdm.h
+	include/linux/host_notify.h
+	include/linux/hugepage_pool.h
+	include/linux/input/input_booster.h
+	include/linux/io_record.h
+	include/linux/kdp.h
+	include/linux/leds-s2mpb02.h
+	include/linux/mfd/firmware/
+	include/linux/mfd/max77705-private.h
+	include/linux/mfd/max77705.h
+	include/linux/mfd/max77705C_bolt_pass2.h
+	include/linux/mfd/max77705C_pass2.h
+	include/linux/mfd/max77705C_pass2_PID03.h
+	include/linux/mfd/max77705_extra.h
+	include/linux/mfd/max77705_pass3.h
+	include/linux/mfd/max77705_pass4.h
+	include/linux/mfd/samsung/s2mpb02-regulator.h
+	include/linux/mfd/samsung/s2mpb02.h
+	include/linux/mfd/sec_ap_pmic.h
+	include/linux/muic/
+	include/linux/mz.h
+	include/linux/olog.pb.h
+	include/linux/ologk.h
+	include/linux/perflog.h
+	include/linux/platform_data/sec_thermistor.h
+	include/linux/platform_device_mock.h
+	include/linux/proc_avc.h
+	include/linux/regulator/pmic_class.h
+	include/linux/rkp.h
+	include/linux/samsung/
+	include/linux/sec_class.h
+	include/linux/sec_debug.h
+	include/linux/sec_panel_notifier.h
+	include/linux/sec_param.h
+	include/linux/sec_pm_log.h
+	include/linux/sensor/
+	include/linux/soc/qcom/cdsp-loader.h
+	include/linux/sti/
+	include/linux/switch.h
+	include/linux/uh.h
+	include/linux/usb/f_ss_mon_gadget.h
+	include/linux/usb/typec/
+	include/linux/usb_hw_param.h
+	include/linux/usb_notify.h
+	include/linux/usblog_proc_notify.h
+	include/linux/vbus_notifier.h
+	include/linux/vibrator/
+	include/net/dropdump.h
+	include/soc/qcom/adsp_sleepmon.h
+	include/sound/cirrus/
+	include/sound/cs35l43.h
+	include/sound/cs35l45.h
+	include/sound/samsung/
+	include/trace/events/sec_gmr.h
+	include/trace/events/tracing_mark_write.h
+	include/trace/hooks/xhci.h
+	kernel/sched/walt/hyst_qos.c
+	kernel/sched/walt/hyst_qos.h
+	kernel/trace/ipc_logging_proc.c
+	kernel/trace/trace_tracing_mark_write.c
+	kunitconfigs/
+	lego.config
+	lib/kunit/common-mocks.c
+	lib/kunit/kunit-stream.c
+	lib/kunit/kunit_manager.c
+	lib/kunit/kunit_notifier.c
+	lib/kunit/kunit_notifier.h
+	lib/kunit/mock-macro-test.c
+	lib/kunit/mock-test.c
+	lib/kunit/mock.c
+	lib/kunit/strerror-test.c
+	lib/kunit/strerror.c
+	mm/io_record.c
+	mm/kzerod.c
+	mm/sec_mm/
+	modules.vendor_blocklist.kunit
+	print.txt
+	scripts/lego/
+	sound/soc/codecs/bigdata_cirrus_sysfs_cb.c
+	sound/soc/codecs/cirrus-amp.c
+	sound/soc/codecs/cirrus-bd.c
+	sound/soc/codecs/cirrus-cal-cs35l43.c
+	sound/soc/codecs/cirrus-cal-cspl.c
+	sound/soc/codecs/cirrus-cal.c
+	sound/soc/codecs/cirrus-pwr.c
+	sound/soc/codecs/cs35l43-i2c.c
+	sound/soc/codecs/cs35l43-spi.c
+	sound/soc/codecs/cs35l43-tables.c
+	sound/soc/codecs/cs35l43.c
+	sound/soc/codecs/cs35l43.h
+	sound/soc/codecs/cs35l45-i2c.c
+	sound/soc/codecs/cs35l45-spi.c
+	sound/soc/codecs/cs35l45-tables.c
+	sound/soc/codecs/cs35l45.c
+	sound/soc/codecs/cs35l45.h
+	sound/soc/codecs/cs40l26-a2h.c
+	sound/soc/samsung/sec_audio_sysfs.c
+	sound/soc/samsung/snd_debug_proc.c
+	tools/cc-wrapper
+	tools/testing/kunit/insert_kunit/
+
+no changes added to commit (use "git add" and/or "git commit -a")
