@@ -235,7 +235,7 @@ LIBUFDT_PREBUILTS_BIN=tools/libufdt/utils/src
 function make_dtbo_img() {
   mkdir -p ${DIST_DIR}/
 
-  find ${OUT_DIR} -name  "*.dtbo" -exec cp "{}" ${DIST_DIR}/ \;
+  find ${OUT_DIR} -name  "${MODEL}_${REGION}_*.dtbo" -exec cp "{}" ${DIST_DIR}/ \;
 
   mkdtboimg.py create ${DIST_DIR}/dtbo.img --page_size=${PAGE_SIZE} ${DIST_DIR}/${MODEL}_${REGION}_*.dtbo
 }
