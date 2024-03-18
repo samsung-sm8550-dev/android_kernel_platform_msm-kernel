@@ -1,0 +1,36 @@
+# SAMSUNG configuration options
+
+config MACH_SAMSUNG
+	bool "Samsung device"
+	depends on ARCH_QCOM
+	help
+	  Support for Samsung products
+
+config MACH_SAMSUNG_SM8550
+	bool "Samsung SM8550"
+	depends on ARCH_QCOM
+	select MACH_SAMSUNG
+	help
+	  Support for Samsung SM8550 devices
+
+menu "SAMSUNG board selection"
+
+	config MACH_SAMSUNG_DM1Q
+		bool "Samsung dm1q board"
+		select MACH_SAMSUNG_SM8550
+		help
+		  Support for Galaxy S23
+
+	config MACH_SAMSUNG_DM2Q
+		bool "Samsung dm2q board"
+		select MACH_SAMSUNG_SM8550
+		help
+		  Support for Galaxy S23 Plus
+
+	config MACH_SAMSUNG_DM3Q
+		bool "Samsung dm3q board"
+		select MACH_SAMSUNG_SM8550
+		help
+		  Support for Galaxy S23 Ultra
+
+endmenu
