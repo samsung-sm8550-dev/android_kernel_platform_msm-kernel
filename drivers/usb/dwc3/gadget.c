@@ -460,6 +460,8 @@ static int dwc3_send_clear_stall_ep_cmd(struct dwc3_ep *dep)
 	struct dwc3_gadget_ep_cmd_params params;
 	u32 cmd = DWC3_DEPCMD_CLEARSTALL;
 
+	dump_stack();
+
 	/*
 	 * As of core revision 2.60a the recommended programming model
 	 * is to set the ClearPendIN bit when issuing a Clear Stall EP
@@ -2633,8 +2635,10 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
 	synchronize_irq(dwc->irq_gadget);
 
 	if (!is_on) {
+		pr_err("[dwc3 debug] %s: dwc3 pullup 0\n", __func__);
 		ret = dwc3_gadget_soft_disconnect(dwc);
 	} else {
+		pr_err("[dwc3 debug] %s: dwc3 pullup 1\n", __func__);
 		/*
 		 * In the Synopsys DWC_usb31 1.90a programming guide section
 		 * 4.1.9, it specifies that for a reconnect after a
@@ -2660,6 +2664,7 @@ static void dwc3_gadget_enable_irq(struct dwc3 *dwc)
 {
 	u32			reg;
 
+	pr_err("[dwc3 debug] %s: dwc3 irq enable\n", __func__);
 	/* Enable all but Start and End of Frame IRQs */
 	reg = (DWC3_DEVTEN_EVNTOVERFLOWEN |
 			DWC3_DEVTEN_CMDCMPLTEN |
@@ -2682,6 +2687,7 @@ static void dwc3_gadget_enable_irq(struct dwc3 *dwc)
 static void dwc3_gadget_disable_irq(struct dwc3 *dwc)
 {
 	/* mask all interrupts */
+	pr_err("[dwc3 debug] %s: dwc3 irq disable\n", __func__);
 	dwc3_writel(dwc->regs, DWC3_DEVTEN, 0x00);
 }
 
@@ -3921,6 +3927,7 @@ static void dwc3_gadget_reset_interrupt(struct dwc3 *dwc)
 	reg = dwc3_readl(dwc->regs, DWC3_DCFG);
 	reg &= ~(DWC3_DCFG_DEVADDR_MASK);
 	dwc3_writel(dwc->regs, DWC3_DCFG, reg);
+	dwc->link_state = DWC3_LINK_STATE_RESET;
 }
 
 static void dwc3_gadget_conndone_interrupt(struct dwc3 *dwc)
@@ -4083,6 +4090,7 @@ static void dwc3_gadget_wakeup_interrupt(struct dwc3 *dwc)
 		dwc->gadget_driver->resume(dwc->gadget);
 		spin_lock(&dwc->lock);
 	}
+	dwc->link_state = DWC3_LINK_STATE_RESUME;
 }
 
 static void dwc3_gadget_linksts_change_interrupt(struct dwc3 *dwc,
